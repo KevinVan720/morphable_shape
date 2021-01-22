@@ -6,16 +6,21 @@ import 'package:flutter_class_parser/toJson.dart';
 import '../MorphableShapeBorder.dart';
 
 class CutCornerShape extends Shape {
-  final BorderRadius borderRadius;
+  DynamicBorderRadius borderRadius;
 
-  const CutCornerShape({this.borderRadius=const BorderRadius.all(Radius.zero)});
+  CutCornerShape(
+      {this.borderRadius = const DynamicBorderRadius.all(DynamicRadius.zero)});
+
+  Shape copyWith({DynamicBorderRadius? borderRadius}) {
+    return CutCornerShape(borderRadius: borderRadius ?? this.borderRadius);
+  }
 
   CutCornerShape.fromJson(Map<String, dynamic> map)
-      : borderRadius = parseBorderRadius(map["borderRadius"])??BorderRadius.zero;
+      : borderRadius = DynamicBorderRadius.all(DynamicRadius.zero);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst={"name": this.runtimeType};
-    rst["borderRadius"]=borderRadius.toJson();
+    Map<String, dynamic> rst = {"name": this.runtimeType};
+
     return rst;
   }
 
@@ -24,40 +29,40 @@ class CutCornerShape extends Shape {
 
     List<DynamicNode> nodes = [];
 
-    final topLeftDiameter = max(borderRadius.topLeft.x, 0);
-    final topRightDiameter = max(borderRadius.topRight.x, 0);
-    final bottomLeftDiameter = max(borderRadius.bottomLeft.x, 0);
-    final bottomRightDiameter = max(borderRadius.bottomRight.x, 0);
+    BorderRadius borderRadius = this.borderRadius.toBorderRadius(size);
 
-    nodes.add(DynamicNode(position: Offset(rect.left + topLeftDiameter, rect.top)));
-    nodes.add(DynamicNode(position: Offset(rect.right - topRightDiameter, rect.top)));
-    nodes.add(DynamicNode(position: Offset(rect.right, rect.top + topRightDiameter)));
-    nodes.add(DynamicNode(position: Offset(rect.right, rect.bottom - bottomRightDiameter)));
-    nodes.add(DynamicNode(position: Offset(rect.right - bottomRightDiameter, rect.bottom)));
-    nodes.add(DynamicNode(position: Offset(rect.left + bottomLeftDiameter, rect.bottom)));
-    nodes.add(DynamicNode(position: Offset(rect.left, rect.bottom - bottomLeftDiameter)));
-    nodes.add(DynamicNode(position: Offset(rect.left, rect.top + topLeftDiameter)));
-    nodes.add(DynamicNode(position: Offset(rect.left + topLeftDiameter, rect.top)));
+    final topLeftRadius = borderRadius.topLeft.x.clamp(0, size.width / 2);
+    final topRightRadius = borderRadius.topRight.x.clamp(0, size.width / 2);
+    final bottomLeftRadius = borderRadius.bottomLeft.x.clamp(0, size.width / 2);
+    final bottomRightRadius =
+        borderRadius.bottomRight.x.clamp(0, size.width / 2);
+
+    final leftTopRadius = borderRadius.topLeft.y.clamp(0, size.height / 2);
+    final rightTopRadius = borderRadius.topRight.y.clamp(0, size.height / 2);
+    final leftBottomRadius =
+        borderRadius.bottomLeft.y.clamp(0, size.height / 2);
+    final rightBottomRadius =
+        borderRadius.bottomRight.y.clamp(0, size.height / 2);
+
+    nodes.add(
+        DynamicNode(position: Offset(rect.left + topLeftRadius, rect.top)));
+    nodes.add(
+        DynamicNode(position: Offset(rect.right - topRightRadius, rect.top)));
+    nodes.add(
+        DynamicNode(position: Offset(rect.right, rect.top + rightTopRadius)));
+    nodes.add(DynamicNode(
+        position: Offset(rect.right, rect.bottom - rightBottomRadius)));
+    nodes.add(DynamicNode(
+        position: Offset(rect.right - bottomRightRadius, rect.bottom)));
+    nodes.add(DynamicNode(
+        position: Offset(rect.left + bottomLeftRadius, rect.bottom)));
+    nodes.add(DynamicNode(
+        position: Offset(rect.left, rect.bottom - leftBottomRadius)));
+    nodes.add(
+        DynamicNode(position: Offset(rect.left, rect.top + leftTopRadius)));
+    nodes.add(
+        DynamicNode(position: Offset(rect.left + topLeftRadius, rect.top)));
 
     return DynamicPath(nodes: nodes, size: size);
-  }
-
-  Path generatePath({double scale=1, Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
-    final topLeftDiameter = max(borderRadius.topLeft.x, 0);
-    final topRightDiameter = max(borderRadius.topRight.x, 0);
-    final bottomLeftDiameter = max(borderRadius.bottomLeft.x, 0);
-    final bottomRightDiameter = max(borderRadius.bottomRight.x, 0);
-
-    return Path()
-      ..moveTo(rect.left + topLeftDiameter, rect.top)
-      ..lineTo(rect.right - topRightDiameter, rect.top)
-      ..lineTo(rect.right, rect.top + topRightDiameter)
-      ..lineTo(rect.right, rect.bottom - bottomRightDiameter)
-      ..lineTo(rect.right - bottomRightDiameter, rect.bottom)
-      ..lineTo(rect.left + bottomLeftDiameter, rect.bottom)
-      ..lineTo(rect.left, rect.bottom - bottomLeftDiameter)
-      ..lineTo(rect.left, rect.top + topLeftDiameter)
-      ..lineTo(rect.left + topLeftDiameter, rect.top)
-      ..close();
   }
 }

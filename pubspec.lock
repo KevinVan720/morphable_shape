@@ -60,7 +60,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "3ba06fdb697d3d542b2f90de8de099c324fddfcd"
+      resolved-ref: b4edbd35ebabd8866ec098a091f1388a0a4d52e9
       url: "https://github.com/KevinVan720/flutter_class_parser"
     source: git
     version: "0.0.1"
@@ -69,6 +69,15 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  length_unit:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: e71c3d5ca34c2e08380119d9229824f034acdd53
+      url: "https://github.com/KevinVan720/length_unit"
+    source: git
+    version: "0.0.1"
   matcher:
     dependency: transitive
     description:
@@ -90,13 +99,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0-nullsafety.3"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.5"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -144,13 +146,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.19-nullsafety.6"
-  tuple:
-    dependency: "direct main"
-    description:
-      name: tuple
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.3"
   typed_data:
     dependency: transitive
     description:

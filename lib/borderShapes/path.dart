@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../MorphableShapeBorder.dart';
@@ -11,17 +10,17 @@ class PathShape extends Shape {
 
   ///not implemented for now
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst={"name": this.runtimeType};
+    Map<String, dynamic> rst = {"name": this.runtimeType};
     return rst;
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
-    return DynamicPath(size: rect.size, nodes: []);
+  PathShape copyWith({
+    DynamicPath? path,
+  }) {
+    return PathShape(path: path ?? this.path);
   }
 
-  Path generatePath({Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
-
-    final Path path =this.path.getPath(rect.size);
+  DynamicPath generateDynamicPath(Rect rect) {
 
     return path;
   }

@@ -5,7 +5,7 @@ import '../MorphableShapeBorder.dart';
 
 class DiamondShape extends Shape {
 
-  const DiamondShape();
+  DiamondShape();
 
   DiamondShape.fromJson(Map<String, dynamic> map);
 
@@ -13,6 +13,10 @@ class DiamondShape extends Shape {
     Map<String, dynamic> rst={"name": this.runtimeType};
     return rst;
   }
+  Shape copyWith() {
+    return BubbleShape();
+  }
+
 
   DynamicPath generateDynamicPath(Rect rect) {
     final size = rect.size;
@@ -30,17 +34,4 @@ class DiamondShape extends Shape {
     return DynamicPath(nodes: nodes, size: size);
   }
 
-  Path generatePath({double scale=1, Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
-
-    Size size=rect.size;
-
-    final Path path = new Path();
-    path.moveTo(size.width/2, 0);
-    path.lineTo(size.width, size.height/2);
-    path.lineTo(size.width/2, size.height);
-    path.lineTo(0, size.height/2);
-    path.close();
-
-    return path;
-  }
 }

@@ -4,13 +4,17 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.11.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   morphable_shape:
     path: ../
+
+  length_unit:
+    git: https://github.com/KevinVan720/length_unit
+
 
 dev_dependencies:
   flutter_test:

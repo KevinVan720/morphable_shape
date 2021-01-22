@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/MorphableShapeBorder.dart';
+import 'package:length_unit/length_unit.dart';
+import 'dart:math';
 
 void main() => runApp(MyApp());
 
@@ -28,11 +30,10 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  DynamicPath path;
+
   Shape startShape;
   Shape endShape;
-  MorphableShapeBorder startBorder;
-  MorphableShapeBorder endBorder;
+
   int selectedNodeIndex;
   double nodeSize = 8;
   Size shapeSize = Size(400, 400);
@@ -41,20 +42,23 @@ class MyHomePageState extends State<MyHomePage>
   AnimationController controller;
   Animation animation;
 
-  static int gridCount=30;
+  static int gridCount = 30;
 
   @override
   void initState() {
     super.initState();
-    path = TriangleShape().generateDynamicPath(
+    //startShape = StarShape(cornerRadius: Length(250), corners: 5);
+    startShape=BubbleShape();
+
+    DynamicPath path = StarShape(cornerRadius: Length(0), corners: 4)
+        .generateDynamicPath(
             Rect.fromLTRB(0, 0, shapeSize.width, shapeSize.height));
-
-
+    endShape = PathShape(path: path);
 
     controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
     Animation curve =
-    CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+        CurvedAnimation(parent: controller, curve: Curves.easeInOut);
 
     animation = Tween(begin: 0.0, end: 1.0).animate(curve)
       ..addStatusListener((status) {
@@ -64,27 +68,25 @@ class MyHomePageState extends State<MyHomePage>
       });
 
     controller.forward();
-
   }
 
   @override
   Widget build(BuildContext context) {
 
-    startShape = PathShape(path: path);
-    endShape = TriangleShape();
+    MorphableShapeBorder startBorder;
+    MorphableShapeBorder endBorder;
 
-    startBorder = MorphableShapeBorder(shape: startShape);
+    startBorder = MorphableShapeBorder(shape: startShape, borderColor: Colors.redAccent, borderWidth: 10);
     endBorder = MorphableShapeBorder(shape: endShape);
 
     MorphableShapeBorderTween shapeBorderTween =
-    MorphableShapeBorderTween(begin: startBorder, end: endBorder);
+        MorphableShapeBorderTween(begin: startBorder, end: endBorder);
 
     List<Widget> stackedComponents = [
       Container(
         width: shapeSize.width + nodeSize * 2,
         height: shapeSize.height + nodeSize * 2,
       ),
-
       Positioned(
         left: nodeSize,
         top: nodeSize,
@@ -102,20 +104,31 @@ class MyHomePageState extends State<MyHomePage>
       Positioned(
         left: nodeSize,
         top: nodeSize,
-        child: CustomPaint(
-          painter: MyPainter(path.getPath(shapeSize)),
-          child: Container(
-            decoration:
-            BoxDecoration(border: Border.all(color: Colors.blueAccent)),
-            width: shapeSize.width,
-            height: shapeSize.height,
-          ),
+        child: Container(
+          decoration:
+              BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+          width: shapeSize.width,
+          height: shapeSize.height,
         ),
       ),
     ];
 
     if (isEditingPath) {
-      stackedComponents.addAll(buildPathEdittingWidgets(path));
+      if (startShape is PathShape) {
+        stackedComponents.addAll(buildPathEdittingWidgets(startShape));
+      }
+      if (startShape is ArcShape) {
+        stackedComponents.addAll(buildArcEditingWidgets(startShape));
+      }
+      if (startShape is BubbleShape) {
+        stackedComponents.addAll(buildBubbleEditingWidgets(startShape));
+      }
+      if (startShape is CutCornerShape) {
+        stackedComponents.addAll(buildCutCornerEditingWidgets(startShape));
+      }
+      if (startShape is PolygonShape) {
+        stackedComponents.addAll(buildPolygonEditingWidgets(startShape));
+      }
     } else {
       stackedComponents.add(buildResizeHandles(-1, -1));
       stackedComponents.add(buildResizeHandles(-1, 1));
@@ -162,9 +175,9 @@ class MyHomePageState extends State<MyHomePage>
     );
   }
 
-  Widget addControlPointWidget(DynamicPath path,int index) {
+  Widget addControlPointWidget(DynamicPath path, int index) {
     int nextIndex = (index + 1) % path.nodes.length;
-    List<Offset> controlPoints = path.getControlPointsAt(index);
+    List<Offset> controlPoints = path.getCubicControlPointsAt(index);
     Offset tempPoint;
     List<Offset> splittedControlPoints;
 
@@ -194,6 +207,7 @@ class MyHomePageState extends State<MyHomePage>
             } else {
               path.nodes.insert(index + 1, DynamicNode(position: tempPoint));
             }
+            startShape=PathShape(path: path);
             selectedNodeIndex = null;
           });
         },
@@ -207,13 +221,13 @@ class MyHomePageState extends State<MyHomePage>
     );
   }
 
-  List<Widget> buildPathEdittingWidgets(DynamicPath path) {
+  List<Widget> buildPathEdittingWidgets(PathShape shape) {
+    DynamicPath path = shape.path;
+    path.resize(shapeSize);
     List<Widget> nodeControls = [];
     if (selectedNodeIndex != null) {
       DynamicNode tempSelectedNode =
           path.getNodeWithControlPoints(selectedNodeIndex);
-      int nextIndex = (selectedNodeIndex + 1) % path.nodes.length;
-      int prevIndex = (selectedNodeIndex - 1) % path.nodes.length;
       nodeControls.add(Positioned(
           left: nodeSize,
           top: nodeSize,
@@ -245,8 +259,11 @@ class MyHomePageState extends State<MyHomePage>
                 onPanUpdate: (DragUpdateDetails details) {
                   setState(() {
                     if (selectedNodeIndex == index) {
-                    path.updateNode(
-                        index, Offset(details.delta.dx, details.delta.dy));
+                      path.updateNode(
+                          index, Offset(details.delta.dx, details.delta.dy));
+                      startShape=shape.copyWith(
+                        path: path
+                      );
                     }
                   });
                 },
@@ -280,6 +297,9 @@ class MyHomePageState extends State<MyHomePage>
                   true,
                   tempSelectedNode.prevControlPoints +
                       Offset(details.delta.dx, details.delta.dy));
+              startShape=shape.copyWith(
+                  path: path
+              );
               //path.nodes[index].position+=Offset(details.delta.dx, details.delta.dy);
             });
           },
@@ -302,6 +322,9 @@ class MyHomePageState extends State<MyHomePage>
                   false,
                   tempSelectedNode.nextControlPoints +
                       Offset(details.delta.dx, details.delta.dy));
+              startShape=shape.copyWith(
+                  path: path
+              );
               //path.nodes[index].position+=Offset(details.delta.dx, details.delta.dy);
             });
           },
@@ -314,6 +337,589 @@ class MyHomePageState extends State<MyHomePage>
         ),
       ));
     }
+
+    return nodeControls;
+  }
+
+  Widget dynamicShapeEditingDragWidget(
+      {Offset position, Function onDragUpdate}) {
+    return Positioned(
+      left: position.dx,
+      top: position.dy,
+      child: GestureDetector(
+        onPanUpdate: onDragUpdate,
+        child: Container(
+          width: 2 * nodeSize,
+          height: 2 * nodeSize,
+          decoration: BoxDecoration(
+              color: Colors.amber, border: Border.all(color: Colors.black)),
+        ),
+      ),
+    );
+  }
+
+  Length updateLength(Length length,
+      {double constraintSize,
+      double minimumSize = 0.1,
+      double maximumSize = double.infinity,
+      Offset delta,
+      double Function(Offset) offsetToDelta}) {
+    double newValue =
+        length.toPX(constraintSize: constraintSize) + offsetToDelta(delta);
+    return length.copyWith(
+        value: Length.newValue(
+            newValue.clamp(minimumSize, maximumSize), length.unit,
+            constraintSize: constraintSize));
+  }
+
+  List<Widget> buildArcEditingWidgets(ArcShape shape) {
+    List<Widget> nodeControls=[];
+
+    Size size=shapeSize;
+
+    double maximumSize = min(size.height, size.height) / 2;
+
+    switch (shape.side) {
+      case ShapeSide.top:
+        nodeControls.add(dynamicShapeEditingDragWidget(
+            position: Offset(size.width / 2,
+                shape.arcHeight.toPX(constraintSize: size.height)),
+            onDragUpdate: (DragUpdateDetails details) {
+              setState(() {
+                startShape = shape.copyWith(
+                  arcHeight: updateLength(shape.arcHeight,
+                      constraintSize: size.height,
+                      maximumSize: maximumSize,
+                      delta: details.delta,
+                      offsetToDelta: (o) => o.dy)
+                );
+              });
+            }));
+        break;
+      case ShapeSide.bottom:
+        nodeControls.add(dynamicShapeEditingDragWidget(
+            position: Offset(
+                size.width / 2,
+                size.height -
+                    shape.arcHeight.toPX(constraintSize: size.height)),
+            onDragUpdate: (DragUpdateDetails details) {
+              setState(() {
+                startShape = shape.copyWith(
+                  arcHeight: updateLength(shape.arcHeight,
+                      constraintSize: size.height,
+                      maximumSize: maximumSize,
+                      delta: details.delta,
+                      offsetToDelta: (o) => -o.dy)
+                );
+              });
+            }));
+        break;
+      case ShapeSide.left:
+        nodeControls.add(dynamicShapeEditingDragWidget(
+            position: Offset(
+                shape.arcHeight.toPX(constraintSize: size.width),
+                size.height / 2),
+            onDragUpdate: (DragUpdateDetails details) {
+              setState(() {
+                startShape=shape.copyWith(arcHeight: updateLength(shape.arcHeight,
+                    constraintSize: size.width,
+                    maximumSize: maximumSize,
+                    delta: details.delta,
+                    offsetToDelta: (o) => o.dx));
+              });
+            }));
+        break;
+      case ShapeSide.right: //right
+        nodeControls.add(dynamicShapeEditingDragWidget(
+            position: Offset(
+                size.width -
+                    shape.arcHeight.toPX(constraintSize: size.width),
+                size.height / 2),
+            onDragUpdate: (DragUpdateDetails details) {
+              setState(() {
+                startShape= shape.copyWith(arcHeight: updateLength(shape.arcHeight,
+                    constraintSize: size.width,
+                    maximumSize: maximumSize,
+                    delta: details.delta,
+                    offsetToDelta: (o) => -o.dx)
+                );
+              });
+            }));
+        break;
+    }
+
+    return nodeControls;
+  }
+
+  List<Widget> buildBubbleEditingWidgets(BubbleShape shape) {
+    List<Widget> nodeControls = [];
+
+    Size size = shapeSize;
+    ShapeCorner corner = shape.corner;
+    double borderRadius;
+    double arrowHeight;
+    double arrowWidth;
+    double arrowCenterPosition;
+    double arrowHeadPosition;
+    borderRadius =
+        shape.borderRadius.toPX(constraintSize: min(size.height, size.width));
+    if (corner.isHorizontal) {
+      arrowHeight = shape.arrowHeight.toPX(constraintSize: size.height);
+      arrowWidth = shape.arrowWidth.toPX(constraintSize: size.width);
+      arrowCenterPosition =
+          shape.arrowCenterPosition.toPX(constraintSize: size.width);
+      arrowHeadPosition =
+          shape.arrowHeadPosition.toPX(constraintSize: size.width);
+    } else {
+      arrowHeight = shape.arrowHeight.toPX(constraintSize: size.width);
+      arrowWidth = shape.arrowWidth.toPX(constraintSize: size.height);
+      arrowCenterPosition =
+          shape.arrowCenterPosition.toPX(constraintSize: size.height);
+      arrowHeadPosition =
+          shape.arrowHeadPosition.toPX(constraintSize: size.height);
+    }
+
+    final double spacingLeft = shape.corner.isLeft ? arrowHeight : 0;
+    final double spacingTop = shape.corner.isTop ? arrowHeight : 0;
+    final double spacingRight = shape.corner.isRight ? arrowHeight : 0;
+    final double spacingBottom = shape.corner.isBottom ? arrowHeight : 0;
+
+    if (shape.corner.isHorizontalRight) {
+      arrowCenterPosition = size.width - arrowCenterPosition;
+      arrowHeadPosition = size.width - arrowHeadPosition;
+    }
+    if (shape.corner.isVerticalBottom) {
+      arrowCenterPosition = size.height - arrowCenterPosition;
+      arrowHeadPosition = size.height - arrowHeadPosition;
+    }
+
+    final double left = spacingLeft ;
+    final double top = spacingTop ;
+    final double right = size.width - spacingRight;
+    final double bottom = size.height - spacingBottom;
+
+    double radiusBound = 0;
+
+    if (shape.corner.isHorizontal) {
+      arrowCenterPosition = arrowCenterPosition.clamp(0, size.width);
+      arrowHeadPosition = arrowHeadPosition.clamp(0, size.width);
+      arrowWidth =
+          arrowWidth.clamp(0, 2 * min(arrowCenterPosition, size.width - arrowCenterPosition));
+      radiusBound = min(
+          min(right - arrowCenterPosition - arrowWidth / 2,
+              arrowCenterPosition - arrowWidth / 2 - left),
+          (bottom - top) / 2);
+      borderRadius =
+          borderRadius.clamp(0.0, radiusBound >= 0 ? radiusBound : 0);
+    } else {
+      arrowCenterPosition = arrowCenterPosition.clamp(0, size.height);
+      arrowHeadPosition = arrowHeadPosition.clamp(0, size.height);
+      arrowWidth =
+          arrowWidth.clamp(0, 2 * min(arrowCenterPosition, size.height - arrowCenterPosition));
+      radiusBound = min(
+          min(bottom - arrowCenterPosition - arrowWidth / 2,
+              arrowCenterPosition - arrowWidth / 2 - top),
+          (right - left) / 2);
+      borderRadius = borderRadius.clamp(
+        0.0,
+        radiusBound >= 0 ? radiusBound : 0,
+      );
+    }
+
+    Function arrowHeadDragUpdate,
+        arrowCenterDragUpdateHorizontal,
+        arrowCenterDragUpdateVertical,
+        arrowWidthDragUpdate,
+        radiusDragUpdate;
+    Offset arrowHeadOffset, arrowCenterOffset, arrowWidthOffset, radiusOffset;
+    switch (shape.corner) {
+      case ShapeCorner.topLeft:
+        {
+          arrowHeadOffset = Offset(arrowHeadPosition, 0);
+          arrowCenterOffset = Offset(arrowCenterPosition, top);
+          arrowWidthOffset =
+              Offset((arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.width), top);
+          arrowHeadDragUpdate = (Offset o) => o.dx;
+          arrowWidthDragUpdate = (Offset o) => -o.dx;
+          arrowCenterDragUpdateHorizontal = (Offset o) => o.dx;
+          arrowCenterDragUpdateVertical = (Offset o) => o.dy;
+          radiusOffset =
+              Offset(size.width - borderRadius, size.height - borderRadius);
+          radiusDragUpdate = (Offset o) => -o.dx;
+        }
+        break;
+      case ShapeCorner.topRight:
+        {
+          arrowHeadOffset = Offset(arrowHeadPosition, 0);
+          arrowCenterOffset = Offset(arrowCenterPosition, top);
+          arrowWidthOffset =
+              Offset((arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.width), top);
+          arrowHeadDragUpdate = (Offset o) => -o.dx;
+          arrowWidthDragUpdate = (Offset o) => -o.dx;
+          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dx;
+          arrowCenterDragUpdateVertical = (Offset o) => o.dy;
+
+          radiusOffset = Offset(size.width - borderRadius, size.height);
+          radiusDragUpdate = (Offset o) => -o.dx;
+        }
+        break;
+      case ShapeCorner.bottomLeft:
+        {
+          arrowHeadOffset = Offset(arrowHeadPosition, size.height);
+          arrowCenterOffset = Offset(arrowCenterPosition, bottom);
+          arrowWidthOffset =
+              Offset((arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.width), bottom);
+          arrowHeadDragUpdate = (Offset o) => o.dx;
+          arrowWidthDragUpdate = (Offset o) => -o.dx;
+          arrowCenterDragUpdateHorizontal = (Offset o) => o.dx;
+          arrowCenterDragUpdateVertical = (Offset o) => -o.dy;
+
+          radiusOffset = Offset(borderRadius, 0);
+          radiusDragUpdate = (Offset o) => o.dx;
+        }
+        break;
+      case ShapeCorner.bottomRight:
+        {
+          arrowHeadOffset = Offset(arrowHeadPosition, size.height);
+          arrowCenterOffset = Offset(arrowCenterPosition, bottom);
+          arrowWidthOffset =
+              Offset((arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.width), bottom);
+          arrowHeadDragUpdate = (Offset o) => -o.dx;
+          arrowWidthDragUpdate = (Offset o) => -o.dx;
+          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dx;
+          arrowCenterDragUpdateVertical = (Offset o) => -o.dy;
+
+          radiusOffset = Offset(borderRadius, 0);
+          radiusDragUpdate = (Offset o) => o.dx;
+        }
+        break;
+      case ShapeCorner.leftTop:
+        {
+          arrowHeadOffset = Offset(0, arrowHeadPosition);
+          arrowCenterOffset = Offset(left, arrowCenterPosition);
+          arrowWidthOffset =
+              Offset(left, (arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.height));
+          arrowHeadDragUpdate = (Offset o) => o.dy;
+          arrowWidthDragUpdate = (Offset o) => -o.dy;
+          arrowCenterDragUpdateHorizontal = (Offset o) => o.dy;
+          arrowCenterDragUpdateVertical = (Offset o) => o.dx;
+
+          radiusOffset = Offset(size.width, borderRadius);
+          radiusDragUpdate = (Offset o) => o.dy;
+        }
+        break;
+      case ShapeCorner.leftBottom:
+        {
+          arrowHeadOffset = Offset(0, arrowHeadPosition);
+          arrowCenterOffset = Offset(left, arrowCenterPosition);
+          arrowWidthOffset =
+              Offset(left, (arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.height));
+          arrowHeadDragUpdate = (Offset o) => -o.dy;
+          arrowWidthDragUpdate = (Offset o) => -o.dy;
+          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dy;
+          arrowCenterDragUpdateVertical = (Offset o) => o.dx;
+
+          radiusOffset = Offset(size.width, borderRadius);
+          radiusDragUpdate = (Offset o) => o.dy;
+        }
+        break;
+      case ShapeCorner.rightTop:
+        {
+          arrowHeadOffset = Offset(size.width, arrowHeadPosition);
+          arrowCenterOffset = Offset(right, arrowCenterPosition);
+          arrowWidthOffset =
+              Offset(right, (arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.height));
+          arrowHeadDragUpdate = (Offset o) => o.dy;
+          arrowWidthDragUpdate = (Offset o) => -o.dy;
+          arrowCenterDragUpdateHorizontal = (Offset o) => o.dy;
+          arrowCenterDragUpdateVertical = (Offset o) => -o.dx;
+
+          radiusOffset = Offset(0, borderRadius);
+          radiusDragUpdate = (Offset o) => o.dy;
+        }
+        break;
+      case ShapeCorner.rightBottom:
+        {
+          arrowHeadOffset = Offset(size.width, arrowHeadPosition);
+          arrowCenterOffset = Offset(right, arrowCenterPosition);
+          arrowWidthOffset =
+              Offset(right, (arrowCenterPosition - arrowWidth / 2).clamp(0.0, size.height));
+          arrowHeadDragUpdate = (Offset o) => -o.dy;
+          arrowWidthDragUpdate = (Offset o) => -o.dy;
+          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dy;
+          arrowCenterDragUpdateVertical = (Offset o) => -o.dx;
+
+          radiusOffset = Offset(0, borderRadius);
+          radiusDragUpdate = (Offset o) => o.dy;
+        }
+        break;
+    }
+
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: arrowCenterOffset,
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            startShape=shape.copyWith(
+              arrowHeight: updateLength(shape.arrowHeight,
+                  constraintSize: size.height,
+                  maximumSize: min(size.width, size.height),
+                  delta: details.delta,
+                  offsetToDelta: arrowCenterDragUpdateVertical),
+              arrowCenterPosition: updateLength(shape.arrowCenterPosition,
+                  constraintSize: size.height,
+                  maximumSize: size.width,
+                  delta: details.delta,
+                  offsetToDelta: arrowCenterDragUpdateHorizontal)
+            );
+          });
+        }));
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: arrowWidthOffset,
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            startShape=shape.copyWith(arrowWidth: updateLength(shape.arrowWidth,
+                constraintSize: size.width,
+                maximumSize: size.width,
+                delta: details.delta,
+                offsetToDelta: arrowWidthDragUpdate));
+          });
+        }));
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: arrowHeadOffset,
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            startShape=shape.copyWith(
+              arrowHeadPosition: updateLength(shape.arrowHeadPosition,
+                  constraintSize: size.width,
+                  maximumSize: size.width,
+                  delta: details.delta,
+                  offsetToDelta: arrowHeadDragUpdate)
+            );
+          });
+        }));
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: radiusOffset,
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            startShape=shape.copyWith(
+              borderRadius: updateLength(shape.borderRadius,
+                  constraintSize: size.width,
+                  maximumSize: radiusBound,
+                  delta: details.delta,
+                  offsetToDelta: radiusDragUpdate)
+            );
+          });
+        }));
+
+    return nodeControls;
+  }
+
+  List<Widget> buildCutCornerEditingWidgets(CutCornerShape shape) {
+    List<Widget> nodeControls = [];
+
+    Size size = shapeSize;
+
+    BorderRadius borderRadius=shape.borderRadius.toBorderRadius(size);
+
+    final topLeftRadius = borderRadius.topLeft.x.clamp(0, size.width/2);
+    final topRightRadius = borderRadius.topRight.x.clamp(0, size.width/2);
+    final bottomLeftRadius = borderRadius.bottomLeft.x.clamp(0, size.width/2);
+    final bottomRightRadius = borderRadius.bottomRight.x.clamp(0, size.width/2);
+
+    final leftTopRadius = borderRadius.topLeft.y.clamp(0, size.height/2);
+    final rightTopRadius = borderRadius.topRight.y.clamp(0, size.height/2);
+    final leftBottomRadius = borderRadius.bottomLeft.y.clamp(0, size.height/2);
+    final rightBottomRadius = borderRadius.bottomRight.y.clamp(0, size.height/2);
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(topLeftRadius, 0),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.topLeft.copyWith(
+              x: updateLength(shape.borderRadius.topLeft.x,
+                  constraintSize: size.width,
+                  maximumSize: size.width,
+                  delta: details.delta,
+                  offsetToDelta: (o)=>o.dx)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(topLeft: newRadius));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(size.width-topRightRadius, 0),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.topRight.copyWith(
+                x: updateLength(shape.borderRadius.topRight.x,
+                    constraintSize: size.width,
+                    maximumSize: size.width,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>-o.dx)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(topRight: newRadius));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(bottomLeftRadius, size.height),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.bottomLeft.copyWith(
+                x: updateLength(shape.borderRadius.bottomLeft.x,
+                    constraintSize: size.width,
+                    maximumSize: size.width,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>o.dx)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(bottomLeft: newRadius));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(size.width-bottomRightRadius, size.height),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.bottomRight.copyWith(
+                x: updateLength(shape.borderRadius.bottomRight.x,
+                    constraintSize: size.width,
+                    maximumSize: size.width,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>-o.dx)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(bottomRight: newRadius));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(0, leftTopRadius),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.topLeft.copyWith(
+                y: updateLength(shape.borderRadius.topLeft.y,
+                    constraintSize: size.height,
+                    maximumSize: size.height,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>o.dy)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(topLeft: newRadius));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(size.width, rightTopRadius),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.topRight.copyWith(
+                y: updateLength(shape.borderRadius.topRight.y,
+                    constraintSize: size.height,
+                    maximumSize: size.height,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>o.dy)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(topRight: newRadius));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(0, size.height-leftBottomRadius),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.bottomLeft.copyWith(
+                y: updateLength(shape.borderRadius.bottomLeft.y,
+                    constraintSize: size.height,
+                    maximumSize: size.height,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>-o.dy)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(bottomLeft: newRadius));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(size.width, size.height-rightBottomRadius),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            DynamicRadius newRadius=shape.borderRadius.bottomRight.copyWith(
+                y: updateLength(shape.borderRadius.bottomRight.y,
+                    constraintSize: size.height,
+                    maximumSize: size.height,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>-o.dy)
+            );
+
+            startShape=shape.copyWith(
+                borderRadius: shape.borderRadius.copyWith(bottomRight: newRadius));
+          });
+        }));
+
+    return nodeControls;
+  }
+
+  List<Widget> buildPolygonEditingWidgets(PolygonShape shape) {
+    List<Widget> nodeControls = [];
+
+    Size size = shapeSize;
+
+    double scale = min(size.width, size.height);
+    double cornerRadius = shape.cornerRadius.toPX(constraintSize: scale);
+    int sides=shape.sides;
+
+    final height = scale;
+    final width = scale;
+
+    double startAngle=-pi / 2;
+    /*
+    if (sides.isOdd) {
+      startAngle = -pi / 2;
+    } else {
+      startAngle = -pi / 2 + (pi / sides);
+    }
+
+     */
+
+    final double section = (2.0 * pi / sides);
+    final double polygonSize = min(width, height);
+    final double radius = polygonSize / 2;
+    final double centerX = width / 2;
+    final double centerY = height / 2;
+
+    cornerRadius = cornerRadius.clamp(0, radius * cos(section / 2));
+
+    double arcCenterRadius = radius - cornerRadius / sin(pi / 2 - section / 2);
+
+    double arcCenterX = (centerX + arcCenterRadius * cos(startAngle));
+    double arcCenterY = (centerY + arcCenterRadius * sin(startAngle));
+
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: Offset(arcCenterX, arcCenterY).scale(size.width/width, size.height/height),
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            startShape=shape.copyWith(
+                cornerRadius: updateLength(shape.cornerRadius,
+                    constraintSize: scale,
+                    maximumSize: scale,
+                    delta: details.delta,
+                    offsetToDelta: (o)=>(o.dy)));
+          });
+        }));
+
 
     return nodeControls;
   }
@@ -334,7 +940,7 @@ class MyHomePageState extends State<MyHomePage>
             setState(() {
               shapeSize +=
                   Offset(details.delta.dx * alignX, details.delta.dy * alignY);
-              path.resize(shapeSize);
+              //shape.resize(shapeSize);
             });
           },
           child: Container(

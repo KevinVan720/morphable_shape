@@ -6,10 +6,14 @@ import '../MorphableShapeBorder.dart';
 
 class PolygonShape extends Shape {
   final int sides;
+  final Length cornerRadius;
 
-  const PolygonShape({this.sides = 5}) : assert(sides >= 3);
+  const PolygonShape({this.sides = 5, this.cornerRadius = const Length(0)})
+      : assert(sides >= 3);
 
-  PolygonShape.fromJson(Map<String, dynamic> map) : sides = map["sides"];
+  PolygonShape.fromJson(Map<String, dynamic> map)
+      : cornerRadius = const Length(0),
+        sides = map["sides"];
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"name": this.runtimeType};
@@ -17,18 +21,34 @@ class PolygonShape extends Shape {
     return rst;
   }
 
+  PolygonShape copyWith({
+  Length? cornerRadius,
+    int? sides,
+}) {
+    return PolygonShape(
+      sides: sides?? this.sides,
+      cornerRadius: cornerRadius??this.cornerRadius,
+    );
+  }
+
   DynamicPath generateDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
-    final height = 100.0;
-    final width = 100.0;
+    double scale = min(rect.width, rect.height);
+    double cornerRadius = this.cornerRadius.toPX(constraintSize: scale);
 
-    double startAngle;
+    final height = scale;
+    final width = scale;
+
+    double startAngle=-pi/2;
+    /*
     if (sides.isOdd) {
       startAngle = -pi / 2;
     } else {
       startAngle = -pi / 2 + (pi / sides);
     }
+
+     */
 
     final double section = (2.0 * pi / sides);
     final double polygonSize = min(width, height);
@@ -36,51 +56,36 @@ class PolygonShape extends Shape {
     final double centerX = width / 2;
     final double centerY = height / 2;
 
-    nodes.add(DynamicNode(
-        position: Offset((centerX + radius * cos(startAngle)),
-            (centerY + radius * sin(startAngle)))));
+    cornerRadius = cornerRadius.clamp(0, radius * cos(section / 2));
 
-    for (int i = 1; i < sides; i++) {
-      nodes.add(DynamicNode(
-          position: Offset((centerX + radius * cos(startAngle + section * i)),
-              (centerY + radius * sin(startAngle + section * i)))));
+    double arcCenterRadius = radius - cornerRadius / sin(pi / 2 - section / 2);
+
+    for (int i = 0; i < sides; i++) {
+      double cornerAngle = startAngle + section * i;
+      if (cornerRadius == 0) {
+        nodes.add(DynamicNode(
+            position: Offset((centerX + radius * cos(cornerAngle)),
+                (centerY + radius * sin(cornerAngle)))));
+      } else {
+        double arcCenterX = (centerX + arcCenterRadius * cos(cornerAngle));
+        double arcCenterY = (centerY + arcCenterRadius * sin(cornerAngle));
+        if (i == 0) {
+          Offset start = arcToCubicBezier(
+              Rect.fromCircle(
+                  center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
+              cornerAngle - section / 2,
+              section)[0];
+          nodes.add(DynamicNode(position: start));
+        }
+        nodes.arcTo(
+            Rect.fromCircle(
+                center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
+            cornerAngle - section / 2,
+            section);
+      }
     }
 
-    return DynamicPath(size: Size(width, height), nodes: nodes)..resize(rect.size);
-  }
-
-  Path generatePath(
-      {double scale = 1, Rect rect = const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
-    final height = 100.0;
-    final width = 100.0;
-
-    double startAngle;
-    if (sides.isOdd) {
-      startAngle = -pi / 2;
-    } else {
-      startAngle = -pi / 2 + (pi / sides);
-    }
-
-    final double section = (2.0 * pi / sides);
-    final double polygonSize = min(width, height);
-    final double radius = polygonSize / 2;
-    final double centerX = width / 2;
-    final double centerY = height / 2;
-
-    final Path polygonPath = new Path();
-    polygonPath.moveTo((centerX + radius * cos(startAngle)),
-        (centerY + radius * sin(startAngle)));
-
-    for (int i = 1; i < sides; i++) {
-      polygonPath.lineTo((centerX + radius * cos(startAngle + section * i)),
-          (centerY + radius * sin(startAngle + section * i)));
-    }
-
-    polygonPath.close();
-
-    final Matrix4 matrix4 = Matrix4.identity();
-    matrix4.scale(rect.width / width, rect.height / height);
-    return polygonPath.transform(matrix4.storage);
-    //return polygonPath;
+    return DynamicPath(size: Size(width, height), nodes: nodes)
+      ..resize(rect.size);
   }
 }

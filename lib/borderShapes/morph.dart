@@ -9,19 +9,16 @@ class MorphShape extends Shape {
 
   SampledPathData data;
 
-  ///should not be called
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst={"name": this.runtimeType};
-    return rst;
-  }
-
-
-
   MorphShape({required this.startShape, required this.endShape, required this.t, required this.data});
 
   DynamicPath generateDynamicPath(Rect rect) {
     return DynamicPath(size: rect.size, nodes: []);
   }
+
+  Shape copyWith() {
+    return BubbleShape();
+  }
+
 
   Path generatePath({double scale=1, Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
     if(rect.width!=data.boundingBox.width||rect.height!=data.boundingBox.height) {

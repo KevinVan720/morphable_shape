@@ -11,6 +11,11 @@ class CircleShape extends Shape {
     return rst;
   }
 
+  CircleShape copyWith() {
+    return CircleShape();
+  }
+
+
   CircleShape.fromJson(Map<String, dynamic> map);
 
   DynamicPath generateDynamicPath(Rect rect) {
@@ -18,23 +23,15 @@ class CircleShape extends Shape {
 
     List<DynamicNode> nodes = [];
 
-    addBezier(nodes, arcToCubicBezier(Rect.fromCenter(
+    nodes.add(DynamicNode(position: Offset(size.width, size.height/2)));
+    nodes.arcTo(Rect.fromCenter(
       center: Offset(rect.width / 2.0, rect.height / 2.0),
       width: rect.width,
       height: rect.height,
-    ), 0, 2.0*pi));
+    ), 0, 2.0*pi);
 
     return DynamicPath(nodes: nodes, size: size);
   }
 
-
-  Path generatePath({double scale=1, Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
-    return Path()
-      ..addOval(Rect.fromCenter(
-        center: Offset(rect.width / 2.0, rect.height / 2.0),
-        width: rect.width,
-        height: rect.height,
-      ));
-  }
 }
 

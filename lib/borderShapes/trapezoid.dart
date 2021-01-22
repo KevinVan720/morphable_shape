@@ -7,7 +7,11 @@ class TrapezoidShape extends Shape {
 
   final double inset;
 
-  const TrapezoidShape({this.inset=0.5}) : assert(inset>=0.0 && inset<=1.0);
+  TrapezoidShape({this.inset=0.5}) : assert(inset>=0.0 && inset<=1.0);
+  Shape copyWith() {
+    return BubbleShape();
+  }
+
 
   TrapezoidShape.fromJson(Map<String, dynamic> map)
       :
@@ -32,17 +36,4 @@ class TrapezoidShape extends Shape {
     return DynamicPath(size: size, nodes: nodes);
   }
 
-  Path generatePath({double scale=1, Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
-
-    Size size=rect.size;
-
-    final Path path = new Path();
-    path.moveTo(0, 0);
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width*(1-inset/2), size.height);
-    path.lineTo(size.width*(inset/2), size.height);
-    path.close();
-
-    return path;
-  }
 }
