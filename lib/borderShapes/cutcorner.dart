@@ -1,26 +1,23 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_class_parser/toJson.dart';
 
-import '../MorphableShapeBorder.dart';
+import '../morphable_shape_border.dart';
 
 class CutCornerShape extends Shape {
-  DynamicBorderRadius borderRadius;
+  final DynamicBorderRadius borderRadius;
 
-  CutCornerShape(
-      {this.borderRadius = const DynamicBorderRadius.all(DynamicRadius.zero)});
+  const CutCornerShape(
+      {this.borderRadius = const DynamicBorderRadius.all(DynamicRadius.circular(Length(10, unit: LengthUnit.percent)))});
 
-  Shape copyWith({DynamicBorderRadius? borderRadius}) {
+  CutCornerShape copyWith({DynamicBorderRadius? borderRadius}) {
     return CutCornerShape(borderRadius: borderRadius ?? this.borderRadius);
   }
 
   CutCornerShape.fromJson(Map<String, dynamic> map)
-      : borderRadius = DynamicBorderRadius.all(DynamicRadius.zero);
+      : borderRadius = parseDynamicBorderRadius(map["borderRadius"])??DynamicBorderRadius.all(DynamicRadius.zero);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType};
-
+    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    rst["borderRadius"]=borderRadius.toJson();
     return rst;
   }
 
@@ -60,8 +57,6 @@ class CutCornerShape extends Shape {
         position: Offset(rect.left, rect.bottom - leftBottomRadius)));
     nodes.add(
         DynamicNode(position: Offset(rect.left, rect.top + leftTopRadius)));
-    nodes.add(
-        DynamicNode(position: Offset(rect.left + topLeftRadius, rect.top)));
 
     return DynamicPath(nodes: nodes, size: size);
   }

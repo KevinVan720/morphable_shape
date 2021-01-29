@@ -1,37 +1,62 @@
 import 'package:flutter/material.dart';
 
-import '../MorphableShapeBorder.dart';
+import '../morphable_shape_border.dart';
 import 'dart:math';
 
 class CircleShape extends Shape {
-  const CircleShape();
+
+
+  final double startAngle;
+  final double sweepAngle;
+
+  const CircleShape({this.startAngle = 0, this.sweepAngle = 2 * pi});
+
+  CircleShape.fromJson(Map<String, dynamic> map)
+      : startAngle = map["startAngle"]??0.0,
+        sweepAngle = map["sweepAngle"]??(2 * pi);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst={"name": this.runtimeType};
+    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    rst["startAngle"]=startAngle;
+    rst["sweepAngle"]=sweepAngle;
     return rst;
   }
 
-  CircleShape copyWith() {
-    return CircleShape();
+  CircleShape copyWith({
+  double? startAngle,
+    double? sweepAngle,
+}) {
+    return CircleShape(
+      startAngle: startAngle??this.startAngle,
+      sweepAngle: sweepAngle??this.sweepAngle,
+    );
   }
 
 
-  CircleShape.fromJson(Map<String, dynamic> map);
 
   DynamicPath generateDynamicPath(Rect rect) {
     final size = rect.size;
 
     List<DynamicNode> nodes = [];
 
-    nodes.add(DynamicNode(position: Offset(size.width, size.height/2)));
-    nodes.arcTo(Rect.fromCenter(
-      center: Offset(rect.width / 2.0, rect.height / 2.0),
-      width: rect.width,
-      height: rect.height,
-    ), 0, 2.0*pi);
+    double startAngle = this.startAngle.clamp(0.0, 2 * pi);
+    double sweepAngle = this.sweepAngle.clamp(0, 2 * pi);
+
+    nodes.add(DynamicNode(
+        position: Offset(size.width / 2 * (1 + cos(startAngle)),
+            size.height / 2 * (1 + sin(startAngle)))));
+    nodes.arcTo(
+        Rect.fromCenter(
+          center: Offset(rect.width / 2.0, rect.height / 2.0),
+          width: rect.width,
+          height: rect.height,
+        ),
+        startAngle,
+        sweepAngle);
+    if (sweepAngle < 2 * pi) {
+      nodes.add(DynamicNode(position: Offset(size.width / 2, size.height / 2)));
+    }
 
     return DynamicPath(nodes: nodes, size: size);
   }
-
 }
-

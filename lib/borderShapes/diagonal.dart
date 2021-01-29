@@ -1,35 +1,36 @@
-
 import 'package:flutter/material.dart';
+import 'package:morphable_shape/shape_utils.dart';
 
-import '../MorphableShapeBorder.dart';
-
+import '../morphable_shape_border.dart';
 
 class DiagonalShape extends Shape {
-  final AxisDirection position;
-  final double inset;
-  final bool insetClockwise;
+  final ShapeCorner corner;
+  final Length inset;
 
-  DiagonalShape({
-    this.position = AxisDirection.down,
-    this.inset = 10,
-    this.insetClockwise = true,
+  const DiagonalShape({
+    this.corner=ShapeCorner.bottomRight,
+    this.inset = const Length(10, unit: LengthUnit.percent),
   });
 
-  Shape copyWith() {
-    return BubbleShape();
+  DiagonalShape copyWith({
+  ShapeCorner? corner,
+    Length? inset,
+}) {
+    return DiagonalShape(
+      corner: corner?? this.corner,
+      inset: inset??this.inset,
+    );
   }
 
 
   DiagonalShape.fromJson(Map<String, dynamic> map)
-      : position = parseAxisDirection(map["position"]) ?? AxisDirection.down,
-        inset = map["inset"],
-        insetClockwise = map["insetClockwise"];
+      : corner=parseShapeCorner(map["corner"])??ShapeCorner.bottomRight,
+        inset = Length.fromJson(map["inset"])??Length(10);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType};
-    rst["position"] = position.toJson();
-    rst["inset"] = inset;
-    rst["insetClockwise"] = insetClockwise;
+    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    rst["inset"] = inset.toJson();
+    rst["corner"] = corner.toJson();
     return rst;
   }
 
@@ -41,34 +42,78 @@ class DiagonalShape extends Shape {
     final width = rect.width;
     final height = rect.height;
 
-    switch (this.position) {
-      case AxisDirection.down:
+    double inset;
+    if(corner.isHorizontal) {
+      inset=this.inset.toPX(constraintSize: height).clamp(0, height);
+    }else{
+      inset=this.inset.toPX(constraintSize: width).clamp(0, width);
+    }
+
+    switch (this.corner) {
+      case ShapeCorner.bottomRight:
         nodes.add(DynamicNode(position: Offset(0,0)));
         nodes.add(DynamicNode(position: Offset(width, 0)));
-        nodes.add(DynamicNode(position: Offset(width, height - (insetClockwise ? inset : 0))));
-        nodes.add(DynamicNode(position: Offset(0, height - (insetClockwise ? 0 : inset))));
+        nodes.add(DynamicNode(position: Offset(width, height - inset)));
+        nodes.add(DynamicNode(position: Offset(0, height)));
         break;
-      case AxisDirection.up:
-        nodes.add(DynamicNode(position: Offset(0, (insetClockwise ? inset : 0))));
-        nodes.add(DynamicNode(position: Offset(0, height - (insetClockwise ? 0 : inset))));
+      case ShapeCorner.bottomLeft:
+        nodes.add(DynamicNode(position: Offset(0,0)));
+        nodes.add(DynamicNode(position: Offset(width, 0)));
+        nodes.add(DynamicNode(position: Offset(width, height)));
+        nodes.add(DynamicNode(position: Offset(0, height-inset)));
+        break;
+      case ShapeCorner.topLeft:
+        nodes.add(DynamicNode(position: Offset(0, inset)));
+        nodes.add(DynamicNode(position: Offset(width, 0)));
         nodes.add(DynamicNode(position: Offset(width, height)));
         nodes.add(DynamicNode(position: Offset(0, height)));
         break;
-      case AxisDirection.left:
-        nodes.add(DynamicNode(position: Offset((insetClockwise ? 0 : inset), 0)));
+      case ShapeCorner.topRight:
+        nodes.add(DynamicNode(position: Offset(0, 0)));
+        nodes.add(DynamicNode(position: Offset(width, inset)));
+        nodes.add(DynamicNode(position: Offset(width, height)));
+        nodes.add(DynamicNode(position: Offset(0, height)));
+        break;
+      case ShapeCorner.leftTop:
+        nodes.add(DynamicNode(position: Offset( inset, 0)));
         nodes.add(DynamicNode(position: Offset(width, 0)));
         nodes.add(DynamicNode(position: Offset(width, height)));
-        nodes.add(DynamicNode(position: Offset((insetClockwise ? inset : 0), height)));
-        break;
-      case AxisDirection.right:
-        nodes.add(DynamicNode(position: Offset((insetClockwise ? inset : 0), 0)));
-        nodes.add(DynamicNode(position: Offset((insetClockwise ? 0 : inset), height)));
         nodes.add(DynamicNode(position: Offset(0, height)));
-        nodes.add(DynamicNode(position: Offset(0,0)));
+        break;
+      case ShapeCorner.leftBottom:
+        nodes.add(DynamicNode(position: Offset(0, 0)));
+        nodes.add(DynamicNode(position: Offset(width, 0)));
+        nodes.add(DynamicNode(position: Offset(width, height)));
+        nodes.add(DynamicNode(position: Offset(inset, height)));
+        break;
+      case ShapeCorner.rightTop:
+        nodes.add(DynamicNode(position: Offset(0, 0)));
+        nodes.add(DynamicNode(position: Offset(width-inset, 0)));
+        nodes.add(DynamicNode(position: Offset(width, height)));
+        nodes.add(DynamicNode(position: Offset(0, height)));
+        break;
+      case ShapeCorner.rightBottom:
+        nodes.add(DynamicNode(position: Offset(0, 0)));
+        nodes.add(DynamicNode(position: Offset(width, 0)));
+        nodes.add(DynamicNode(position: Offset(width-inset, height)));
+        nodes.add(DynamicNode(position: Offset(inset, height)));
         break;
     }
 
     return DynamicPath(nodes: nodes, size: size);
   }
+
+  @override
+  int get hashCode =>
+      hashValues(corner, inset);
+
+  @override
+  bool operator ==(dynamic other) {
+    if (runtimeType != other.runtimeType) return false;
+    final DiagonalShape otherShape = other;
+    return corner == otherShape.corner &&
+        inset == otherShape.inset;
+  }
+
 
 }

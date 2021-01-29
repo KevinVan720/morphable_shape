@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../MorphableShapeBorder.dart';
+import '../morphable_shape_border.dart';
 
 ///possible for future implementation of freeform shape or import shape from SVG
 class PathShape extends Shape {
@@ -8,9 +8,13 @@ class PathShape extends Shape {
 
   const PathShape({required this.path});
 
-  ///not implemented for now
+  PathShape.fromJson(Map<String, dynamic> map)
+      : path = parseDynamicPath(map["path"]) ??
+            DynamicPath(size: Size.zero, nodes: []);
+
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType};
+    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    rst["path"] = path.toJson();
     return rst;
   }
 
@@ -21,7 +25,6 @@ class PathShape extends Shape {
   }
 
   DynamicPath generateDynamicPath(Rect rect) {
-
     return path;
   }
 }

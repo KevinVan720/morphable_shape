@@ -12,8 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
 
+
   flutter_class_parser: #0.0.1
     git: https://github.com/KevinVan720/flutter_class_parser
+
 
   length_unit:
     git: https://github.com/KevinVan720/length_unit

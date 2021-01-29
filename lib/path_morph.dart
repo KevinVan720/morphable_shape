@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/painting.dart';
 import 'dart:math';
-import 'MorphableShapeBorder.dart';
+import 'morphable_shape_border.dart';
 
 class SampledPathData {
   List<Offset> points1;
@@ -28,7 +28,7 @@ class PathMorph {
     Shape shape1,
     Shape shape2,
     Rect rect, {
-    double precision = 0.001,
+    double precision = 0.005,
     double maxTrial = 100,
     int maxControlPoints = 12,
   }) {
@@ -41,7 +41,7 @@ class PathMorph {
     Path path1 = shape1.generatePath(rect: rect);
     Path path2 = shape2.generatePath(rect: rect);
 
-    samplePaths(data, path1, path2);
+    samplePaths(data, path1, path2, precision: precision, maxTrial: maxTrial, maxControlPoints: maxControlPoints);
     //return data;
   }
 
@@ -173,7 +173,7 @@ class PathMorph {
     return generatePath(data);
   }
 
-  static Path lerpPoints(double t, SampledPathData data) {
+  static List<Offset> lerpPoints(double t, SampledPathData data) {
     for (var i = 0; i < data.points1.length; i++) {
       var start = data.points1[i];
       var end = data.points2[i];
@@ -203,17 +203,12 @@ class PathMorph {
   }
 
   ///generate circles around the control points, for demonstration purposes
-  static Path generatePoints(SampledPathData data) {
-    Path p = Path();
-    double pointRadius=50/min(data.shiftedPoints.length,25);
-
+  static List<Offset> generatePoints(SampledPathData data) {
+    List<Offset> rst=[];
     for (var i = 0; i < data.shiftedPoints.length; i++) {
-      p.addOval(Rect.fromCenter(
-          center: Offset(data.shiftedPoints[i].dx, data.shiftedPoints[i].dy),
-          width: 2*pointRadius,
-          height: 2*pointRadius));
+      rst.add(Offset(data.shiftedPoints[i].dx, data.shiftedPoints[i].dy));
     }
-    return p;
+    return rst;
   }
 }
 

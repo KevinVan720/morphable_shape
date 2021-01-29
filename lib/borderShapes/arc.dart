@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../MorphableShapeBorder.dart';
+import '../morphable_shape_border.dart';
 import 'dart:math';
 
 class ArcShape extends Shape {
@@ -15,14 +15,15 @@ class ArcShape extends Shape {
   });
 
   ArcShape.fromJson(Map<String, dynamic> map)
-      : side = ShapeSide.bottom,
+      : side = parseShapeSide(map['side'])??ShapeSide.bottom,
         isOutward = map["isOutward"],
-        arcHeight = map["arcHeight"];
+        arcHeight = Length.fromJson(map["arcHeight"])??Length(10);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType};
-    rst["arcHeight"] = arcHeight;
+    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    rst["arcHeight"] = arcHeight.toJson();
     rst["isOutward"] = isOutward;
+    rst["side"]=side.toJson();
     return rst;
   }
 
@@ -40,20 +41,21 @@ class ArcShape extends Shape {
 
   DynamicPath generateDynamicPath(Rect rect) {
     final size = rect.size;
+
+    double maximumSize = min(size.height, size.height) / 2;
+
     double arcHeight = 0;
-    if (side == ShapeSide.top || side == ShapeSide.bottom) {
-      arcHeight = this
-          .arcHeight
-          .toPX(constraintSize: rect.height)
-          .clamp(0, min(size.width / 2, size.height / 2) * 0.999);
+    if (this.side.isHorizontal) {
+      arcHeight = this.arcHeight
+          .toPX(constraintSize: size.height)
+          .clamp(0, maximumSize);
     } else {
-      this
-          .arcHeight
-          .toPX(constraintSize: rect.width)
-          .clamp(0, min(size.width / 2, size.height / 2) * 0.999);
+      arcHeight = this.arcHeight
+          .toPX(constraintSize: size.width)
+          .clamp(0, maximumSize);
     }
     double theta1, theta2, theta3, radius;
-    if (side == ShapeSide.top || side == ShapeSide.bottom) {
+    if (this.side.isHorizontal) {
       theta1 = atan(size.width / (2 * arcHeight));
       theta2 = atan((2 * arcHeight) / size.width);
       theta3 = theta1 - theta2;

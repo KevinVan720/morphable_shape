@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../MorphableShapeBorder.dart';
-import '../PathMorph.dart';
+import '../morphable_shape_border.dart';
+import '../path_morph.dart';
 
+///this class should only be called by a morphShapeTween
 class MorphShape extends Shape {
   final Shape startShape;
   final Shape endShape;
@@ -12,26 +13,24 @@ class MorphShape extends Shape {
   MorphShape({required this.startShape, required this.endShape, required this.t, required this.data});
 
   DynamicPath generateDynamicPath(Rect rect) {
-    return DynamicPath(size: rect.size, nodes: []);
-  }
-
-  Shape copyWith() {
-    return BubbleShape();
-  }
-
-
-  Path generatePath({double scale=1, Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)}) {
+    List<DynamicNode> nodes=[];
     if(rect.width!=data.boundingBox.width||rect.height!=data.boundingBox.height) {
       PathMorph.samplePathsFromShape(data, startShape,
           endShape,
           rect);
-      return PathMorph.lerpPath(t, data);
     }
-    else {
-      Path path=PathMorph.lerpPath(t, data);
-      final Matrix4 matrix4 = Matrix4.identity();
-      matrix4.scale(rect.width / data.boundingBox.width, rect.height / data.boundingBox.height);
-      return path.transform(matrix4.storage);
-    }
+    PathMorph.lerpPoints(t, data).forEach((element) {
+      nodes.add(DynamicNode(position: element));
+    });
+    return DynamicPath(size: rect.size, nodes: nodes)..resize(rect.size);
   }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+
+  Shape copyWith() {
+    return this;
+  }
+
 }

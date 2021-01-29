@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import 'PathMorph.dart';
+import 'path_morph.dart';
 import 'package:morphable_shape/borderShapes/roundrect.dart';
 import 'package:morphable_shape/borderShapes/morph.dart';
-import 'DynamicPath.dart';
+import 'dynamic_path.dart';
+import 'package:flutter_class_parser/flutter_class_parser.dart';
+import 'dart:math';
 
-export 'ShapeUtils.dart';
-export 'package:flutter_class_parser/parseJson.dart';
-export 'package:flutter_class_parser/toJson.dart';
+export 'shape_utils.dart';
+export 'package:flutter_class_parser/parse_json.dart';
+export 'package:flutter_class_parser/to_json.dart';
+export 'dynamic_material.dart';
 
 export 'package:length_unit/length_unit.dart';
-export 'DynamicShape.dart';
-export 'DynamicPath.dart';
-export 'parseJson.dart';
+export 'dynamic_path.dart';
+export 'parse_json.dart';
 export 'borderShapes/arc.dart';
 export 'borderShapes/bubble.dart';
 export 'borderShapes/circle.dart';
-export 'borderShapes/custom.dart';
 export 'borderShapes/cutcorner.dart';
 export 'borderShapes/diagonal.dart';
 export 'borderShapes/polygon.dart';
@@ -23,7 +24,6 @@ export 'borderShapes/roundrect.dart';
 export 'borderShapes/star.dart';
 export 'borderShapes/triangle.dart';
 export 'borderShapes/morph.dart';
-export 'borderShapes/diamond.dart';
 export 'borderShapes/trapezoid.dart';
 export 'borderShapes/path.dart';
 
@@ -33,6 +33,8 @@ abstract class Shape {
   const Shape();
 
   DynamicPath generateDynamicPath(Rect rect);
+
+  Map<String, dynamic> toJson();
 
   Shape copyWith();
 
@@ -49,6 +51,14 @@ abstract class Shape {
       borderPaint.style = PaintingStyle.stroke;
       borderPaint.color = borderColor;
       borderPaint.strokeWidth = borderWidth;
+      ///Possible different borderColor and style in the future?
+      /*
+      List<Path> paths=generateDynamicPath(rect).getPaths(rect.size);
+      paths.forEach((element) {
+        borderPaint.color=Colors.black;
+        canvas.drawPath(element, borderPaint);
+      });
+       */
       canvas.drawPath(generatePath(rect: rect), borderPaint);
     }
   }
@@ -65,7 +75,6 @@ class MorphableShapeBorder extends ShapeBorder {
       this.borderColor = Colors.black,
       this.borderWidth = 1});
 
-  /*
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
     rst["shape"] = shape.toJson();
@@ -73,7 +82,6 @@ class MorphableShapeBorder extends ShapeBorder {
     rst["borderWidth"] = borderWidth;
     return rst;
   }
-  */
 
   @override
   EdgeInsetsGeometry get dimensions {
@@ -102,8 +110,10 @@ class MorphableShapeBorder extends ShapeBorder {
 
   @override
   bool operator ==(dynamic other) {
+
     if (runtimeType != other.runtimeType) return false;
     final MorphableShapeBorder typedOther = other;
+
     return shape == typedOther.shape &&
         borderWidth == typedOther.borderWidth &&
         borderColor == typedOther.borderColor;
@@ -111,7 +121,7 @@ class MorphableShapeBorder extends ShapeBorder {
 
   @override
   int get hashCode =>
-      (shape.hashCode + borderWidth.hashCode * 3 + borderColor.hashCode * 5);
+      hashValues(shape, borderColor, borderWidth);
 
   @override
   String toString() {
@@ -136,9 +146,9 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
         endIndices: [],
         boundingBox: Rect.zero);
     begin=begin??MorphableShapeBorder(
-        shape: RoundRectShape(borderRadius: BorderRadius.all(Radius.zero)));
+        shape: RoundRectShape());
     end=end??MorphableShapeBorder(
-        shape: RoundRectShape(borderRadius: BorderRadius.all(Radius.zero)));
+        shape: RoundRectShape());
     PathMorph.samplePathsFromShape(data, begin.shape, end.shape, originalRect);
   }
 

@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
-import 'MorphableShapeBorder.dart';
+import 'morphable_shape_border.dart';
 import 'dart:math';
-import 'DynamicShape.dart';
+
+enum NodeControlMode {
+  none,
+  mirrorAngle,
+  mirror,
+}
 
 class DynamicNode {
-  Offset position;
-  Offset? prevControlPoints;
-  Offset? nextControlPoints;
+   Offset position;
+   Offset? prev;
+  Offset? next;
+  NodeControlMode mode;
 
   DynamicNode(
-      {required this.position, this.prevControlPoints, this.nextControlPoints});
+      {required this.position, this.prev, this.next, this.mode=NodeControlMode.mirror});
+
+  DynamicNode.fromJson(Map<String, dynamic> map): position=parseOffset(map["pos"])??Offset(0, 0),
+  prev=parseOffset(map["prev"]),
+  next=parseOffset(map["next"]),
+   mode=NodeControlMode.mirror;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
-    rst["position"] = position.toJson();
-    rst.updateNotNull("prevControlPoints", prevControlPoints?.toJson());
-    rst.updateNotNull("nextControlPoints", nextControlPoints?.toJson());
+    rst["pos"] = position.toJson();
+    rst.updateNotNull("prev", prev?.toJson());
+    rst.updateNotNull("next", next?.toJson());
     return rst;
   }
 }
@@ -25,7 +36,6 @@ class DynamicPath{
   List<DynamicNode> nodes;
 
   DynamicPath({required this.size, required this.nodes}) {
-
     ///max 10 times trial, 1% tolerance
     double tolerance=min(size.width, size.height)/100;
     Rect bound = Rect.fromLTRB(-tolerance, -tolerance, size.width+tolerance, size.height+tolerance);
@@ -35,7 +45,7 @@ class DynamicPath{
     while (outlierIndex!=-1 && iteration<10) {
 
       int splitIndex=outlierIndex;
-      if(!bound.contains(nodes[outlierIndex].prevControlPoints ?? Offset.zero)) {
+      if(!bound.contains(nodes[outlierIndex].prev ?? Offset.zero)) {
         splitIndex=(outlierIndex-1)%nodes.length;
       }
       int nextIndex=(splitIndex+1)%nodes.length;
@@ -44,37 +54,39 @@ class DynamicPath{
       List<Offset> splittedControlPoints;
       if(controlPoints.length>=4) {
         splittedControlPoints = splitCubicAt(0.5, controlPoints);
-        nodes[splitIndex].nextControlPoints = splittedControlPoints[1];
-        nodes[nextIndex].prevControlPoints =
+        nodes[splitIndex].next = splittedControlPoints[1];
+        nodes[nextIndex].prev =
         splittedControlPoints[5];
         nodes.insert(
             nextIndex,
             DynamicNode(
                 position: splittedControlPoints[3],
-                prevControlPoints: splittedControlPoints[2],
-                nextControlPoints: splittedControlPoints[4]));
+                prev: splittedControlPoints[2],
+                next: splittedControlPoints[4]));
       }
       outlierIndex=getOutlierIndex(bound: bound);
       iteration++;
     }
 
     for (int index = 0; index < nodes.length; index++) {
-      updateNode(index, Offset.zero);
+      moveNodeBy(index, Offset.zero);
     }
     purgeOverlappingNodes();
   }
 
   void purgeOverlappingNodes() {
-    List<DynamicNode> newNodes=[nodes[0]];
-    for (int i=0; i<nodes.length; i++) {
-      if((nodes[i].position-newNodes.last.position).distance<0.01*min(size.width, size.height)) {
-        newNodes.last.nextControlPoints=nodes[i].nextControlPoints;
+    if(nodes.isNotEmpty) {
+      List<DynamicNode> newNodes=[nodes[0]];
+      for (int i=0; i<nodes.length; i++) {
+        if((nodes[i].position-newNodes.last.position).distance<0.01*min(size.width, size.height)) {
+          newNodes.last.next=nodes[i].next;
+        }
+        else {
+          newNodes.add(nodes[i]);
+        }
       }
-      else {
-        newNodes.add(nodes[i]);
-      }
+      nodes=newNodes;
     }
-    nodes=newNodes;
   }
 
 
@@ -82,8 +94,8 @@ class DynamicPath{
     int outlierIndex = -1;
     for (int index = 0; index < nodes.length; index++) {
       if (!bound.contains(nodes[index].position) ||
-          !bound.contains(nodes[index].prevControlPoints ?? Offset.zero) ||
-          !bound.contains(nodes[index].nextControlPoints ?? Offset.zero)) {
+          !bound.contains(nodes[index].prev ?? Offset.zero) ||
+          !bound.contains(nodes[index].next ?? Offset.zero)) {
         outlierIndex = index;
         break;
       }
@@ -102,9 +114,9 @@ class DynamicPath{
     nodes.forEach((element) {
       element.position = element.position
           .scale(newSize.width / size.width, newSize.height / size.height);
-      element.prevControlPoints = element.prevControlPoints
+      element.prev = element.prev
           ?.scale(newSize.width / size.width, newSize.height / size.height);
-      element.nextControlPoints = element.nextControlPoints
+      element.next = element.next
           ?.scale(newSize.width / size.width, newSize.height / size.height);
     });
     size = newSize;
@@ -113,49 +125,67 @@ class DynamicPath{
   DynamicNode getNodeWithControlPoints(int index) {
     DynamicNode newNode = DynamicNode(
         position: nodes[index].position,
-        prevControlPoints: nodes[index].prevControlPoints,
-        nextControlPoints: nodes[index].nextControlPoints);
+        prev: nodes[index].prev,
+        next: nodes[index].next);
 
-    if (newNode.prevControlPoints == null) {
+    if (newNode.prev == null) {
       int prevIndex = (index - 1) % nodes.length;
-      newNode.prevControlPoints =
+      newNode.prev =
           newNode.position + (nodes[prevIndex].position - newNode.position) / 3;
     }
-    if (newNode.nextControlPoints == null) {
+    if (newNode.next == null) {
       int nextIndex = (index + 1) % nodes.length;
-      newNode.nextControlPoints =
+      newNode.next =
           newNode.position + (nodes[nextIndex].position - newNode.position) / 3;
     }
 
     return newNode;
   }
 
-  void updateNode(int index, Offset offset) {
+  void moveNodeTo(int index, Offset offset) {
     DynamicNode node = nodes[index];
-    node.position += offset;
+    Offset diff=offset-node.position;
+    node.position =offset;
     node.position =
         node.position.clamp(Offset.zero, Offset(size.width, size.height));
-    if (node.prevControlPoints != null) {
-      node.prevControlPoints = node.prevControlPoints! + offset;
-      node.prevControlPoints = node.prevControlPoints!
+    if (node.prev != null) {
+      node.prev = node.prev! + diff;
+      node.prev = node.prev!
           .clamp(Offset.zero, Offset(size.width, size.height));
     }
-    if (node.nextControlPoints != null) {
-      node.nextControlPoints = node.nextControlPoints! + offset;
-      node.nextControlPoints = node.nextControlPoints!
+    if (node.next != null) {
+      node.next = node.next! + diff;
+      node.next = node.next!
           .clamp(Offset.zero, Offset(size.width, size.height));
     }
   }
 
-  void updateNodeControl(int index, bool prev, Offset offset) {
+  void moveNodeBy(int index, Offset offset) {
+    DynamicNode node = nodes[index];
+    node.position += offset;
+    node.position =
+        node.position.clamp(Offset.zero, Offset(size.width, size.height));
+    if (node.prev != null) {
+      node.prev = node.prev! + offset;
+      node.prev = node.prev!
+          .clamp(Offset.zero, Offset(size.width, size.height));
+    }
+    if (node.next != null) {
+      node.next = node.next! + offset;
+      node.next = node.next!
+          .clamp(Offset.zero, Offset(size.width, size.height));
+    }
+  }
+
+  void moveNodeControlTo(int index, bool prev, Offset offset) {
     DynamicNode node = nodes[index];
     if (prev) {
-      node.prevControlPoints = offset;
-      node.prevControlPoints = node.prevControlPoints!
+      node.prev = offset;
+      node.prev = node.prev!
           .clamp(Offset.zero, Offset(size.width, size.height));
     } else {
-      node.nextControlPoints = offset;
-      node.nextControlPoints = node.nextControlPoints!
+      node.next = offset;
+      node.next = node.next!
           .clamp(Offset.zero, Offset(size.width, size.height));
     }
   }
@@ -163,8 +193,8 @@ class DynamicPath{
   List<Offset> getCubicControlPointsAt(int index) {
     List<Offset> rst = [];
     int nextIndex = (index + 1) % nodes.length;
-    Offset? control1 = nodes[index].nextControlPoints;
-    Offset? control2 = nodes[nextIndex].prevControlPoints;
+    Offset? control1 = nodes[index].next;
+    Offset? control2 = nodes[nextIndex].prev;
     if (control1 != null && control2 != null) {
       rst.add(nodes[index].position);
       rst.add(control1);
@@ -231,4 +261,32 @@ class DynamicPath{
     matrix4.scale(newSize.width / size.width, newSize.height / size.height);
     return path.transform(matrix4.storage);
   }
+
+  ///possible for multiple border color and width?
+  List<Path> getPaths(Size newSize) {
+    List<Path> rst=[];
+    for (int i = 0; i < nodes.length; i++) {
+      Path path=Path();
+      path.moveTo(nodes[i].position.dx, nodes[i].position.dy);
+      List<Offset> controlPoints = getCubicControlPointsAt(i);
+      if (controlPoints.length == 4) {
+        path
+          ..cubicTo(
+              controlPoints[1].dx,
+              controlPoints[1].dy,
+              controlPoints[2].dx,
+              controlPoints[2].dy,
+              controlPoints[3].dx,
+              controlPoints[3].dy);
+      } else {
+        path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
+      }
+      rst.add(path);
+    }
+
+    final Matrix4 matrix4 = Matrix4.identity();
+    matrix4.scale(newSize.width / size.width, newSize.height / size.height);
+    return rst.map((e) => e.transform(matrix4.storage)).toList();
+  }
+
 }

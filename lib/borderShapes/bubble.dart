@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../MorphableShapeBorder.dart';
+import '../morphable_shape_border.dart';
 
 class BubbleShape extends Shape {
   final ShapeCorner corner;
@@ -19,44 +19,47 @@ class BubbleShape extends Shape {
     this.borderRadius = const Length(12),
     this.arrowHeight = const Length(12),
     this.arrowWidth = const Length(12),
-    this.arrowCenterPosition = const Length(0.5, unit: LengthUnit.percent),
-    this.arrowHeadPosition = const Length(0.5, unit: LengthUnit.percent),
+    this.arrowCenterPosition = const Length(50, unit: LengthUnit.percent),
+    this.arrowHeadPosition = const Length(50, unit: LengthUnit.percent),
   });
 
   BubbleShape copyWith({
     ShapeCorner? corner,
-
     Length? borderRadius,
     Length? arrowHeight,
     Length? arrowWidth,
-
     Length? arrowCenterPosition,
     Length? arrowHeadPosition,
   }) {
     return BubbleShape(
-      corner: corner??this.corner,
-      borderRadius: borderRadius??this.borderRadius,
-      arrowHeight: arrowHeight??this.arrowHeight,
-      arrowWidth: arrowWidth??this.arrowWidth,
-      arrowCenterPosition: arrowCenterPosition??this.arrowCenterPosition,
-      arrowHeadPosition: arrowHeadPosition?? this.arrowHeadPosition,
+      corner: corner ?? this.corner,
+      borderRadius: borderRadius ?? this.borderRadius,
+      arrowHeight: arrowHeight ?? this.arrowHeight,
+      arrowWidth: arrowWidth ?? this.arrowWidth,
+      arrowCenterPosition: arrowCenterPosition ?? this.arrowCenterPosition,
+      arrowHeadPosition: arrowHeadPosition ?? this.arrowHeadPosition,
     );
   }
 
   BubbleShape.fromJson(Map<String, dynamic> map)
-      : corner = ShapeCorner.bottomRight,
-        borderRadius = map["borderRadius"],
-        arrowHeight = map["arrowHeight"],
-        arrowWidth = map["arrowWidth"],
-        arrowCenterPosition = map["arrowPosition"],
-        arrowHeadPosition = map["arrowPosition"];
+      : corner = parseShapeCorner(map["corner"]) ?? ShapeCorner.bottomRight,
+        borderRadius = Length.fromJson(map["borderRadius"]) ?? Length(12),
+        arrowHeight =
+            Length.fromJson(map["arrowHeight"]) ?? 0.2.toPercentLength,
+        arrowWidth = Length.fromJson(map["arrowWidth"]) ?? 0.2.toPercentLength,
+        arrowCenterPosition =
+            Length.fromJson(map["arrowCenterPosition"]) ?? 0.5.toPercentLength,
+        arrowHeadPosition =
+            Length.fromJson(map["arrowHeadPosition"]) ?? 0.5.toPercentLength;
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType};
-    rst["borderRadius"] = borderRadius;
-    rst["arrowHeight"] = arrowHeight;
-    rst["arrowWidth"] = arrowWidth;
-    rst["arrowPositionPercent"] = arrowCenterPosition;
+    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    rst["corner"] = corner.toJson();
+    rst["borderRadius"] = borderRadius.toJson();
+    rst["arrowHeight"] = arrowHeight.toJson();
+    rst["arrowWidth"] = arrowWidth.toJson();
+    rst["arrowCenterPosition"] = arrowCenterPosition.toJson();
+    rst["arrowHeadPosition"] = arrowHeadPosition.toJson();
     return rst;
   }
 
@@ -112,8 +115,8 @@ class BubbleShape extends Shape {
     if (this.corner.isHorizontal) {
       arrowCenterPosition = arrowCenterPosition.clamp(0, size.width);
       arrowHeadPosition = arrowHeadPosition.clamp(0, size.width);
-      arrowWidth =
-          arrowWidth.clamp(0, 2 * min(arrowCenterPosition, size.width - arrowCenterPosition));
+      arrowWidth = arrowWidth.clamp(
+          0, 2 * min(arrowCenterPosition, size.width - arrowCenterPosition));
       radiusBound = min(
           min(right - arrowCenterPosition - arrowWidth / 2,
               arrowCenterPosition - arrowWidth / 2 - left),
@@ -123,29 +126,30 @@ class BubbleShape extends Shape {
     } else {
       arrowCenterPosition = arrowCenterPosition.clamp(0, size.height);
       arrowHeadPosition = arrowHeadPosition.clamp(0, size.height);
-      arrowWidth =
-          arrowWidth.clamp(0, 2 * min(arrowCenterPosition, size.height - arrowCenterPosition));
+      arrowWidth = arrowWidth.clamp(
+          0, 2 * min(arrowCenterPosition, size.height - arrowCenterPosition));
       radiusBound = min(
           min(bottom - arrowCenterPosition - arrowWidth / 2,
               arrowCenterPosition - arrowWidth / 2 - top),
           (right - left) / 2);
       borderRadius = borderRadius.clamp(
-            0.0,
-            radiusBound >= 0 ? radiusBound : 0,
-          );
+        0.0,
+        radiusBound >= 0 ? radiusBound : 0,
+      );
     }
 
     if (this.corner.isTop) {
-      nodes.add(DynamicNode(position: Offset(arrowCenterPosition - arrowWidth / 2, top)));
+      nodes.add(DynamicNode(
+          position: Offset(arrowCenterPosition - arrowWidth / 2, top)));
       nodes.add(DynamicNode(position: Offset(arrowHeadPosition, rect.top)));
-      nodes.add(DynamicNode(position: Offset(arrowCenterPosition + arrowWidth / 2, top)));
+      nodes.add(DynamicNode(
+          position: Offset(arrowCenterPosition + arrowWidth / 2, top)));
     }
     if (borderRadius > 0) {
-      nodes.add(
-          DynamicNode(position: Offset(right - borderRadius, top)));
+      nodes.add(DynamicNode(position: Offset(right - borderRadius, top)));
       nodes.arcTo(
           Rect.fromLTRB(
-              right - 2*borderRadius, top, right, top + 2*borderRadius),
+              right - 2 * borderRadius, top, right, top + 2 * borderRadius),
           3 * pi / 2,
           pi / 2);
     } else {
@@ -154,16 +158,17 @@ class BubbleShape extends Shape {
     //RIGHT, TOP
 
     if (this.corner.isRight) {
-      nodes.add(DynamicNode(position: Offset(right, arrowCenterPosition - arrowWidth / 2)));
-      nodes.add(DynamicNode(position: Offset(rect.right, arrowHeadPosition)));
-      nodes.add(DynamicNode(position: Offset(right, arrowCenterPosition + arrowWidth / 2)));
-    }
-    if (borderRadius> 0) {
       nodes.add(DynamicNode(
-          position: Offset(right, bottom - borderRadius)));
+          position: Offset(right, arrowCenterPosition - arrowWidth / 2)));
+      nodes.add(DynamicNode(position: Offset(rect.right, arrowHeadPosition)));
+      nodes.add(DynamicNode(
+          position: Offset(right, arrowCenterPosition + arrowWidth / 2)));
+    }
+    if (borderRadius > 0) {
+      nodes.add(DynamicNode(position: Offset(right, bottom - borderRadius)));
       nodes.arcTo(
-          Rect.fromLTRB(right - borderRadius*2,
-              bottom - borderRadius*2, right, bottom),
+          Rect.fromLTRB(right - borderRadius * 2, bottom - borderRadius * 2,
+              right, bottom),
           0,
           pi / 2);
     } else {
@@ -171,18 +176,17 @@ class BubbleShape extends Shape {
     }
 
     if (this.corner.isBottom) {
-      nodes
-          .add(DynamicNode(position: Offset(arrowCenterPosition + arrowWidth / 2, bottom)));
+      nodes.add(DynamicNode(
+          position: Offset(arrowCenterPosition + arrowWidth / 2, bottom)));
       nodes.add(DynamicNode(position: Offset(arrowHeadPosition, rect.bottom)));
-      nodes
-          .add(DynamicNode(position: Offset(arrowCenterPosition - arrowWidth / 2, bottom)));
+      nodes.add(DynamicNode(
+          position: Offset(arrowCenterPosition - arrowWidth / 2, bottom)));
     }
     if (borderRadius > 0) {
-      nodes.add(
-          DynamicNode(position: Offset(left + borderRadius, bottom)));
+      nodes.add(DynamicNode(position: Offset(left + borderRadius, bottom)));
       nodes.arcTo(
-          Rect.fromLTRB(left, bottom - borderRadius*2,
-              left + borderRadius*2, bottom),
+          Rect.fromLTRB(
+              left, bottom - borderRadius * 2, left + borderRadius * 2, bottom),
           pi / 2,
           pi / 2);
     } else {
@@ -191,15 +195,17 @@ class BubbleShape extends Shape {
     //LEFT, BOTTOM
 
     if (this.corner.isLeft) {
-      nodes.add(DynamicNode(position: Offset(left, arrowCenterPosition + arrowWidth / 2)));
+      nodes.add(DynamicNode(
+          position: Offset(left, arrowCenterPosition + arrowWidth / 2)));
       nodes.add(DynamicNode(position: Offset(rect.left, arrowHeadPosition)));
-      nodes.add(DynamicNode(position: Offset(left, arrowCenterPosition - arrowWidth / 2)));
+      nodes.add(DynamicNode(
+          position: Offset(left, arrowCenterPosition - arrowWidth / 2)));
     }
     if (borderRadius > 0) {
       nodes.add(DynamicNode(position: Offset(left, top + borderRadius)));
       nodes.arcTo(
           Rect.fromLTRB(
-              left, top, left + borderRadius*2, top + borderRadius*2),
+              left, top, left + borderRadius * 2, top + borderRadius * 2),
           pi,
           pi / 2);
     } else {

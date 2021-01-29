@@ -1,4 +1,4 @@
 library morphable_shape;
 
-export 'MorphableShapeBorder.dart';
-export 'PathMorph.dart';
+export 'morphable_shape_border.dart';
+export 'path_morph.dart';

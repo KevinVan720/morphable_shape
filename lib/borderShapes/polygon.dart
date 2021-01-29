@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../MorphableShapeBorder.dart';
+import '../morphable_shape_border.dart';
 
 class PolygonShape extends Shape {
   final int sides;
@@ -12,12 +12,13 @@ class PolygonShape extends Shape {
       : assert(sides >= 3);
 
   PolygonShape.fromJson(Map<String, dynamic> map)
-      : cornerRadius = const Length(0),
+      : cornerRadius = Length.fromJson(map["cornerRadius"])??Length(0),
         sides = map["sides"];
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType};
+    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
     rst["sides"] = sides;
+    rst["cornerRadius"]= cornerRadius.toJson();
     return rst;
   }
 
@@ -47,8 +48,7 @@ class PolygonShape extends Shape {
     } else {
       startAngle = -pi / 2 + (pi / sides);
     }
-
-     */
+    */
 
     final double section = (2.0 * pi / sides);
     final double polygonSize = min(width, height);
