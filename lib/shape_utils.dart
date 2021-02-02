@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 enum ShapeSide { bottom, top, left, right }
+
 enum ShapeCorner {
   topLeft,
   topRight,
@@ -12,6 +13,19 @@ enum ShapeCorner {
   leftBottom,
   rightTop,
   rightBottom
+}
+
+enum CornerStyle{
+  rounded,
+  concave,
+  straight,
+  cutout,
+}
+
+extension CornerStyleExtension on CornerStyle {
+  String toJson() {
+    return this.toString().stripFirstDot();
+  }
 }
 
 extension ShapeSideExtension on ShapeSide {
@@ -28,45 +42,7 @@ extension ShapeSideExtension on ShapeSide {
   }
 }
 
-ShapeSide? parseShapeSide(String? string) {
-  if (string == null) return null;
-  switch (string) {
-    case "top":
-      return ShapeSide.top;
-    case "bottom":
-      return ShapeSide.bottom;
-    case "left":
-      return ShapeSide.left;
-    case "right":
-      return ShapeSide.right;
-  }
-  return null;
-}
-
-ShapeCorner? parseShapeCorner(String? string) {
-  if (string == null) return null;
-  switch (string) {
-    case "topLeft":
-      return ShapeCorner.topLeft;
-    case "topRight":
-      return ShapeCorner.topRight;
-    case "bottomLeft":
-      return ShapeCorner.bottomLeft;
-    case "bottomRight":
-      return ShapeCorner.bottomRight;
-    case "leftTop":
-      return ShapeCorner.leftTop;
-    case "leftBottom":
-      return ShapeCorner.leftBottom;
-    case "rightTop":
-      return ShapeCorner.rightTop;
-    case "rightBottom":
-      return ShapeCorner.rightBottom;
-  }
-  return null;
-}
-
-extension UtilsOnShapeCorner on ShapeCorner {
+extension ShapeCornerExtension on ShapeCorner {
   String toJson() {
     return this.toString().stripFirstDot();
   }
@@ -112,10 +88,14 @@ extension UtilsOnShapeCorner on ShapeCorner {
   }
 }
 
-extension clampOffset on Offset {
+extension OffsetExtension on Offset {
   Offset clamp(Offset lower, Offset upper) {
     return Offset(
         this.dx.clamp(lower.dx, upper.dx), this.dy.clamp(lower.dy, upper.dy));
+  }
+  Offset roundWithPrecision(int N) {
+    return Offset(
+        this.dx.roundWithPrecision(N), this.dy.roundWithPrecision(N));
   }
 }
 
@@ -136,7 +116,7 @@ double getThirdAngle(double a, double b, double c) {
   return acos(cosA);
 }
 
-Offset ArcPoint(Rect rect, double t) {
+Offset getPointOnArc(Rect rect, double t) {
   double xc = rect.center.dx,
       yc = rect.center.dy,
       rx = rect.width / 2,
@@ -144,7 +124,7 @@ Offset ArcPoint(Rect rect, double t) {
   return Offset(xc + rx * cos(t), yc + ry * sin(t));
 }
 
-Offset ArcDerivative(Rect rect, double t) {
+Offset getDerivativeOnArc(Rect rect, double t) {
   double rx = rect.width / 2, ry = rect.height / 2;
   return Offset(-rx * sin(t), ry * cos(t));
 }
@@ -165,10 +145,10 @@ List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
 
   List<Offset> rst = [];
   Offset p1, p2, p3, p4;
-  p1 = ArcPoint(rect, startAngle);
-  p4 = ArcPoint(rect, startAngle + sweepAngle);
-  p2 = p1 + ArcDerivative(rect, startAngle) * alpha;
-  p3 = p4 - ArcDerivative(rect, startAngle + sweepAngle) * alpha;
+  p1 = getPointOnArc(rect, startAngle);
+  p4 = getPointOnArc(rect, startAngle + sweepAngle);
+  p2 = p1 + getDerivativeOnArc(rect, startAngle) * alpha;
+  p3 = p4 - getDerivativeOnArc(rect, startAngle + sweepAngle) * alpha;
   rst.add(p1);
   rst.add(p2);
   rst.add(p3);
@@ -177,6 +157,7 @@ List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
   return rst;
 }
 
+///Every arc will be converted to cubic Bezier path(s) in this package
 extension addDynamicNodeExtension on List<DynamicNode> {
   void cubicTo(Offset x1, Offset x2, Offset x3) {
     if (this.isEmpty) {

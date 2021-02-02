@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 import 'dart:math';
 
+///TODO: DONUT SHAPE
 class CircleShape extends Shape {
-
 
   final double startAngle;
   final double sweepAngle;
@@ -31,7 +31,6 @@ class CircleShape extends Shape {
       sweepAngle: sweepAngle??this.sweepAngle,
     );
   }
-
 
 
   DynamicPath generateDynamicPath(Rect rect) {

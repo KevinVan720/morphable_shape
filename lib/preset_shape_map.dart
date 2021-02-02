@@ -1,50 +1,40 @@
 import 'morphable_shape_border.dart';
 
-Map<String, Shape> presetShapeMap = {
-  "Rectangle": const RoundRectShape(
+const Map<String, Shape> presetShapeMap = {
+  "Circle": const CircleShape(),
+  "Rectangle": const RectangleShape(
       borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
-  "RoundRectangle5": const RoundRectShape(
-      borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(5)))),
-  "RoundRectangle10": const RoundRectShape(
+  "RoundRectangle10": const RectangleShape(
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10)))),
-  "RoundRectangle15": const RoundRectShape(
+  "RoundRectangle20": const RectangleShape(
       borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(15)))),
-  "DiagonalBottomRight": const DiagonalShape(
-      corner: ShapeCorner.bottomRight,
-      inset: Length(20, unit: LengthUnit.percent)),
-  "DiagonalBottomLeft": const DiagonalShape(
-      corner: ShapeCorner.bottomLeft,
-      inset: Length(20, unit: LengthUnit.percent)),
-  "DiagonalTopRight": const DiagonalShape(
-      corner: ShapeCorner.topRight,
-      inset: Length(20, unit: LengthUnit.percent)),
-  "DiagonalTopLeft": const DiagonalShape(
-      corner: ShapeCorner.topLeft,
-      inset: Length(20, unit: LengthUnit.percent)),
-  "CutCornerAll5": CutCornerShape(
-      borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(5)))),
-  "CutCornerAll10": CutCornerShape(
+          const DynamicRadius.circular(const Length(20)))),
+  "DiagonalBottomRight": const RectangleShape(
+    bottomRight: CornerStyle.straight,
+      borderRadius: DynamicBorderRadius.only(
+          bottomRight: const DynamicRadius.elliptical(Length(100, unit: LengthUnit.percent), Length(15, unit: LengthUnit.percent)))),
+  "CutCornerAll10": const RectangleShape(
+    topLeft: CornerStyle.straight,
+      topRight: CornerStyle.straight,
+      bottomLeft: CornerStyle.straight,
+      bottomRight: CornerStyle.straight,
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10)))),
-  "CutCornerAll15": CutCornerShape(
+  "CutoutCornerAll10": const RectangleShape(
+      topLeft: CornerStyle.cutout,
+      topRight: CornerStyle.cutout,
+      bottomLeft: CornerStyle.cutout,
+      bottomRight: CornerStyle.cutout,
       borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(15)))),
-  "CutCornerTopLeft10": CutCornerShape(
-      borderRadius: DynamicBorderRadius.only(
-          topLeft: const DynamicRadius.circular(const Length(10)))),
-  "CutCornerTopRight10": CutCornerShape(
-      borderRadius: DynamicBorderRadius.only(
-          topRight: const DynamicRadius.circular(const Length(10)))),
-  "CutCornerBottomLeft10": CutCornerShape(
-      borderRadius: DynamicBorderRadius.only(
-          bottomLeft: const DynamicRadius.circular(const Length(10)))),
-  "CutCornerBottomRight10": CutCornerShape(
-      borderRadius: DynamicBorderRadius.only(
-          bottomRight: const DynamicRadius.circular(const Length(10)))),
+          const DynamicRadius.circular(const Length(10)))),
+  "ConcaveCornerAll10": const RectangleShape(
+      topLeft: CornerStyle.concave,
+      topRight: CornerStyle.concave,
+      bottomLeft: CornerStyle.concave,
+      bottomRight: CornerStyle.concave,
+      borderRadius: DynamicBorderRadius.all(
+          const DynamicRadius.circular(const Length(10)))),
   "BubbleTopLeft": const BubbleShape(corner: ShapeCorner.topLeft),
   "BubbleBottomRight": const BubbleShape(corner: ShapeCorner.bottomRight),
   "BubbleLeftTop": const BubbleShape(corner: ShapeCorner.leftTop),
@@ -53,7 +43,7 @@ Map<String, Shape> presetShapeMap = {
       side: ShapeSide.top, arcHeight: Length(20, unit: LengthUnit.percent)),
   "ArcBottom": const ArcShape(
       side: ShapeSide.bottom, arcHeight: Length(20, unit: LengthUnit.percent)),
-  "Circle": const CircleShape(),
+  "ArrowRight": const ArrowShape(),
   "Trapezoid": const TrapezoidShape(),
   "Polygon3": const PolygonShape(sides: 3),
   "Polygon5": const PolygonShape(sides: 5),

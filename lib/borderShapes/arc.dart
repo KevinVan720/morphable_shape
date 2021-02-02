@@ -11,13 +11,13 @@ class ArcShape extends Shape {
   const ArcShape({
     this.side = ShapeSide.bottom,
     this.isOutward = true,
-    this.arcHeight = const Length(10),
+    this.arcHeight = const Length(20),
   });
 
   ArcShape.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map['side'])??ShapeSide.bottom,
         isOutward = map["isOutward"],
-        arcHeight = Length.fromJson(map["arcHeight"])??Length(10);
+        arcHeight = Length.fromJson(map["arcHeight"])??Length(20);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
@@ -69,6 +69,14 @@ class ArcShape extends Shape {
 
     List<DynamicNode> nodes = [];
 
+    if(arcHeight==0) {
+      nodes.add(DynamicNode(position: Offset(0, 0.0)));
+      nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
+      nodes.add(DynamicNode(position: Offset(size.width, size.height)));
+      nodes.add(DynamicNode(position: Offset(0, size.height)));
+      return DynamicPath(nodes: nodes, size: size);
+    }
+
     switch (this.side) {
       case ShapeSide.top:
         if (isOutward) {
@@ -81,7 +89,6 @@ class ArcShape extends Shape {
 
           nodes.add(DynamicNode(position: Offset(0.0, arcHeight)));
           nodes.arcTo(circleRect, startAngle, sweepAngle);
-          //addBezier(nodes, arcToCubicBezier(circleRect, startAngle, sweepAngle));
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
         } else {

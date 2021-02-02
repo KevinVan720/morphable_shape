@@ -2,32 +2,131 @@ import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 import 'dart:math';
 
-/*
-enum ArrowPosition { Bottom, Top, Left, Right }
-
 class ArrowShape extends Shape {
-  final ArrowPosition position;
-  final double arrowHeadHeight;
-  final double arrowTailWidth;
+  final ShapeSide side;
+  final Length arrowHeight;
+  final Length tailWidth;
 
   const ArrowShape({
-    this.position = ArrowPosition.Right,
-    this.arrowHeadHeight=10,
-    this.arrowTailWidth=20,
+    this.side=ShapeSide.right,
+    this.arrowHeight=const Length(25, unit: LengthUnit.percent),
+    this.tailWidth=const Length(40, unit: LengthUnit.percent)
   });
 
-  Path generatePath({Rect rect= const Rect.fromLTRB(0.0, 0.0, 0.0, 0.0), double scale=1}) {
-    final size = rect.size;
-
-    switch (this.position) {
-      case ArrowPosition.Top:
-        return Path()..
-
-
-      default:
-        return Path();
-    }
+  ArrowShape copyWith({
+    ShapeSide? side,
+    Length? arrowHeight,
+    Length? tailWidth,
+}) {
+    return ArrowShape(
+      side: side?? this.side,
+      arrowHeight: arrowHeight??this.arrowHeight,
+      tailWidth: tailWidth?? this.tailWidth
+    );
   }
+
+  ArrowShape.fromJson(Map<String, dynamic> map)
+      : side=parseShapeSide(map["side"])??ShapeSide.bottom,
+        arrowHeight=Length.fromJson(map['arrowHeight'])??Length(25, unit: LengthUnit.percent),
+        tailWidth=Length.fromJson(map['tailWidth'])??Length(40, unit: LengthUnit.percent)
+  ;
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> rst={"name": this.runtimeType.toString()};
+    rst["side"]=side.toJson();
+    rst["arrowHeight"]=arrowHeight.toJson();
+    rst["tailWidth"]=tailWidth.toJson();
+    return rst;
+  }
+
+  DynamicPath generateDynamicPath(Rect rect) {
+    List<DynamicNode> nodes = [];
+
+    Size size = rect.size;
+
+    double tailWidth, arrowHeight;
+    if (side.isHorizontal) {
+      arrowHeight=
+          this.arrowHeight.toPX(constraintSize: size.height).clamp(0, size.height);
+      tailWidth=
+          this.tailWidth.toPX(constraintSize: size.width).clamp(0, size.width);
+    } else {
+      arrowHeight=
+          this.arrowHeight.toPX(constraintSize: size.width).clamp(0, size.width);
+      tailWidth=
+          this.tailWidth.toPX(constraintSize: size.height).clamp(0, size.height);
+    }
+
+    switch (side) {
+      case ShapeSide.top:
+        {
+          nodes.add(DynamicNode(position: Offset(size.width/2, 0)));
+          nodes.add(DynamicNode(position: Offset(size.width, arrowHeight)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2+tailWidth/2, arrowHeight)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2+tailWidth/2, size.height)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2-tailWidth/2, size.height)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2-tailWidth/2, arrowHeight)));
+          nodes.add(DynamicNode(
+              position: Offset(0, arrowHeight)));
+        }
+        break;
+      case ShapeSide.bottom:
+        {
+          nodes.add(DynamicNode(position: Offset(size.width/2, size.height)));
+          nodes.add(DynamicNode(position: Offset(0, size.height-arrowHeight)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2-tailWidth/2, size.height-arrowHeight)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2-tailWidth/2, 0)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2+tailWidth/2, 0)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width/2+tailWidth/2, size.height-arrowHeight)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width, size.height-arrowHeight)));
+        }
+        break;
+      case ShapeSide.left:
+        {
+          nodes.add(DynamicNode(position: Offset(0, size.height/2)));
+          nodes.add(DynamicNode(position: Offset(arrowHeight, 0)));
+          nodes.add(DynamicNode(
+              position: Offset(arrowHeight, size.height/2-tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width, size.height/2-tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width, size.height/2+tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(arrowHeight, size.height/2+tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(arrowHeight, size.height)));
+        }
+        break;
+      case ShapeSide.right:
+        {
+          nodes.add(DynamicNode(position: Offset(size.width, size.height/2)));
+          nodes.add(DynamicNode(position: Offset(size.width-arrowHeight, size.height)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width-arrowHeight, size.height/2+tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(0, size.height/2+tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(0, size.height/2-tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width-arrowHeight, size.height/2-tailWidth/2)));
+          nodes.add(DynamicNode(
+              position: Offset(size.width-arrowHeight, 0)));
+        }
+
+        break;
+    }
+
+    return DynamicPath(size: rect.size, nodes: nodes);
+  }
+
 }
 
- */

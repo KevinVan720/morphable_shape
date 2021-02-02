@@ -1,12 +1,6 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
-
 import '../morphable_shape_border.dart';
-
-bool validOffset(Offset offset) {
-  return offset.dx >= 0 && offset.dx <= 2 && offset.dy >= 0 && offset.dy <= 2;
-}
 
 class TriangleShape extends Shape {
   final DynamicOffset point1;
@@ -18,11 +12,11 @@ class TriangleShape extends Shape {
           const Length(0, unit: LengthUnit.percent),
           const Length(0, unit: LengthUnit.percent)),
       this.point2 = const DynamicOffset(
-          const Length(1, unit: LengthUnit.percent),
+          const Length(100, unit: LengthUnit.percent),
           const Length(0, unit: LengthUnit.percent)),
       this.point3 = const DynamicOffset(
-          const Length(0.5, unit: LengthUnit.percent),
-          const Length(1, unit: LengthUnit.percent))});
+          const Length(50, unit: LengthUnit.percent),
+          const Length(100, unit: LengthUnit.percent))});
 
   Shape copyWith({
     DynamicOffset? point1,

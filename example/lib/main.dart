@@ -7,7 +7,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/borderShapes/bubble.dart';
 import 'package:morphable_shape/borderShapes/circle.dart';
-import 'package:morphable_shape/borderShapes/cutcorner.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/morphable_shape_border.dart';
 
@@ -24,9 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-
       home: MyHomePage(),
-      //home: Center(child: Text("Hello")),
     );
   }
 }
@@ -40,93 +37,98 @@ class MyHomePage extends StatefulWidget {
 
 class MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
+  static double nodeSize = 8;
+  static int gridCount = 30;
+
   Shape currentShape;
 
+  Size shapeSize;
   int selectedNodeIndex;
-  double nodeSize = 8;
-  Size shapeSize = Size(400, 400);
   bool isEditingPath = false;
-
-  static int gridCount = 30;
 
   Axis direction;
 
   @override
   void initState() {
     super.initState();
-    //currentShape = ArcShape();
-    currentShape = PathShape(
-        path: CutCornerShape().generateDynamicPath(
-            Rect.fromLTRB(0, 0, shapeSize.width, shapeSize.height)));
+    currentShape = RectangleShape(
+        borderRadius: DynamicBorderRadius.all(
+           DynamicRadius.elliptical(50.0.toPXLength, 50.0.toPXLength)));
   }
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    return LayoutBuilder(builder: (context, constraints) {
+      Size screenSize = MediaQuery.of(context).size;
 
-    if (screenSize.width > screenSize.height) {
-      direction = Axis.horizontal;
-    } else {
-      direction = Axis.vertical;
-    }
+      if (screenSize.width > screenSize.height) {
+        direction = Axis.horizontal;
+      } else {
+        direction = Axis.vertical;
+      }
 
-    MorphableShapeBorder startBorder;
+      if (shapeSize == null) {
+        double length = (min(screenSize.width, screenSize.height) * 0.8)
+            .clamp(200.0, 400.0);
+        shapeSize = Size(length, length);
+      }
 
-    startBorder = MorphableShapeBorder(
-        shape: currentShape, borderColor: Colors.redAccent, borderWidth: 1);
+      MorphableShapeBorder shapeBorder;
 
-    List<Widget> stackedComponents = [
-      Container(
-        width: shapeSize.width + nodeSize * 2,
-        height: shapeSize.height + nodeSize * 2,
-      ),
-      Positioned(
-        left: nodeSize,
-        top: nodeSize,
-        child: Material(
-          shape: startBorder,
-          clipBehavior: Clip.antiAlias,
-          animationDuration: Duration.zero,
-          elevation: 10,
-          child: Container(
-            width: shapeSize.width,
-            height: shapeSize.height,
-            decoration: BoxDecoration(
-              color: Colors.white,
+      shapeBorder = MorphableShapeBorder(
+          shape: currentShape, borderColor: Colors.redAccent, borderWidth: 1);
+
+      List<Widget> stackedComponents = [
+        Container(
+          width: shapeSize.width + nodeSize * 2,
+          height: shapeSize.height + nodeSize * 2,
+        ),
+        Positioned(
+          left: nodeSize,
+          top: nodeSize,
+          child: Material(
+            shape: shapeBorder,
+            clipBehavior: Clip.antiAlias,
+            animationDuration: Duration.zero,
+            //elevation: 10,
+            child: Container(
+              width: shapeSize.width,
+              height: shapeSize.height,
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
             ),
           ),
         ),
-      ),
-      Positioned(
-        left: nodeSize,
-        top: nodeSize,
-        child: Container(
-          decoration:
-              BoxDecoration(border: Border.all(color: Colors.blueAccent)),
-          width: shapeSize.width,
-          height: shapeSize.height,
+        Positioned(
+          left: nodeSize,
+          top: nodeSize,
+          child: Container(
+            decoration:
+                BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+            width: shapeSize.width,
+            height: shapeSize.height,
+          ),
         ),
-      ),
-    ];
+      ];
 
-    if (isEditingPath) {
-      stackedComponents.addAll(buildEditingShapeControlWidgets());
-    } else {
-      stackedComponents.add(buildResizeHandles(-1, -1));
-      stackedComponents.add(buildResizeHandles(-1, 1));
-      stackedComponents.add(buildResizeHandles(1, -1));
-      stackedComponents.add(buildResizeHandles(1, 1));
-    }
+      if (isEditingPath) {
+        stackedComponents.addAll(buildEditingShapeControlWidgets());
+      } else {
+        stackedComponents.add(buildResizeHandles(-1, -1));
+        stackedComponents.add(buildResizeHandles(-1, 1));
+        stackedComponents.add(buildResizeHandles(1, -1));
+        stackedComponents.add(buildResizeHandles(1, 1));
+      }
 
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black87,
-          titleSpacing: 0.0,
-          title: Text("Edit Shape"),
-          centerTitle: true,
-          elevation: 0,
-          actions: <Widget>[
-            IconButton(
+      return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.black87,
+            titleSpacing: 0.0,
+            title: Text("Edit Shape: " + currentShape.runtimeType.toString()),
+            centerTitle: true,
+            elevation: 0,
+            leading: IconButton(
                 icon: Icon(Icons.remove_red_eye),
                 onPressed: () {
                   Navigator.push(
@@ -135,56 +137,83 @@ class MyHomePageState extends State<MyHomePage>
                           builder: (context) => MorphShapePage(
                                 shape: currentShape,
                               )));
-                })
-            //_buildViewTreeButton(),
-          ],
-        ),
-        body: Container(
-          color: Colors.black54,
-          child: Flex(
-            direction: direction,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: Center(
-                  child: Container(
-                    child: GestureDetector(
-                      onDoubleTap: () {
-                        setState(() {
-                          isEditingPath = !isEditingPath;
-                        });
+                }),
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.code),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: SingleChildScrollView(
+                            child: Container(
+                                width: min(screenSize.width * 0.8, 400),
+                                child: SelectableText(
+                                    json.encode(currentShape.toJson()))),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Got it'),
+                              onPressed: () {
+                                Navigator.of(context)?.pop();
+                              },
+                            ),
+                          ],
+                        );
                       },
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: stackedComponents,
+                    );
+                  }),
+            ],
+          ),
+          body: Container(
+            color: Colors.black54,
+            child: Flex(
+              direction: direction,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Container(
+                      child: GestureDetector(
+                        onDoubleTap: () {
+                          setState(() {
+                            isEditingPath = !isEditingPath;
+                          });
+                        },
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: stackedComponents,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              isEditingPath
-                  ? Container(
-                      width: direction == Axis.horizontal ? 340 : screenSize,
-                      decoration: BoxDecoration(color: Colors.grey, boxShadow: [
-                        BoxShadow(
-                            offset: Offset(-2, 2),
-                            color: Colors.black54,
-                            blurRadius: 5,
-                            spreadRadius: 1)
-                      ]),
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        child: ListView(
-                          children: buildEditingShapeDirectWidgets(),
-                        ),
-                      ),
-                    )
-                  : Container(
-                      width: 0,
-                    )
-            ],
-          ),
-        ));
+                Container(
+                  width: isEditingPath
+                      ? (direction == Axis.horizontal
+                          ? 360.0
+                          : screenSize.width)
+                      : 0,
+                  height: isEditingPath
+                      ? (direction == Axis.horizontal ? screenSize.height : 360)
+                      : 0,
+                  decoration: BoxDecoration(color: Colors.grey, boxShadow: [
+                    BoxShadow(
+                        offset: Offset(-2, 2),
+                        color: Colors.black54,
+                        blurRadius: 6,
+                        spreadRadius: 0)
+                  ]),
+                  padding: EdgeInsets.only(top: 5, left: 10, right: 10),
+                  child: ListView(
+                    children: buildEditingShapeDirectWidgets(),
+                  ),
+                )
+              ],
+            ),
+          ));
+    });
   }
 
   List<Widget> buildEditingShapeControlWidgets() {
@@ -192,17 +221,14 @@ class MyHomePageState extends State<MyHomePage>
     if (currentShape is ArcShape) {
       stackedComponents.addAll(buildArcEditingWidgets(currentShape));
     }
+    if (currentShape is ArrowShape) {
+      stackedComponents.addAll(buildArrowEditingWidgets(currentShape));
+    }
     if (currentShape is BubbleShape) {
       stackedComponents.addAll(buildBubbleEditingWidgets(currentShape));
     }
     if (currentShape is CircleShape) {
       stackedComponents.addAll(buildCircleEditingWidgets(currentShape));
-    }
-    if (currentShape is CutCornerShape) {
-      stackedComponents.addAll(buildCutCornerEditingWidgets(currentShape));
-    }
-    if (currentShape is DiagonalShape) {
-      stackedComponents.addAll(buildDiagonalEditingWidgets(currentShape));
     }
 
     if (currentShape is PathShape) {
@@ -212,13 +238,18 @@ class MyHomePageState extends State<MyHomePage>
       stackedComponents.addAll(buildPolygonEditingWidgets(currentShape));
     }
 
-    if (currentShape is RoundRectShape) {
-      stackedComponents.addAll(buildRoundRectEditingWidgets(currentShape));
+    if (currentShape is RectangleShape) {
+      stackedComponents.addAll(buildRectangleEditingWidgets(currentShape));
     }
 
     if (currentShape is StarShape) {
       stackedComponents.addAll(buildStarEditingWidgets(currentShape));
     }
+
+    if (currentShape is TrapezoidShape) {
+      stackedComponents.addAll(buildTrapezoidEditingWidgets(currentShape));
+    }
+
     if (currentShape is TriangleShape) {
       stackedComponents.addAll(buildTriangleEditingWidgets(currentShape));
     }
@@ -229,12 +260,12 @@ class MyHomePageState extends State<MyHomePage>
   List<Widget> buildEditingShapeDirectWidgets() {
     List<Widget> stackedComponents = [];
 
-    if (currentShape is PathShape) {
-      stackedComponents.addAll(buildPathEditingPanelWidget(currentShape));
-    }
-
     if (currentShape is ArcShape) {
       stackedComponents.addAll(buildArcEditingPanelWidget(currentShape));
+    }
+
+    if (currentShape is ArrowShape) {
+      stackedComponents.addAll(buildArrowEditingPanelWidget(currentShape));
     }
 
     if (currentShape is BubbleShape) {
@@ -245,11 +276,82 @@ class MyHomePageState extends State<MyHomePage>
       stackedComponents.addAll(buildCircleEditingPanelWidget(currentShape));
     }
 
-    if (currentShape is CutCornerShape) {
-      stackedComponents.addAll(buildCutCornerEditingPanelWidget(currentShape));
+    if (currentShape is PathShape) {
+      stackedComponents.addAll(buildPathEditingPanelWidget(currentShape));
     }
 
-    return stackedComponents;
+    if (currentShape is PolygonShape) {
+      stackedComponents.addAll(buildPolygonEditingPanelWidget(currentShape));
+    }
+
+    if (currentShape is RectangleShape) {
+      stackedComponents.addAll(buildRectangleEditingPanelWidget(currentShape));
+    }
+
+    if (currentShape is StarShape) {
+      stackedComponents.addAll(buildStarEditingPanelWidget(currentShape));
+    }
+
+    if (currentShape is TrapezoidShape) {
+      stackedComponents.addAll(buildTrapezoidEditingPanelWidget(currentShape));
+    }
+
+    if (currentShape is TriangleShape) {
+      stackedComponents.addAll(buildTriangleEditingPanelWidget(currentShape));
+    }
+
+    stackedComponents.insert(
+        0,
+        buildRowWithHeaderText(
+            headerText: "Shape Size",
+            actionWidget: OffsetPicker(
+                position: Offset(shapeSize.width, shapeSize.height),
+                onPositionChanged: (Offset newPos) {
+                  setState(() {
+                    shapeSize = Size(newPos.dx, newPos.dy);
+                  });
+                },
+                constraintSize: MediaQuery.of(context).size)));
+
+    stackedComponents.add(buildRowWithHeaderText(
+        headerText: "To Bezier",
+        actionWidget: Container(
+          padding: EdgeInsets.only(right: 5),
+          child: ElevatedButton(
+              child: Text('CONVERT'),
+              style:
+                  ElevatedButton.styleFrom(primary: Colors.black87 // foreground
+                      ),
+              onPressed: () {
+                setState(() {
+                  currentShape = PathShape(
+                      path: currentShape.generateDynamicPath(Rect.fromLTRB(
+                          0, 0, shapeSize.width, shapeSize.height)));
+                });
+              }),
+        )));
+
+    stackedComponents.add(buildRowWithHeaderText(
+        headerText: "Change Shape",
+        actionWidget: Container(
+          padding: EdgeInsets.only(right: 5),
+          child: BottomSheetShapePicker(
+            currentShape: currentShape,
+            valueChanged: (value) {
+              setState(() {
+                currentShape = value;
+              });
+            },
+          ),
+        )));
+
+    List<Widget> withDividerWidgets=[];
+    stackedComponents.forEach((element) {
+      withDividerWidgets.add(element);
+      withDividerWidgets.add(Divider(thickness: 2,));
+    });
+
+    return withDividerWidgets;
   }
 
   Widget addControlPointWidget(PathShape shape, int index) {
@@ -262,7 +364,6 @@ class MyHomePageState extends State<MyHomePage>
     if (controlPoints.length == 2) {
       tempPoint = (controlPoints[0] + controlPoints[1]) / 2;
     } else {
-      //tempPoint = DynamicPath.cubicAt(0.5, controlPoints);
       splittedControlPoints = DynamicPath.splitCubicAt(0.5, controlPoints);
       tempPoint = splittedControlPoints[3];
     }
@@ -292,8 +393,10 @@ class MyHomePageState extends State<MyHomePage>
             width: 2 * nodeSize,
             height: 2 * nodeSize,
             decoration: ShapeDecoration(
-                color: Colors.transparent,
-                shape: CircleBorder(side: BorderSide(width: 2)))),
+                gradient: RadialGradient(colors: [Colors.amber, Colors.amberAccent],stops: [0,0.3]),
+                shape: CircleBorder(side: BorderSide(width: 0))),
+        alignment: Alignment.center,
+        child: Icon(Icons.add, size: 2*nodeSize*0.8,),),
       ),
     );
   }
@@ -344,7 +447,7 @@ class MyHomePageState extends State<MyHomePage>
                   setState(() {
                     if (selectedNodeIndex == index) {
                       shape.path.moveNodeBy(
-                          index, Offset(details.delta.dx, details.delta.dy));
+                          index, Offset(details.delta.dx, details.delta.dy).roundWithPrecision(2));
                       currentShape = shape.copyWith(path: path);
                     }
                   });
@@ -378,7 +481,7 @@ class MyHomePageState extends State<MyHomePage>
                   selectedNodeIndex,
                   true,
                   tempSelectedNode.prev +
-                      Offset(details.delta.dx, details.delta.dy));
+                      Offset(details.delta.dx, details.delta.dy).roundWithPrecision(2));
               currentShape = shape.copyWith(path: path);
               //path.nodes[index].position+=Offset(details.delta.dx, details.delta.dy);
             });
@@ -401,7 +504,7 @@ class MyHomePageState extends State<MyHomePage>
                   selectedNodeIndex,
                   false,
                   tempSelectedNode.next +
-                      Offset(details.delta.dx, details.delta.dy));
+                      Offset(details.delta.dx, details.delta.dy).roundWithPrecision(2));
               currentShape = shape.copyWith(path: path);
               //path.nodes[index].position+=Offset(details.delta.dx, details.delta.dy);
             });
@@ -420,21 +523,18 @@ class MyHomePageState extends State<MyHomePage>
   }
 
   Widget dynamicShapeEditingDragWidget(
-      {Offset position, Function onDragUpdate}) {
+      {Offset position, Function onDragUpdate, Color color=Colors.amber}) {
     return Positioned(
       left: position.dx,
       top: position.dy,
       child: GestureDetector(
         dragStartBehavior: DragStartBehavior.start,
         onPanUpdate: onDragUpdate,
-        onPanStart: (DragStartDetails details) {
-          setState(() {});
-        },
         child: Container(
           width: 2 * nodeSize,
           height: 2 * nodeSize,
           decoration: BoxDecoration(
-              color: Colors.amber, border: Border.all(color: Colors.black)),
+              color: color, border: Border.all(color: Colors.black)),
         ),
       ),
     );
@@ -516,6 +616,93 @@ class MyHomePageState extends State<MyHomePage>
     return nodeControls;
   }
 
+  List<Widget> buildArrowEditingWidgets(ArrowShape shape) {
+    List<Widget> nodeControls = [];
+
+    Size size = shapeSize;
+
+    double tailWidth, arrowHeight;
+    if (shape.side.isHorizontal) {
+      arrowHeight = shape.arrowHeight
+          .toPX(constraintSize: size.height)
+          .clamp(0, size.height);
+      tailWidth =
+          shape.tailWidth.toPX(constraintSize: size.width).clamp(0, size.width);
+    } else {
+      arrowHeight = shape.arrowHeight
+          .toPX(constraintSize: size.width)
+          .clamp(0, size.width);
+      tailWidth = shape.tailWidth
+          .toPX(constraintSize: size.height)
+          .clamp(0, size.height);
+    }
+
+    Offset headPosition, tailPosition;
+    Function headOffsetToDelta, tailOffsetToDelta;
+    switch (shape.side) {
+      case ShapeSide.top:
+        {
+          headPosition = Offset(size.width, arrowHeight);
+          headOffsetToDelta = (Offset o) => o.dy;
+          tailPosition = Offset(size.width / 2 + tailWidth / 2, size.height);
+          tailOffsetToDelta = (Offset o) => 2 * o.dx;
+        }
+        break;
+      case ShapeSide.bottom:
+        {
+          headPosition = Offset(size.width, size.height - arrowHeight);
+          headOffsetToDelta = (Offset o) => -o.dy;
+          tailPosition = Offset(size.width / 2 + tailWidth / 2, 0);
+          tailOffsetToDelta = (Offset o) => 2 * o.dx;
+        }
+        break;
+      case ShapeSide.left:
+        {
+          headPosition = Offset(arrowHeight, 0);
+          headOffsetToDelta = (Offset o) => o.dx;
+          tailPosition = Offset(size.width, size.height / 2 + tailWidth / 2);
+          tailOffsetToDelta = (Offset o) => 2 * o.dy;
+        }
+        break;
+      case ShapeSide.right: //right
+        {
+          headPosition = Offset(size.width - arrowHeight, 0);
+          headOffsetToDelta = (Offset o) => -o.dx;
+          tailPosition = Offset(0, size.height / 2 + tailWidth / 2);
+          tailOffsetToDelta = (Offset o) => 2 * o.dy;
+        }
+        break;
+    }
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: headPosition,
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            currentShape = shape.copyWith(
+                arrowHeight: updateLength(shape.arrowHeight, arrowHeight,
+                    constraintSize:
+                        shape.side.isHorizontal ? size.width : size.height,
+                    offset: details.delta,
+                    offsetToDelta: headOffsetToDelta));
+          });
+        }));
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+        position: tailPosition,
+        onDragUpdate: (DragUpdateDetails details) {
+          setState(() {
+            currentShape = shape.copyWith(
+                tailWidth: updateLength(shape.tailWidth, tailWidth,
+                    constraintSize:
+                        shape.side.isHorizontal ? size.height : size.width,
+                    offset: details.delta,
+                    offsetToDelta: tailOffsetToDelta));
+          });
+        }));
+
+    return nodeControls;
+  }
+
   List<Widget> buildCircleEditingWidgets(CircleShape shape) {
     List<Widget> nodeControls = [];
 
@@ -591,17 +778,6 @@ class MyHomePageState extends State<MyHomePage>
     final double spacingRight = shape.corner.isRight ? arrowHeight : 0;
     final double spacingBottom = shape.corner.isBottom ? arrowHeight : 0;
 
-    /*
-    if (shape.corner.isHorizontalRight) {
-      arrowCenterPosition = size.width - arrowCenterPosition;
-      arrowHeadPosition = size.width - arrowHeadPosition;
-    }
-    if (shape.corner.isVerticalBottom) {
-      arrowCenterPosition = size.height - arrowCenterPosition;
-      arrowHeadPosition = size.height - arrowHeadPosition;
-    }
-    */
-
     final double left = spacingLeft;
     final double top = spacingTop;
     final double right = size.width - spacingRight;
@@ -653,8 +829,7 @@ class MyHomePageState extends State<MyHomePage>
           arrowWidthDragUpdate = (Offset o) => -2 * o.dx;
           arrowCenterDragUpdateHorizontal = (Offset o) => o.dx;
           arrowCenterDragUpdateVertical = (Offset o) => o.dy;
-          radiusOffset =
-              Offset(size.width - borderRadius, size.height - borderRadius);
+          radiusOffset = Offset(size.width - borderRadius, size.height);
           radiusDragUpdate = (Offset o) => -o.dx;
         }
         break;
@@ -832,94 +1007,29 @@ class MyHomePageState extends State<MyHomePage>
     return nodeControls;
   }
 
-  List<Widget> buildDiagonalEditingWidgets(DiagonalShape shape) {
-    List<Widget> nodeControls = [];
-
-    Size size = shapeSize;
-
-    final width = size.width;
-    final height = size.height;
-
-    double inset;
-    if (shape.corner.isHorizontal) {
-      inset = shape.inset.toPX(constraintSize: height).clamp(0, height);
-    } else {
-      inset = shape.inset.toPX(constraintSize: width).clamp(0, width);
-    }
-
-    Offset position;
-    Function onDragUpdate;
-    switch (shape.corner) {
-      case ShapeCorner.bottomRight:
-        position = Offset(width, height - inset);
-        onDragUpdate = (Offset o) => -o.dy;
-        break;
-      case ShapeCorner.bottomLeft:
-        position = Offset(0, height - inset);
-        onDragUpdate = (Offset o) => -o.dy;
-        break;
-      case ShapeCorner.topLeft:
-        position = Offset(width, height - inset);
-        onDragUpdate = (Offset o) => o.dy;
-        break;
-      case ShapeCorner.topRight:
-        position = Offset(width, height - inset);
-        onDragUpdate = (Offset o) => o.dy;
-        break;
-      case ShapeCorner.leftTop:
-        position = Offset(inset, 0);
-        onDragUpdate = (Offset o) => o.dx;
-        break;
-      case ShapeCorner.leftBottom:
-        position = Offset(inset, height);
-        onDragUpdate = (Offset o) => o.dx;
-        break;
-      case ShapeCorner.rightTop:
-        position = Offset(width - inset, 0);
-        onDragUpdate = (Offset o) => -o.dx;
-        break;
-      case ShapeCorner.rightBottom:
-        position = Offset(width - inset, height);
-        onDragUpdate = (Offset o) => -o.dx;
-        break;
-    }
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-      position: position,
-      onDragUpdate: (DragUpdateDetails details) {
-        setState(() {
-          currentShape = shape.copyWith(
-              inset: updateLength(shape.inset, inset,
-                  constraintSize:
-                      shape.corner.isHorizontal ? size.height : size.width,
-                  offset: details.delta,
-                  offsetToDelta: onDragUpdate));
-        });
-      },
-    ));
-
-    return nodeControls;
-  }
-
-  List<Widget> buildCutCornerEditingWidgets(CutCornerShape shape) {
+  List<Widget> buildRectangleEditingWidgets(RectangleShape shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
 
     BorderRadius borderRadius = shape.borderRadius.toBorderRadius(size);
 
-    final topLeftRadius = borderRadius.topLeft.x.clamp(0, size.width / 2);
-    final topRightRadius = borderRadius.topRight.x.clamp(0, size.width / 2);
-    final bottomLeftRadius = borderRadius.bottomLeft.x.clamp(0, size.width / 2);
-    final bottomRightRadius =
-        borderRadius.bottomRight.x.clamp(0, size.width / 2);
+    double topLeftRadius = borderRadius.topLeft.x.clamp(0, size.width);
+    double topRightRadius = borderRadius.topRight.x.clamp(0, size.width);
 
-    final leftTopRadius = borderRadius.topLeft.y.clamp(0, size.height / 2);
-    final rightTopRadius = borderRadius.topRight.y.clamp(0, size.height / 2);
-    final leftBottomRadius =
-        borderRadius.bottomLeft.y.clamp(0, size.height / 2);
-    final rightBottomRadius =
-        borderRadius.bottomRight.y.clamp(0, size.height / 2);
+    double bottomLeftRadius =
+    borderRadius.bottomLeft.x.clamp(0, size.width);
+    double bottomRightRadius =
+    borderRadius.bottomRight.x.clamp(0, size.width);
+
+
+    double leftTopRadius = borderRadius.topLeft.y.clamp(0, size.height);
+    double leftBottomRadius = borderRadius.bottomLeft.y.clamp(0, size.height);
+
+
+    double rightTopRadius = borderRadius.topRight.y.clamp(0, size.height);
+    double rightBottomRadius = borderRadius.bottomRight.y.clamp(0, size.height);
+
 
     nodeControls.add(dynamicShapeEditingDragWidget(
         position: Offset(topLeftRadius, 0),
@@ -937,6 +1047,7 @@ class MyHomePageState extends State<MyHomePage>
         }));
 
     nodeControls.add(dynamicShapeEditingDragWidget(
+      color: Colors.green,
         position: Offset(size.width - topRightRadius, 0),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
@@ -952,6 +1063,7 @@ class MyHomePageState extends State<MyHomePage>
         }));
 
     nodeControls.add(dynamicShapeEditingDragWidget(
+        color: Colors.blue,
         position: Offset(bottomLeftRadius, size.height),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
@@ -969,6 +1081,7 @@ class MyHomePageState extends State<MyHomePage>
         }));
 
     nodeControls.add(dynamicShapeEditingDragWidget(
+        color: Colors.red,
         position: Offset(size.width - bottomRightRadius, size.height),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
@@ -1001,6 +1114,7 @@ class MyHomePageState extends State<MyHomePage>
         }));
 
     nodeControls.add(dynamicShapeEditingDragWidget(
+        color: Colors.green,
         position: Offset(size.width, rightTopRadius),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
@@ -1016,6 +1130,7 @@ class MyHomePageState extends State<MyHomePage>
         }));
 
     nodeControls.add(dynamicShapeEditingDragWidget(
+        color: Colors.blue,
         position: Offset(0, size.height - leftBottomRadius),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
@@ -1033,157 +1148,7 @@ class MyHomePageState extends State<MyHomePage>
         }));
 
     nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(size.width, size.height - rightBottomRadius),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
-                y: updateLength(
-                    shape.borderRadius.bottomRight.y, rightBottomRadius,
-                    constraintSize: size.height,
-                    offset: details.delta,
-                    offsetToDelta: (o) => -o.dy));
-
-            currentShape = shape.copyWith(
-                borderRadius:
-                    shape.borderRadius.copyWith(bottomRight: newRadius));
-          });
-        }));
-
-    return nodeControls;
-  }
-
-  List<Widget> buildRoundRectEditingWidgets(RoundRectShape shape) {
-    List<Widget> nodeControls = [];
-
-    Size size = shapeSize;
-
-    BorderRadius borderRadius = shape.borderRadius.toBorderRadius(size);
-
-    final topLeftRadius = borderRadius.topLeft.x.clamp(0, size.width / 2);
-    final topRightRadius = borderRadius.topRight.x.clamp(0, size.width / 2);
-    final bottomLeftRadius = borderRadius.bottomLeft.x.clamp(0, size.width / 2);
-    final bottomRightRadius =
-        borderRadius.bottomRight.x.clamp(0, size.width / 2);
-
-    final leftTopRadius = borderRadius.topLeft.y.clamp(0, size.height / 2);
-    final rightTopRadius = borderRadius.topRight.y.clamp(0, size.height / 2);
-    final leftBottomRadius =
-        borderRadius.bottomLeft.y.clamp(0, size.height / 2);
-    final rightBottomRadius =
-        borderRadius.bottomRight.y.clamp(0, size.height / 2);
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(topLeftRadius, 0),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
-                x: updateLength(shape.borderRadius.topLeft.x, topLeftRadius,
-                    constraintSize: size.width,
-                    offset: details.delta,
-                    offsetToDelta: (o) => o.dx));
-
-            currentShape = shape.copyWith(
-                borderRadius: shape.borderRadius.copyWith(topLeft: newRadius));
-          });
-        }));
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(size.width - topRightRadius, 0),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
-                x: updateLength(shape.borderRadius.topRight.x, topRightRadius,
-                    constraintSize: size.width,
-                    offset: details.delta,
-                    offsetToDelta: (o) => -o.dx));
-
-            currentShape = shape.copyWith(
-                borderRadius: shape.borderRadius.copyWith(topRight: newRadius));
-          });
-        }));
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(bottomLeftRadius, size.height),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
-                x: updateLength(
-                    shape.borderRadius.bottomLeft.x, bottomLeftRadius,
-                    constraintSize: size.width,
-                    offset: details.delta,
-                    offsetToDelta: (o) => o.dx));
-
-            currentShape = shape.copyWith(
-                borderRadius:
-                    shape.borderRadius.copyWith(bottomLeft: newRadius));
-          });
-        }));
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(size.width - bottomRightRadius, size.height),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
-                x: updateLength(
-                    shape.borderRadius.bottomRight.x, bottomRightRadius,
-                    constraintSize: size.width,
-                    offset: details.delta,
-                    offsetToDelta: (o) => -o.dx));
-
-            currentShape = shape.copyWith(
-                borderRadius:
-                    shape.borderRadius.copyWith(bottomRight: newRadius));
-          });
-        }));
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(0, leftTopRadius),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
-                y: updateLength(shape.borderRadius.topLeft.y, leftTopRadius,
-                    constraintSize: size.height,
-                    offset: details.delta,
-                    offsetToDelta: (o) => o.dy));
-
-            currentShape = shape.copyWith(
-                borderRadius: shape.borderRadius.copyWith(topLeft: newRadius));
-          });
-        }));
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(size.width, rightTopRadius),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
-                y: updateLength(shape.borderRadius.topRight.y, rightTopRadius,
-                    constraintSize: size.height,
-                    offset: details.delta,
-                    offsetToDelta: (o) => o.dy));
-
-            currentShape = shape.copyWith(
-                borderRadius: shape.borderRadius.copyWith(topRight: newRadius));
-          });
-        }));
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(0, size.height - leftBottomRadius),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
-                y: updateLength(
-                    shape.borderRadius.bottomLeft.y, leftBottomRadius,
-                    constraintSize: size.height,
-                    offset: details.delta,
-                    offsetToDelta: (o) => -o.dy));
-
-            currentShape = shape.copyWith(
-                borderRadius:
-                    shape.borderRadius.copyWith(bottomLeft: newRadius));
-          });
-        }));
-
-    nodeControls.add(dynamicShapeEditingDragWidget(
+        color: Colors.red,
         position: Offset(size.width, size.height - rightBottomRadius),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
@@ -1265,7 +1230,7 @@ class MyHomePageState extends State<MyHomePage>
     final double centerY = height / 2;
 
     double inset = shape.inset.toPX(constraintSize: radius);
-    inset = inset.clamp(5.0, radius);
+    inset = inset.clamp(0.0, radius*0.99);
     double sideLength = getThirdSideLength(radius, radius - inset, alpha);
     double beta = getThirdAngle(sideLength, radius, radius - inset);
     double gamma = alpha + beta;
@@ -1279,9 +1244,18 @@ class MyHomePageState extends State<MyHomePage>
       insetRadius = insetRadius.clamp(0, avalSideLength * tan(pi - gamma));
     }
 
+    double omega = -pi/2;
+    double r = radius - cornerRadius / sin(beta);
+    Offset center =
+    Offset((r * cos(omega)) + centerX, (r * sin(omega)) + centerY);
+    double sweepAngle = 2 * (pi / 2 - beta);
+    Offset start = arcToCubicBezier(
+        Rect.fromCircle(center: center, radius: cornerRadius),
+        omega - sweepAngle / 2,
+        sweepAngle).first;
+
     nodeControls.add(dynamicShapeEditingDragWidget(
-        position: Offset(centerX,
-                centerY - radius + cornerRadius / sin(beta) - cornerRadius)
+        position: start
             .scale(size.width / width, size.height / height),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
@@ -1289,7 +1263,7 @@ class MyHomePageState extends State<MyHomePage>
                 cornerRadius: updateLength(shape.cornerRadius, cornerRadius,
                     constraintSize: scale,
                     offset: details.delta,
-                    offsetToDelta: (o) => o.dy * sin(beta)));
+                    offsetToDelta: (o) => o.dy / cos(beta)*tan(beta)));
           });
         }));
 
@@ -1301,19 +1275,25 @@ class MyHomePageState extends State<MyHomePage>
           setState(() {
             currentShape = shape.copyWith(
                 inset: updateLength(shape.inset, inset,
-                    constraintSize: scale,
+                    constraintSize: radius,
                     offset: details.delta,
                     offsetToDelta: (o) => (-o.dx / cos(-pi / 2 + alpha))));
           });
         }));
 
-    double sweepAngle = pi - 2 * gamma;
-    print(shape.insetRadius.toJson());
+    omega=-pi/2-alpha;
+    sweepAngle = pi - 2 * gamma;
+
     if (gamma <= pi / 2) {
-      double r = radius - inset + insetRadius / sin(gamma) - insetRadius;
+      r = radius - inset + insetRadius / sin(gamma);
+      Offset center =
+      Offset((r * cos(omega)) + centerX, (r * sin(omega)) + centerY);
+      Offset start = arcToCubicBezier(
+          Rect.fromCircle(center: center, radius: insetRadius),
+          omega + sweepAngle / 2 + pi,
+          -sweepAngle).first;
       nodeControls.add(dynamicShapeEditingDragWidget(
-          position: Offset(centerX + r * cos(-pi / 2 - alpha),
-                  centerY + r * sin(-pi / 2 - alpha))
+          position: start
               .scale(size.width / width, size.height / height),
           onDragUpdate: (DragUpdateDetails details) {
             setState(() {
@@ -1322,15 +1302,20 @@ class MyHomePageState extends State<MyHomePage>
                       constraintSize: scale,
                       offset: details.delta,
                       offsetToDelta: (o) =>
-                          (o.dx / cos(-pi / 2 - alpha) / cos(sweepAngle / 2))));
+                          (o.dx*cos(omega-gamma)+o.dy*sin(omega-gamma))*tan(gamma)));
             });
           }));
     } else {
-      //sweepAngle = -sweepAngle;
-      double r = radius - inset - insetRadius / sin(gamma) + insetRadius;
+      sweepAngle = -sweepAngle;
+      r = radius - inset - insetRadius / sin(gamma);
+      Offset center =
+      Offset((r * cos(omega)) + centerX, (r * sin(omega)) + centerY);
+      Offset start = arcToCubicBezier(
+          Rect.fromCircle(center: center, radius: insetRadius),
+          omega - sweepAngle / 2,
+          sweepAngle).first;
       nodeControls.add(dynamicShapeEditingDragWidget(
-          position: Offset(centerX + r * cos(-pi / 2 - alpha),
-                  centerY + r * sin(-pi / 2 - alpha))
+          position: start
               .scale(size.width / width, size.height / height),
           onDragUpdate: (DragUpdateDetails details) {
             setState(() {
@@ -1338,12 +1323,66 @@ class MyHomePageState extends State<MyHomePage>
                   insetRadius: updateLength(shape.insetRadius, insetRadius,
                       constraintSize: scale,
                       offset: details.delta,
-                      offsetToDelta: (o) => (-o.dx /
-                          cos(-pi / 2 - alpha) /
-                          cos(sweepAngle / 2))));
+                      offsetToDelta: (o) => -(o.dx*cos(omega-gamma)+o.dy*sin(omega-gamma))*tan(gamma)));
             });
           }));
     }
+
+    return nodeControls;
+  }
+
+  List<Widget> buildTrapezoidEditingWidgets(TrapezoidShape shape) {
+    List<Widget> nodeControls = [];
+
+    Size size = shapeSize;
+
+    final width = size.width;
+    final height = size.height;
+
+    double inset;
+    if (shape.side.isHorizontal) {
+      inset =
+          shape.inset.toPX(constraintSize: size.width).clamp(0, size.width / 2);
+    } else {
+      inset = shape.inset
+          .toPX(constraintSize: size.height)
+          .clamp(0, size.height / 2);
+    }
+
+    Offset position;
+    Function onDragUpdate;
+    switch (shape.side) {
+      case ShapeSide.top:
+        position = Offset(inset, 0);
+        onDragUpdate = (Offset o) => o.dx;
+        break;
+      case ShapeSide.bottom:
+        position = Offset(inset, height);
+        onDragUpdate = (Offset o) => o.dx;
+        break;
+      case ShapeSide.left:
+        position = Offset(0, inset);
+        onDragUpdate = (Offset o) => o.dy;
+        break;
+      case ShapeSide.right:
+        position = Offset(width, inset);
+        onDragUpdate = (Offset o) => o.dy;
+        break;
+    }
+
+    nodeControls.add(dynamicShapeEditingDragWidget(
+      position: position,
+      onDragUpdate: (DragUpdateDetails details) {
+        setState(() {
+          currentShape = shape.copyWith(
+              inset: updateLength(shape.inset, inset,
+                  constraintSize:
+                      shape.side.isHorizontal ? size.width : size.height,
+                  offset: details.delta,
+                  offsetToDelta: onDragUpdate));
+        });
+      },
+    ));
 
     return nodeControls;
   }
@@ -1422,29 +1461,105 @@ class MyHomePageState extends State<MyHomePage>
     return nodeControls;
   }
 
+  Widget buildRowWithHeaderText({String headerText, Widget actionWidget}) {
+    return Container(
+      height: 50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: 80,
+            child: Text(
+              headerText,
+              maxLines: 2,
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1,
+                  fontSize: 16),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          actionWidget
+        ],
+      ),
+    );
+  }
+
   List<Widget> buildPathEditingPanelWidget(PathShape shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
-    DynamicPath path=shape.path;
+    DynamicPath path = shape.path;
     path.resize(shapeSize);
 
-    if(selectedNodeIndex!=null) {
-      rst.add(Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text("Side"),
-          OffsetPicker(position: path.nodes[selectedNodeIndex].position, onPositionChanged: (Offset newPos) {
-            setState(() {
-              print("new pos: "+newPos.toString());
-              path.moveNodeTo(selectedNodeIndex,newPos);
-              currentShape=shape.copyWith(path: path);
-            });
-          },
-          constraintSize: shapeSize,)
-        ],
-      ));
+    if (selectedNodeIndex != null) {
+      rst.add(buildRowWithHeaderText(
+          headerText: "Position",
+          actionWidget: OffsetPicker(
+            position: path.nodes[selectedNodeIndex].position,
+            onPositionChanged: (Offset newPos) {
+              setState(() {
+                print("new pos: " + newPos.toString());
+                path.moveNodeTo(selectedNodeIndex, newPos);
+                currentShape = shape.copyWith(path: path);
+              });
+            },
+            constraintSize: shapeSize,
+          )));
+
+      rst.add(buildRowWithHeaderText(
+          headerText: "Previous Control",
+          actionWidget: path.nodes[selectedNodeIndex].prev != null
+              ? OffsetPicker(
+                  position: path.nodes[selectedNodeIndex].prev,
+                  onPositionChanged: (Offset newPos) {
+                    setState(() {
+                      path.moveNodeControlTo(selectedNodeIndex, true, newPos);
+                      currentShape = shape.copyWith(path: path);
+                    });
+                  },
+                  constraintSize: shapeSize,
+                )
+              : Container(
+                  padding: EdgeInsets.only(right: 5),
+                  child: Text("Not in use"))));
+
+      rst.add(buildRowWithHeaderText(
+          headerText: "Next Control",
+          actionWidget: path.nodes[selectedNodeIndex].next != null
+              ? OffsetPicker(
+                  position: path.nodes[selectedNodeIndex].next,
+                  onPositionChanged: (Offset newPos) {
+                    setState(() {
+                      path.moveNodeControlTo(selectedNodeIndex, false, newPos);
+                      currentShape = shape.copyWith(path: path);
+                    });
+                  },
+                  constraintSize: shapeSize,
+                )
+              : Container(
+                  padding: EdgeInsets.only(right: 5),
+                  child: Text("Not in use"))));
+
+      rst.add(buildRowWithHeaderText(
+          headerText: "Delete Node",
+          actionWidget: Container(
+            padding: EdgeInsets.only(right: 5),
+            child: IconButton(
+                icon: Icon(
+                  Icons.delete,
+                  size: 28,
+                ),
+                onPressed: () {
+                  setState(() {
+                    path.nodes.removeAt(selectedNodeIndex);
+                    currentShape = shape.copyWith(path: path);
+                    selectedNodeIndex = null;
+                  });
+                }),
+          )));
     }
+
     return rst;
   }
 
@@ -1452,11 +1567,9 @@ class MyHomePageState extends State<MyHomePage>
     Size size = shapeSize;
     List<Widget> rst = [];
 
-    rst.add(Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text("Side"),
-        DropdownButton<ShapeSide>(
+    rst.add(buildRowWithHeaderText(
+        headerText: "Arc Side",
+        actionWidget: DropdownButton<ShapeSide>(
             value: shape.side,
             onChanged: (ShapeSide newSide) {
               setState(() {
@@ -1465,40 +1578,85 @@ class MyHomePageState extends State<MyHomePage>
             },
             items: ShapeSide.values
                 .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
-                .toList())
-      ],
-    ));
+                .toList())));
 
-    rst.add(Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text("Outward"),
-        Checkbox(
+    rst.add(buildRowWithHeaderText(
+        headerText: "Arc outward",
+        actionWidget: Switch(
+            activeColor: Colors.black87,
             value: shape.isOutward,
             onChanged: (value) {
               setState(() {
                 currentShape = shape.copyWith(isOutward: value);
               });
-            })
-      ],
+            })));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Arc Height",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.arcHeight,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(arcHeight: value);
+            });
+          },
+          constraintSize: shape.side.isHorizontal ? size.height : size.width,
+          allowedUnits: ["px", "%"],
+        ),
+      ),
     ));
 
-    rst.add(Row(
-      children: [
-        Text("Arc Height"),
-        Expanded(
-          child: LengthSlider(
-            sliderValue: shape.arcHeight,
-            valueChanged: (value) {
+    return rst;
+  }
+
+  List<Widget> buildArrowEditingPanelWidget(ArrowShape shape) {
+    Size size = shapeSize;
+    List<Widget> rst = [];
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Arrow Side",
+        actionWidget: DropdownButton<ShapeSide>(
+            value: shape.side,
+            onChanged: (ShapeSide newSide) {
               setState(() {
-                currentShape = shape.copyWith(arcHeight: value);
+                currentShape = shape.copyWith(side: newSide);
               });
             },
-            constraintSize: shape.side.isHorizontal ? size.height : size.width,
-            allowedUnits: ["px", "%"],
-          ),
+            items: ShapeSide.values
+                .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
+                .toList())));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Head Height",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.arrowHeight,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(arrowHeight: value);
+            });
+          },
+          constraintSize: shape.side.isHorizontal ? size.height : size.width,
+          allowedUnits: ["px", "%"],
         ),
-      ],
+      ),
+    ));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Tail Width",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.tailWidth,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(tailWidth: value);
+            });
+          },
+          constraintSize: shape.side.isHorizontal ? size.width : size.height,
+          allowedUnits: ["px", "%"],
+        ),
+      ),
     ));
 
     return rst;
@@ -1508,11 +1666,9 @@ class MyHomePageState extends State<MyHomePage>
     Size size = shapeSize;
     List<Widget> rst = [];
 
-    rst.add(Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text("Corner"),
-        DropdownButton<ShapeCorner>(
+    rst.add(buildRowWithHeaderText(
+        headerText: "Arrow Corner",
+        actionWidget: DropdownButton<ShapeCorner>(
             value: shape.corner,
             onChanged: (ShapeCorner value) {
               setState(() {
@@ -1521,14 +1677,11 @@ class MyHomePageState extends State<MyHomePage>
             },
             items: ShapeCorner.values
                 .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
-                .toList())
-      ],
-    ));
+                .toList())));
 
-    rst.add(Row(
-      children: [
-        Text("Arrow Center"),
-        Expanded(
+    rst.add(buildRowWithHeaderText(
+        headerText: "Arrow Center",
+        actionWidget: Expanded(
           child: LengthSlider(
             sliderValue: shape.arrowCenterPosition,
             valueChanged: (value) {
@@ -1540,33 +1693,27 @@ class MyHomePageState extends State<MyHomePage>
                 shape.corner.isHorizontal ? size.width : size.height,
             allowedUnits: ["px", "%"],
           ),
+        )));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Arrow Head",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.arrowHeadPosition,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(arrowHeadPosition: value);
+            });
+          },
+          constraintSize: shape.corner.isHorizontal ? size.width : size.height,
+          allowedUnits: ["px", "%"],
         ),
-      ],
+      ),
     ));
 
-    rst.add(Row(
-      children: [
-        Text("Arrow Head"),
-        Expanded(
-          child: LengthSlider(
-            sliderValue: shape.arrowHeadPosition,
-            valueChanged: (value) {
-              setState(() {
-                currentShape = shape.copyWith(arrowHeadPosition: value);
-              });
-            },
-            constraintSize:
-                shape.corner.isHorizontal ? size.width : size.height,
-            allowedUnits: ["px", "%"],
-          ),
-        ),
-      ],
-    ));
-
-    rst.add(Row(
-      children: [
-        Text("Arrow Height"),
-        Expanded(
+    rst.add(buildRowWithHeaderText(
+        headerText: "Arrow Height",
+        actionWidget: Expanded(
           child: LengthSlider(
             sliderValue: shape.arrowHeight,
             valueChanged: (value) {
@@ -1578,45 +1725,38 @@ class MyHomePageState extends State<MyHomePage>
                 shape.corner.isHorizontal ? size.height : size.width,
             allowedUnits: ["px", "%"],
           ),
+        )));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Arrow Width",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.arrowWidth,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(arrowWidth: value);
+            });
+          },
+          constraintSize: shape.corner.isHorizontal ? size.width : size.height,
+          allowedUnits: ["px", "%"],
         ),
-      ],
+      ),
     ));
 
-    rst.add(Row(
-      children: [
-        Text("Arrow Width"),
-        Expanded(
-          child: LengthSlider(
-            sliderValue: shape.arrowWidth,
-            valueChanged: (value) {
-              setState(() {
-                currentShape = shape.copyWith(arrowWidth: value);
-              });
-            },
-            constraintSize:
-                shape.corner.isHorizontal ? size.width : size.height,
-            allowedUnits: ["px", "%"],
-          ),
+    rst.add(buildRowWithHeaderText(
+      headerText: "Border Radius",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.borderRadius,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(borderRadius: value);
+            });
+          },
+          constraintSize: min(size.width, size.height),
+          allowedUnits: ["px", "%"],
         ),
-      ],
-    ));
-
-    rst.add(Row(
-      children: [
-        Text("Border Radius"),
-        Expanded(
-          child: LengthSlider(
-            sliderValue: shape.borderRadius,
-            valueChanged: (value) {
-              setState(() {
-                currentShape = shape.copyWith(borderRadius: value);
-              });
-            },
-            constraintSize: min(size.width, size.height),
-            allowedUnits: ["px", "%"],
-          ),
-        ),
-      ],
+      ),
     ));
 
     return rst;
@@ -1626,11 +1766,9 @@ class MyHomePageState extends State<MyHomePage>
     Size size = shapeSize;
     List<Widget> rst = [];
 
-    rst.add(Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text("Start Angle"),
-        Slider(
+    rst.add(buildRowWithHeaderText(
+        headerText: "Start Angle",
+        actionWidget: Slider(
           value: shape.startAngle / pi * 180.clamp(0, 360),
           min: 0,
           max: 360,
@@ -1641,15 +1779,11 @@ class MyHomePageState extends State<MyHomePage>
               currentShape = shape.copyWith(startAngle: value / 180 * pi);
             });
           },
-        )
-      ],
-    ));
+        )));
 
-    rst.add(Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text("Sweep Angle"),
-        Slider(
+    rst.add(buildRowWithHeaderText(
+        headerText: "Sweep Angle",
+        actionWidget: Slider(
           value: shape.sweepAngle / pi * 180.clamp(0, 360),
           min: 0,
           max: 360,
@@ -1660,99 +1794,518 @@ class MyHomePageState extends State<MyHomePage>
               currentShape = shape.copyWith(sweepAngle: value / 180 * pi);
             });
           },
-        )
-      ],
+        )));
+
+    return rst;
+  }
+
+  List<Widget> buildPolygonEditingPanelWidget(PolygonShape shape) {
+    Size size = shapeSize;
+    List<Widget> rst = [];
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Sides",
+        actionWidget: DropdownButton<int>(
+            value: shape.sides,
+            onChanged: (int newSide) {
+              setState(() {
+                currentShape = shape.copyWith(sides: newSide);
+              });
+            },
+            items: [3, 5, 6, 7, 8, 10, 12, 16, 20, 24]
+                .map((e) =>
+                    DropdownMenuItem(value: e, child: Text(e.toString())))
+                .toList())));
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Corner Style",
+        actionWidget: DropdownButton<CornerStyle>(
+            value: shape.cornerStyle,
+            onChanged: (CornerStyle newSide) {
+              setState(() {
+                currentShape = shape.copyWith(cornerStyle: newSide);
+              });
+            },
+            items: [CornerStyle.rounded, CornerStyle.straight, CornerStyle.cutout]
+                .map((e) =>
+                DropdownMenuItem(value: e, child: Text(e.toJson())))
+                .toList())));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Corner Radius",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.cornerRadius,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(cornerRadius: value);
+            });
+          },
+          constraintSize: min(size.width, size.height),
+          allowedUnits: ["px", "%"],
+        ),
+      ),
     ));
 
     return rst;
   }
 
-  List<Widget> buildCutCornerEditingPanelWidget(CutCornerShape shape) {
+  List<Widget> buildRectangleEditingPanelWidget(RectangleShape shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
-    rst.add(Row(
-      children: [
-        Text("Top Left"),
-        Expanded(
+    rst.add(Column(children: [Align(
+      alignment: Alignment.centerLeft,
+      child: Text("Top Left:",
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+    ),
+      buildRowWithHeaderText(headerText: "Style",
+          actionWidget: DropdownButton<CornerStyle>(
+              value: shape.topLeft,
+              onChanged: (CornerStyle newSide) {
+                setState(() {
+                  currentShape = shape.copyWith(topLeft: newSide);
+                });
+              },
+              items: CornerStyle.values
+                  .map((e) =>
+                  DropdownMenuItem(value: e, child: Text(e.toJson())))
+                  .toList())),
+      buildRowWithHeaderText(
+        headerText: "X",
+        actionWidget: Expanded(
           child: LengthSlider(
             sliderValue: shape.borderRadius.topLeft.x,
             valueChanged: (value) {
               setState(() {
                 currentShape = shape.copyWith(
                     borderRadius: shape.borderRadius.copyWith(
-                        topLeft:
-                            shape.borderRadius.topLeft.copyWith(x: value)));
+                        topLeft: shape.borderRadius.topLeft.copyWith(x: value)));
               });
             },
             constraintSize: size.width,
             allowedUnits: ["px", "%"],
           ),
         ),
-      ],
-    ));
-
-    rst.add(Row(
-      children: [
-        Text("Top Right"),
-        Expanded(
+      ),
+      buildRowWithHeaderText(
+        headerText: "Y",
+        actionWidget: Expanded(
           child: LengthSlider(
+            sliderValue: shape.borderRadius.topLeft.y,
+            valueChanged: (value) {
+              setState(() {
+                currentShape = shape.copyWith(
+                    borderRadius: shape.borderRadius.copyWith(
+                        topLeft: shape.borderRadius.topLeft.copyWith(y: value)));
+              });
+            },
+            constraintSize: size.height,
+            allowedUnits: ["px", "%"],
+          ),
+        ),
+      )
+    ],));
+
+    rst.add(Column(children: [Align(
+      alignment: Alignment.centerLeft,
+      child: Text("Top Right:",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+    ),
+      buildRowWithHeaderText(headerText: "Style",
+          actionWidget: DropdownButton<CornerStyle>(
+              value: shape.topRight,
+              onChanged: (CornerStyle newSide) {
+                setState(() {
+                  currentShape = shape.copyWith(topRight: newSide);
+                });
+              },
+              items: CornerStyle.values
+                  .map((e) =>
+                  DropdownMenuItem(value: e, child: Text(e.toJson())))
+                  .toList())),
+      buildRowWithHeaderText(
+        headerText: "X",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            sliderColor: Colors.green,
             sliderValue: shape.borderRadius.topRight.x,
             valueChanged: (value) {
               setState(() {
                 currentShape = shape.copyWith(
                     borderRadius: shape.borderRadius.copyWith(
-                        topRight:
-                            shape.borderRadius.topRight.copyWith(x: value)));
+                        topRight: shape.borderRadius.topRight.copyWith(x: value)));
               });
             },
             constraintSize: size.width,
             allowedUnits: ["px", "%"],
           ),
         ),
-      ],
-    ));
-
-    rst.add(Row(
-      children: [
-        Text("Bottom Left"),
-        Expanded(
+      ),
+      buildRowWithHeaderText(
+        headerText: "Y",
+        actionWidget: Expanded(
           child: LengthSlider(
+            sliderColor: Colors.green,
+            sliderValue: shape.borderRadius.topRight.y,
+            valueChanged: (value) {
+              setState(() {
+                currentShape = shape.copyWith(
+                    borderRadius: shape.borderRadius.copyWith(
+                        topRight: shape.borderRadius.topRight.copyWith(y: value)));
+              });
+            },
+            constraintSize: size.height,
+            allowedUnits: ["px", "%"],
+          ),
+        ),
+      )
+    ],));
+
+    rst.add(Column(children: [Align(
+      alignment: Alignment.centerLeft,
+      child: Text("Bottom Left:",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+    ),
+      buildRowWithHeaderText(headerText: "Style",
+          actionWidget: DropdownButton<CornerStyle>(
+              value: shape.bottomLeft,
+              onChanged: (CornerStyle newSide) {
+                setState(() {
+                  currentShape = shape.copyWith(bottomLeft: newSide);
+                });
+              },
+              items: CornerStyle.values
+                  .map((e) =>
+                  DropdownMenuItem(value: e, child: Text(e.toJson())))
+                  .toList())),
+      buildRowWithHeaderText(
+        headerText: "X",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            sliderColor: Colors.blue,
             sliderValue: shape.borderRadius.bottomLeft.x,
             valueChanged: (value) {
               setState(() {
                 currentShape = shape.copyWith(
                     borderRadius: shape.borderRadius.copyWith(
-                        bottomLeft:
-                            shape.borderRadius.bottomLeft.copyWith(x: value)));
+                        bottomLeft: shape.borderRadius.bottomLeft.copyWith(x: value)));
               });
             },
             constraintSize: size.width,
             allowedUnits: ["px", "%"],
           ),
         ),
-      ],
-    ));
-
-    rst.add(Row(
-      children: [
-        Text("Bottom Right"),
-        Expanded(
+      ),
+      buildRowWithHeaderText(
+        headerText: "Y",
+        actionWidget: Expanded(
           child: LengthSlider(
+            sliderColor: Colors.blue,
+            sliderValue: shape.borderRadius.bottomLeft.y,
+            valueChanged: (value) {
+              setState(() {
+                currentShape = shape.copyWith(
+                    borderRadius: shape.borderRadius.copyWith(
+                        bottomLeft: shape.borderRadius.bottomLeft.copyWith(y: value)));
+              });
+            },
+            constraintSize: size.height,
+            allowedUnits: ["px", "%"],
+          ),
+        ),
+      )
+    ],));
+
+    rst.add(Column(children: [Align(
+      alignment: Alignment.centerLeft,
+      child: Text("Bottom Right:",
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+    ),
+      buildRowWithHeaderText(headerText: "Style",
+          actionWidget: DropdownButton<CornerStyle>(
+              value: shape.bottomRight,
+              onChanged: (CornerStyle newSide) {
+                setState(() {
+                  currentShape = shape.copyWith(bottomRight: newSide);
+                });
+              },
+              items: CornerStyle.values
+                  .map((e) =>
+                  DropdownMenuItem(value: e, child: Text(e.toJson())))
+                  .toList())),
+      buildRowWithHeaderText(
+        headerText: "X",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            sliderColor: Colors.red,
             sliderValue: shape.borderRadius.bottomRight.x,
             valueChanged: (value) {
               setState(() {
                 currentShape = shape.copyWith(
                     borderRadius: shape.borderRadius.copyWith(
-                        bottomRight:
-                            shape.borderRadius.bottomRight.copyWith(x: value)));
+                        bottomRight: shape.borderRadius.bottomRight.copyWith(x: value)));
               });
             },
             constraintSize: size.width,
             allowedUnits: ["px", "%"],
           ),
         ),
-      ],
+      ),
+      buildRowWithHeaderText(
+        headerText: "Y",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            sliderColor: Colors.red,
+            sliderValue: shape.borderRadius.bottomRight.y,
+            valueChanged: (value) {
+              setState(() {
+                currentShape = shape.copyWith(
+                    borderRadius: shape.borderRadius.copyWith(
+                        bottomRight: shape.borderRadius.bottomRight.copyWith(y: value)));
+              });
+            },
+            constraintSize: size.height,
+            allowedUnits: ["px", "%"],
+          ),
+        ),
+      )
+    ],));
+
+    return rst;
+  }
+
+  List<Widget> buildStarEditingPanelWidget(StarShape shape) {
+    Size size = shapeSize;
+    List<Widget> rst = [];
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Corners",
+        actionWidget: DropdownButton<int>(
+            value: shape.corners,
+            onChanged: (int newSide) {
+              setState(() {
+                currentShape = shape.copyWith(corners: newSide);
+              });
+            },
+            items: [3, 4, 5, 6, 7, 8, 10, 12, 16, 20, 24]
+                .map((e) =>
+                    DropdownMenuItem(value: e, child: Text(e.toString())))
+                .toList())));
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Corner Style",
+        actionWidget: DropdownButton<CornerStyle>(
+            value: shape.cornerStyle,
+            onChanged: (CornerStyle newSide) {
+              setState(() {
+                currentShape = shape.copyWith(cornerStyle: newSide);
+              });
+            },
+            items: [CornerStyle.rounded, CornerStyle.straight, CornerStyle.cutout]
+                .map((e) =>
+                DropdownMenuItem(value: e, child: Text(e.toJson())))
+                .toList())));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Corner Radius",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.cornerRadius,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(cornerRadius: value);
+            });
+          },
+          constraintSize: min(size.width, size.height),
+          allowedUnits: ["px", "%"],
+        ),
+      ),
+    ));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Inset",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.inset,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(inset: value);
+            });
+          },
+          constraintSize: min(size.width, size.height),
+          allowedUnits: ["px", "%"],
+        ),
+      ),
+    ));
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Inset Style",
+        actionWidget: DropdownButton<CornerStyle>(
+            value: shape.insetStyle,
+            onChanged: (CornerStyle newSide) {
+              setState(() {
+                currentShape = shape.copyWith(insetStyle: newSide);
+              });
+            },
+            items: [CornerStyle.rounded, CornerStyle.straight, CornerStyle.cutout]
+                .map((e) =>
+                DropdownMenuItem(value: e, child: Text(e.toJson())))
+                .toList())));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Inset Radius",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.insetRadius,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(insetRadius: value);
+            });
+          },
+          constraintSize: min(size.width, size.height),
+          allowedUnits: ["px", "%"],
+        ),
+      ),
+    ));
+
+    return rst;
+  }
+
+  List<Widget> buildTrapezoidEditingPanelWidget(TrapezoidShape shape) {
+    Size size = shapeSize;
+    List<Widget> rst = [];
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Point 1",
+        actionWidget: DropdownButton<ShapeSide>(
+            value: shape.side,
+            onChanged: (ShapeSide newSide) {
+              setState(() {
+                currentShape = shape.copyWith(side: newSide);
+              });
+            },
+            items: ShapeSide.values
+                .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
+                .toList())));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Inset",
+      actionWidget: Expanded(
+        child: LengthSlider(
+          sliderValue: shape.inset,
+          valueChanged: (value) {
+            setState(() {
+              currentShape = shape.copyWith(inset: value);
+            });
+          },
+          constraintSize: shape.side.isHorizontal ? size.width : size.height,
+          allowedUnits: ["px", "%"],
+        ),
+      ),
+    ));
+
+    return rst;
+  }
+
+  List<Widget> buildTriangleEditingPanelWidget(TriangleShape shape) {
+    Size size = shapeSize;
+    List<Widget> rst = [];
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Point 1",
+      actionWidget: Container(
+        height: 50,
+        child: Row(
+          children: [
+            Text("X  "),
+            FixedUnitValuePicker(
+              value: shape.point1.dx.value,
+              onValueChanged: (double value) {
+                currentShape = shape.copyWith(
+                    point1: shape.point1.copyWith(dx: value.toPercentLength));
+              },
+              unit: "%",
+            ),
+            Container(
+              width: 10,
+            ),
+            Text("Y  "),
+            FixedUnitValuePicker(
+              value: shape.point1.dy.value,
+              onValueChanged: (double value) {
+                currentShape = shape.copyWith(
+                    point1: shape.point1.copyWith(dy: value.toPercentLength));
+              },
+              unit: "%",
+            ),
+          ],
+        ),
+      ),
+    ));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Point 2",
+      actionWidget: Container(
+        height: 50,
+        child: Row(
+          children: [
+            Text("X  "),
+            FixedUnitValuePicker(
+              value: shape.point2.dx.value,
+              onValueChanged: (double value) {
+                currentShape = shape.copyWith(
+                    point2: shape.point1.copyWith(dx: value.toPercentLength));
+              },
+              unit: "%",
+            ),
+            Container(
+              width: 10,
+            ),
+            Text("Y  "),
+            FixedUnitValuePicker(
+              value: shape.point2.dy.value,
+              onValueChanged: (double value) {
+                currentShape = shape.copyWith(
+                    point2: shape.point1.copyWith(dy: value.toPercentLength));
+              },
+              unit: "%",
+            ),
+          ],
+        ),
+      ),
+    ));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Point 3",
+      actionWidget: Container(
+        height: 50,
+        child: Row(
+          children: [
+            Text("X  "),
+            FixedUnitValuePicker(
+              value: shape.point3.dx.value,
+              onValueChanged: (double value) {
+                currentShape = shape.copyWith(
+                    point1: shape.point3.copyWith(dx: value.toPercentLength));
+              },
+              unit: "%",
+            ),
+            Container(
+              width: 10,
+            ),
+            Text("Y  "),
+            FixedUnitValuePicker(
+              value: shape.point3.dy.value,
+              onValueChanged: (double value) {
+                currentShape = shape.copyWith(
+                    point1: shape.point3.copyWith(dy: value.toPercentLength));
+              },
+              unit: "%",
+            ),
+          ],
+        ),
+      ),
     ));
 
     return rst;
@@ -1811,24 +2364,6 @@ class ControlPointPathPainter extends CustomPainter {
         ..lineTo(middleOffset.dx, middleOffset.dy)
         ..lineTo(endOffset.dx, endOffset.dy),
       myPaint);
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
-}
-
-class MyPainter extends CustomPainter {
-  Path path;
-  var myPaint;
-
-  MyPainter(this.path) {
-    myPaint = Paint();
-    myPaint.color = Color.fromRGBO(255, 0, 0, 1.0);
-    myPaint.style = PaintingStyle.stroke;
-    myPaint.strokeWidth = 5.0;
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) => canvas.drawPath(path, myPaint);
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;

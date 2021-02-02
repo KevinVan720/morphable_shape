@@ -8,17 +8,24 @@ class StarShape extends Shape {
   final Length inset;
   final Length cornerRadius;
   final Length insetRadius;
+  final CornerStyle cornerStyle;
+  final CornerStyle insetStyle;
 
   const StarShape({
     this.corners = 4,
     this.inset = const Length(50, unit: LengthUnit.percent),
     this.cornerRadius = const Length(0),
     this.insetRadius = const Length(0),
-  }) : assert(corners > 3);
+    this.cornerStyle = CornerStyle.rounded,
+    this.insetStyle = CornerStyle.rounded,
+  }) : assert(corners >= 3);
 
   StarShape.fromJson(Map<String, dynamic> map)
-      : corners = map["corners"],
-        inset = Length.fromJson(map['inset'])??Length(0.5, unit: LengthUnit.percent),
+      :
+        cornerStyle = parseCornerStyle(map["cornerStyle"])??CornerStyle.rounded,
+        insetStyle = parseCornerStyle(map["insetStyle"])??CornerStyle.rounded,
+        corners = map["corners"]??4,
+        inset = Length.fromJson(map['inset'])??Length(50, unit: LengthUnit.percent),
         cornerRadius = Length.fromJson(map["cornerRadius"])??Length(0),
         insetRadius = Length.fromJson(map["insetRadius"])??Length(0);
 
@@ -27,12 +34,16 @@ class StarShape extends Shape {
     Length? inset,
     Length? cornerRadius,
     Length? insetRadius,
+    CornerStyle? cornerStyle,
+    CornerStyle? insetStyle,
   }) {
     return StarShape(
       corners: corners ?? this.corners,
       inset: inset ?? this.inset,
       cornerRadius: cornerRadius ?? this.cornerRadius,
       insetRadius: insetRadius ?? this.insetRadius,
+      cornerStyle: cornerStyle?? this.cornerStyle,
+      insetStyle: insetStyle??this.insetStyle,
     );
   }
 
@@ -42,6 +53,8 @@ class StarShape extends Shape {
     rst["inset"] = inset.toJson();
     rst["cornerRadius"]=cornerRadius.toJson();
     rst["insetRadius"]=insetRadius.toJson();
+    rst["cornerStyle"]=cornerStyle.toJson();
+    rst["insetStyle"]=insetStyle.toJson();
     return rst;
   }
 
@@ -78,7 +91,7 @@ class StarShape extends Shape {
 
     for (int i = 0; i < vertices; i++) {
       final double r;
-      final double omega = -pi / 2 + alpha * i;
+      final double omega = -pi/2 + alpha * i;
       if (i.isEven) {
         if (cornerRadius == 0) {
           r = radius;
@@ -93,10 +106,30 @@ class StarShape extends Shape {
           Offset start = arcToCubicBezier(
               Rect.fromCircle(center: center, radius: cornerRadius),
               omega - sweepAngle / 2,
-              sweepAngle)[0];
+              sweepAngle).first;
+          Offset end = arcToCubicBezier(
+              Rect.fromCircle(center: center, radius: cornerRadius),
+              omega - sweepAngle / 2,
+              sweepAngle).last;
           nodes.add(DynamicNode(position: start));
-          nodes.arcTo(Rect.fromCircle(center: center, radius: cornerRadius),
-              omega - sweepAngle / 2, sweepAngle);
+          switch(cornerStyle) {
+            case CornerStyle.rounded:
+              nodes.arcTo(Rect.fromCircle(center: center, radius: cornerRadius),
+                  omega - sweepAngle / 2, sweepAngle);
+              break;
+            case CornerStyle.concave:
+              nodes.arcTo(Rect.fromCircle(center: center, radius: cornerRadius),
+                  omega - sweepAngle / 2, sweepAngle-2*pi);
+              break;
+            case CornerStyle.straight:
+              nodes.add(DynamicNode(position: end));
+              break;
+            case CornerStyle.cutout:
+              nodes.add(DynamicNode(position: center));
+              nodes.add(DynamicNode(position: end));
+              break;
+          }
+
         }
       } else {
         if (cornerRadius == 0) {
@@ -113,10 +146,30 @@ class StarShape extends Shape {
             Offset start = arcToCubicBezier(
                 Rect.fromCircle(center: center, radius: insetRadius),
                 omega + sweepAngle / 2 + pi,
-                -sweepAngle)[0];
+                -sweepAngle).first;
+            Offset end = arcToCubicBezier(
+                Rect.fromCircle(center: center, radius: insetRadius),
+                omega + sweepAngle / 2 + pi,
+                -sweepAngle).last;
             nodes.add(DynamicNode(position: start));
-            nodes.arcTo(Rect.fromCircle(center: center, radius: insetRadius),
-                omega + sweepAngle / 2 + pi, -sweepAngle);
+            switch(insetStyle) {
+              case CornerStyle.rounded:
+                nodes.arcTo(Rect.fromCircle(center: center, radius: insetRadius),
+                    omega + sweepAngle / 2 + pi, -sweepAngle);
+                break;
+              case CornerStyle.concave:
+                nodes.arcTo(Rect.fromCircle(center: center, radius: insetRadius),
+                    omega + sweepAngle / 2 + pi, -sweepAngle-2*pi);
+                break;
+              case CornerStyle.straight:
+                nodes.add(DynamicNode(position: end));
+                break;
+              case CornerStyle.cutout:
+                nodes.add(DynamicNode(position: center));
+                nodes.add(DynamicNode(position: end));
+                break;
+            }
+
           } else {
             sweepAngle = -sweepAngle;
             r = radius - inset - insetRadius / sin(gamma);
@@ -125,10 +178,30 @@ class StarShape extends Shape {
             Offset start = arcToCubicBezier(
                 Rect.fromCircle(center: center, radius: insetRadius),
                 omega - sweepAngle / 2,
-                sweepAngle)[0];
+                sweepAngle).first;
+            Offset end = arcToCubicBezier(
+                Rect.fromCircle(center: center, radius: insetRadius),
+                omega - sweepAngle / 2,
+                sweepAngle).last;
             nodes.add(DynamicNode(position: start));
-            nodes.arcTo(Rect.fromCircle(center: center, radius: insetRadius),
-                omega - sweepAngle / 2, sweepAngle);
+            switch(insetStyle) {
+              case CornerStyle.rounded:
+                nodes.arcTo(Rect.fromCircle(center: center, radius: insetRadius),
+                    omega - sweepAngle / 2, sweepAngle);
+                break;
+              case CornerStyle.concave:
+                nodes.arcTo(Rect.fromCircle(center: center, radius: insetRadius),
+                    omega - sweepAngle / 2, sweepAngle-2*pi);
+                break;
+              case CornerStyle.straight:
+                nodes.add(DynamicNode(position: end));
+                break;
+              case CornerStyle.cutout:
+                nodes.add(DynamicNode(position: center));
+                nodes.add(DynamicNode(position: end));
+                break;
+            }
+
           }
         }
       }

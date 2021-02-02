@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'path_morph.dart';
-import 'package:morphable_shape/borderShapes/roundrect.dart';
+import 'package:morphable_shape/borderShapes/rectangle.dart';
 import 'package:morphable_shape/borderShapes/morph.dart';
 import 'dynamic_path.dart';
 import 'package:flutter_class_parser/flutter_class_parser.dart';
-import 'dart:math';
+
 
 export 'shape_utils.dart';
 export 'package:flutter_class_parser/parse_json.dart';
@@ -16,11 +16,10 @@ export 'dynamic_path.dart';
 export 'parse_json.dart';
 export 'borderShapes/arc.dart';
 export 'borderShapes/bubble.dart';
+export 'borderShapes/arrow.dart';
 export 'borderShapes/circle.dart';
-export 'borderShapes/cutcorner.dart';
-export 'borderShapes/diagonal.dart';
 export 'borderShapes/polygon.dart';
-export 'borderShapes/roundrect.dart';
+export 'borderShapes/rectangle.dart';
 export 'borderShapes/star.dart';
 export 'borderShapes/triangle.dart';
 export 'borderShapes/morph.dart';
@@ -28,15 +27,14 @@ export 'borderShapes/trapezoid.dart';
 export 'borderShapes/path.dart';
 
 abstract class Shape {
-  //final scale;
 
   const Shape();
-
-  DynamicPath generateDynamicPath(Rect rect);
 
   Map<String, dynamic> toJson();
 
   Shape copyWith();
+
+  DynamicPath generateDynamicPath(Rect rect);
 
   Path generatePath({required Rect rect}) {
 
@@ -88,6 +86,7 @@ class MorphableShapeBorder extends ShapeBorder {
     return EdgeInsets.all(0);
   }
 
+  ///Not possible for some shapes to define such a scale, ignore it altogether for now
   @override
   ShapeBorder scale(double t) {
     return this;
@@ -146,16 +145,18 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
         endIndices: [],
         boundingBox: Rect.zero);
     begin=begin??MorphableShapeBorder(
-        shape: RoundRectShape());
+        shape: RectangleShape());
     end=end??MorphableShapeBorder(
-        shape: RoundRectShape());
+        shape: RectangleShape());
     PathMorph.samplePathsFromShape(data, begin.shape, end.shape, originalRect);
   }
 
   @override
   MorphableShapeBorder lerp(double t) {
-    if (t < 0.01) return begin!;
-    if (t > 0.99) return end!;
+    ///due to the finite sampling accuracy of the morphing,
+    ///let the start and end time shape be the original ones
+    if (t < 0.005) return begin!;
+    if (t > 0.995) return end!;
     return MorphableShapeBorder(
         shape: MorphShape(
             startShape: begin!.shape, endShape: end!.shape, t: t, data: data),

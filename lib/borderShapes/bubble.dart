@@ -16,9 +16,9 @@ class BubbleShape extends Shape {
 
   const BubbleShape({
     this.corner = ShapeCorner.bottomRight,
-    this.borderRadius = const Length(12),
-    this.arrowHeight = const Length(12),
-    this.arrowWidth = const Length(12),
+    this.borderRadius = const Length(6),
+    this.arrowHeight = const Length(20, unit: LengthUnit.percent),
+    this.arrowWidth = const Length(30, unit: LengthUnit.percent),
     this.arrowCenterPosition = const Length(50, unit: LengthUnit.percent),
     this.arrowHeadPosition = const Length(50, unit: LengthUnit.percent),
   });
@@ -43,14 +43,14 @@ class BubbleShape extends Shape {
 
   BubbleShape.fromJson(Map<String, dynamic> map)
       : corner = parseShapeCorner(map["corner"]) ?? ShapeCorner.bottomRight,
-        borderRadius = Length.fromJson(map["borderRadius"]) ?? Length(12),
+        borderRadius = Length.fromJson(map["borderRadius"]) ?? Length(6),
         arrowHeight =
-            Length.fromJson(map["arrowHeight"]) ?? 0.2.toPercentLength,
-        arrowWidth = Length.fromJson(map["arrowWidth"]) ?? 0.2.toPercentLength,
+            Length.fromJson(map["arrowHeight"]) ?? 20.0.toPercentLength,
+        arrowWidth = Length.fromJson(map["arrowWidth"]) ?? 30.0.toPercentLength,
         arrowCenterPosition =
-            Length.fromJson(map["arrowCenterPosition"]) ?? 0.5.toPercentLength,
+            Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
         arrowHeadPosition =
-            Length.fromJson(map["arrowHeadPosition"]) ?? 0.5.toPercentLength;
+            Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"name": this.runtimeType.toString()};

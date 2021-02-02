@@ -28,7 +28,7 @@ class PathMorph {
     Shape shape1,
     Shape shape2,
     Rect rect, {
-    double precision = 0.005,
+    double precision = 0.001,
     double maxTrial = 100,
     int maxControlPoints = 12,
   }) {

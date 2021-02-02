@@ -22,7 +22,7 @@ class TrapezoidShape extends Shape {
 
   TrapezoidShape.fromJson(Map<String, dynamic> map)
       : side=parseShapeSide(map["side"])??ShapeSide.bottom,
-        inset=Length.fromJson(map['inset'])??Length(0.2, unit: LengthUnit.percent);
+        inset=Length.fromJson(map['inset'])??Length(20, unit: LengthUnit.percent);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst={"name": this.runtimeType.toString()};
@@ -37,7 +37,7 @@ class TrapezoidShape extends Shape {
     Size size=rect.size;
 
     double inset;
-    if(side==ShapeSide.top || side==ShapeSide.bottom) {
+    if(side.isHorizontal) {
       inset=this.inset.toPX(constraintSize: size.width).clamp(0,size.width/2);
     }else{
       inset=this.inset.toPX(constraintSize: size.height).clamp(0,size.height/2);

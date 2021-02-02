@@ -1,6 +1,9 @@
 import 'morphable_shape_border.dart';
 import 'package:flutter/material.dart';
 
+///A simpler version of the Material class
+///Not in use right now
+
 class CustomShapeBorderClipper extends CustomClipper<Path> {
   const CustomShapeBorderClipper({
     required this.shape,
