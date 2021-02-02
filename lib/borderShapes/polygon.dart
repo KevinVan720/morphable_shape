@@ -6,7 +6,6 @@ import '../morphable_shape_border.dart';
 
 class PolygonShape extends Shape {
   final int sides;
-  //final double startAngle;
   final Length cornerRadius;
   final CornerStyle cornerStyle;
 
@@ -71,7 +70,6 @@ class PolygonShape extends Shape {
       } else {
         double arcCenterX = (centerX + arcCenterRadius * cos(cornerAngle));
         double arcCenterY = (centerY + arcCenterRadius * sin(cornerAngle));
-        //if (i == 0) {
           Offset start = arcToCubicBezier(
               Rect.fromCircle(
                   center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),

@@ -12,8 +12,7 @@ dependencies:
   morphable_shape:
     path: ../
 
-  length_unit:
-    git: https://github.com/KevinVan720/length_unit
+  length_unit: ^0.0.1
 
 
 dev_dependencies:

@@ -81,10 +81,6 @@ Shape? parseShape(Map<String, dynamic>? map) {
       return BubbleShape.fromJson(map);
     case "CircleShape":
       return CircleShape.fromJson(map);
-    //case "DiagonalShape":
-    //  return DiagonalShape.fromJson(map);
-    //case "CutCornerShape":
-    //  return CutCornerShape.fromJson(map);
     case "PolygonShape":
       return PolygonShape.fromJson(map);
     case "RectangleShape":

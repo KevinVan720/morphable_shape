@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 import 'dart:math';
 
+///A rectangle with one side replaced by an arc with a certain height
 class ArcShape extends Shape {
   final ShapeSide side;
   final Length arcHeight;

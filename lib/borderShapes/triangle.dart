@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 
+///triangle shape defined by the three vertices
+///vertices should only use the percent length unit
 class TriangleShape extends Shape {
   final DynamicOffset point1;
   final DynamicOffset point2;

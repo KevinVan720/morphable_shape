@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 import 'dart:math';
 
-///TODO: DONUT SHAPE
+///Circle shape with a start and sweep angle
 class CircleShape extends Shape {
 
   final double startAngle;

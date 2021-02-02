@@ -58,12 +58,10 @@ packages:
   flutter_class_parser:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "9f2c0c19453227972fd29309b1a2491b2768812d"
-      url: "https://github.com/KevinVan720/flutter_class_parser"
-    source: git
-    version: "0.0.1"
+      name: flutter_class_parser
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -72,11 +70,9 @@ packages:
   length_unit:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "45c5da74a7c0d10f67e47ef931d172c8f83c64e6"
-      url: "https://github.com/KevinVan720/length_unit"
-    source: git
+      name: length_unit
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.0.1"
   matcher:
     dependency: transitive

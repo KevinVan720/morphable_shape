@@ -31,6 +31,10 @@ class DynamicNode {
 
 ///A Bezier path with either straight line or cubic Bezier line
 class DynamicPath {
+
+  static double boxBoundingTolerance=0.01;
+  static int defaultPointPrecision=2;
+
   Size size;
   List<DynamicNode> nodes;
 
@@ -38,20 +42,20 @@ class DynamicPath {
     ///Some control points may lie outside the bounding rect, in this case,
     ///I break the involved Bezier line segment into two so that the new control points may be inside
     ///the bounding box or move closer to it. Repeat this process to get an optimal result
-    ///max 10 times trial, 1% tolerance
-    double tolerance = min(size.width, size.height) * 0.01;
+    ///max 20 times trial, 1% tolerance
+    double tolerance = min(size.width, size.height) * boxBoundingTolerance;
     Rect bound = Rect.fromLTRB(-tolerance, -tolerance, size.width + tolerance,
         size.height + tolerance);
     int outlierIndex = getOutlierIndex(bound: bound);
     int iteration = 0;
 
-    while (outlierIndex != -1 && iteration < 10) {
+    while (outlierIndex != -1 && iteration < 20) {
       int splitIndex = outlierIndex;
       if (!bound.contains(nodes[outlierIndex].prev ?? Offset.zero)) {
         splitIndex = (outlierIndex - 1) % nodes.length;
       }
       int nextIndex = (splitIndex + 1) % nodes.length;
-      List<Offset> controlPoints = getCubicControlPointsAt(splitIndex);
+      List<Offset> controlPoints = getNextPathControlPointsAt(splitIndex);
 
       List<Offset> splitControlPoints;
       if (controlPoints.length >= 4) {
@@ -72,12 +76,10 @@ class DynamicPath {
     ///Effectively force the points and control points within the bounding rect
     for (int index = 0; index < nodes.length; index++) {
       moveNodeBy(index, Offset.zero);
-      nodes[index].position=nodes[index].position.roundWithPrecision(2);
-      nodes[index].prev=nodes[index].prev?.roundWithPrecision(2);
-      nodes[index].next=nodes[index].next?.roundWithPrecision(2);
+      nodes[index].position=nodes[index].position.roundWithPrecision(defaultPointPrecision);
+      nodes[index].prev=nodes[index].prev?.roundWithPrecision(defaultPointPrecision);
+      nodes[index].next=nodes[index].next?.roundWithPrecision(defaultPointPrecision);
     }
-
-
 
     /// combine points that lie very close
     cleanOverlappingNodes();
@@ -101,11 +103,11 @@ class DynamicPath {
       List<DynamicNode> newNodes = [nodes[0]];
       for (int i = 0; i < nodes.length; i++) {
         if ((nodes[i].position - newNodes.last.position).distance <
-            0.01 * size.shortestSide) {
+            boxBoundingTolerance * size.shortestSide) {
           newNodes.last.next = nodes[i].next;
         } else if (i == nodes.length - 1 &&
             (nodes[i].position - newNodes.first.position).distance <
-                0.01 * size.shortestSide) {
+                boxBoundingTolerance * size.shortestSide) {
           newNodes.first.prev = nodes[i].prev;
         } else {
           newNodes.add(nodes[i]);
@@ -156,7 +158,7 @@ class DynamicPath {
 
   void moveNodeTo(int index, Offset offset) {
     DynamicNode node = nodes[index];
-    Offset diff = offset - node.position;
+    Offset diff = (offset - node.position).roundWithPrecision(defaultPointPrecision);
     node.position = offset;
     node.position =
         node.position.clamp(Offset.zero, Offset(size.width, size.height));
@@ -175,9 +177,9 @@ class DynamicPath {
   void moveNodeBy(int index, Offset offset,
       {NodeControlMode mode = NodeControlMode.none}) {
     DynamicNode node = nodes[index];
-    Offset avalOffset = (node.position + offset)
+    Offset avalOffset = ((node.position + offset)
             .clamp(Offset.zero, Offset(size.width, size.height)) -
-        node.position;
+        node.position).roundWithPrecision(defaultPointPrecision);
     /*
     if (node.prev != null) {
       Offset avalOffset2=availableOffset(node.prev!, offset);
@@ -279,23 +281,25 @@ class DynamicPath {
   }
   */
 
+  ///move either one of the control point of the node to offset
   void moveNodeControlTo(int index, bool prev, Offset offset,
       {NodeControlMode mode = NodeControlMode.none}) {
     DynamicNode node = nodes[index];
     if (mode == NodeControlMode.none) {
       if (prev) {
-        node.prev = offset;
+        node.prev = offset.roundWithPrecision(defaultPointPrecision);
         node.prev =
             node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
       } else {
-        node.next = offset;
+        node.next = offset.roundWithPrecision(defaultPointPrecision);
         node.next =
             node.next!.clamp(Offset.zero, Offset(size.width, size.height));
       }
     }
   }
 
-  List<Offset> getCubicControlPointsAt(int index) {
+  ///Get the necessary points to draw the straight or cubic Bezier path at index
+  List<Offset> getNextPathControlPointsAt(int index) {
     List<Offset> rst = [];
     int nextIndex = (index + 1) % nodes.length;
     Offset? control1 = nodes[index].next;
@@ -326,6 +330,7 @@ class DynamicPath {
     return rst;
   }
 
+  ///split a cubic Bezier path at parameter t
   static List<Offset> splitCubicAt(double t, List<Offset> controlPoints) {
     Offset x1 = controlPoints[0];
     Offset x2 = controlPoints[1];
@@ -341,13 +346,14 @@ class DynamicPath {
     return [x1, x12, x123, x1234, x234, x34, x4];
   }
 
+  ///convert this to a Path
   Path getPath(Size newSize) {
     Path path = Path();
     if (nodes.isNotEmpty) {
       path.moveTo(nodes[0].position.dx, nodes[0].position.dy);
     }
     for (int i = 0; i < nodes.length; i++) {
-      List<Offset> controlPoints = getCubicControlPointsAt(i);
+      List<Offset> controlPoints = getNextPathControlPointsAt(i);
       if (controlPoints.length == 4) {
         path
           ..cubicTo(
@@ -367,13 +373,14 @@ class DynamicPath {
     return path.transform(matrix4.storage);
   }
 
+  ///convert this to a list of Paths
   ///possible for multiple border color and width?
   List<Path> getPaths(Size newSize) {
     List<Path> rst = [];
     for (int i = 0; i < nodes.length; i++) {
       Path path = Path();
       path.moveTo(nodes[i].position.dx, nodes[i].position.dy);
-      List<Offset> controlPoints = getCubicControlPointsAt(i);
+      List<Offset> controlPoints = getNextPathControlPointsAt(i);
       if (controlPoints.length == 4) {
         path
           ..cubicTo(

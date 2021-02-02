@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../morphable_shape_border.dart';
 
+///Bubble shape, with a triangular tip and equal radius rounded corner
 class BubbleShape extends Shape {
   final ShapeCorner corner;
 

@@ -3,6 +3,7 @@ import '../morphable_shape_border.dart';
 import '../path_morph.dart';
 
 ///this class should only be called by a morphShapeTween
+///Use PathMorph to morph between two shapes
 class MorphShape extends Shape {
   final Shape startShape;
   final Shape endShape;

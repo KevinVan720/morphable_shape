@@ -2,8 +2,11 @@ import 'morphable_shape_border.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
 
+///represent a shape feature at one of the four side of a rectangle
+///and also one of the four corners of the rectangle
 enum ShapeCorner {
   topLeft,
   topRight,

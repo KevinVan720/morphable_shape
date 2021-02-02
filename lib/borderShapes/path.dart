@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../morphable_shape_border.dart';
 
-///possible for future implementation of freeform shape or import shape from SVG
+///A Shape made from a path with straight or cubic Bezier lines
+///possible for future implementation of freeform lines or import shapes from SVG
 class PathShape extends Shape {
   final DynamicPath path;
 

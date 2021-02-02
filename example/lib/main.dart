@@ -35,6 +35,7 @@ class MyHomePage extends StatefulWidget {
   }
 }
 
+///Widget that allows you to edit a single shape
 class MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   static double nodeSize = 8;
@@ -207,7 +208,7 @@ class MyHomePageState extends State<MyHomePage>
                   ]),
                   padding: EdgeInsets.only(top: 5, left: 10, right: 10),
                   child: ListView(
-                    children: buildEditingShapeDirectWidgets(),
+                    children: buildEditingShapePanelWidgets(),
                   ),
                 )
               ],
@@ -257,7 +258,7 @@ class MyHomePageState extends State<MyHomePage>
     return stackedComponents;
   }
 
-  List<Widget> buildEditingShapeDirectWidgets() {
+  List<Widget> buildEditingShapePanelWidgets() {
     List<Widget> stackedComponents = [];
 
     if (currentShape is ArcShape) {
@@ -357,7 +358,7 @@ class MyHomePageState extends State<MyHomePage>
   Widget addControlPointWidget(PathShape shape, int index) {
     DynamicPath path = shape.path;
     int nextIndex = (index + 1) % path.nodes.length;
-    List<Offset> controlPoints = path.getCubicControlPointsAt(index);
+    List<Offset> controlPoints = path.getNextPathControlPointsAt(index);
     Offset tempPoint;
     List<Offset> splittedControlPoints;
 

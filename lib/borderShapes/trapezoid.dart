@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../morphable_shape_border.dart';
 
+///A trapezoid shape, can be achieved from a rectangle
+///may remove in the future
 class TrapezoidShape extends Shape {
 
   final ShapeSide side;

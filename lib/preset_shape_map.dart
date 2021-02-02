@@ -50,10 +50,10 @@ const Map<String, Shape> presetShapeMap = {
   "Polygon6": const PolygonShape(sides: 6),
   "Polygon8": const PolygonShape(sides: 8),
   "Polygon12": const PolygonShape(sides: 12),
-  "Triangle": const TriangleShape(),
   "Star4": const StarShape(corners: 4),
   "Star5": const StarShape(corners: 5),
   "Star6": const StarShape(corners: 6),
   "Star8": const StarShape(corners: 8),
   "Star12": const StarShape(corners: 12),
+  "Triangle": const TriangleShape(),
 };

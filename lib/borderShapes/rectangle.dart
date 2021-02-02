@@ -1,12 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math.dart';
 
 import '../morphable_shape_border.dart';
 
-const double magicC = 0.551915;
-
+///Rectangle shape with various corner style and radius for each corner
 class RectangleShape extends Shape {
   final CornerStyle topLeft;
   final CornerStyle topRight;

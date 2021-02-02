@@ -6,6 +6,8 @@ import 'package:flutter/painting.dart';
 import 'dart:math';
 import 'morphable_shape_border.dart';
 
+///Data class that records the start, end and intermediate shape used for shape morphing
+/// endIndices is used for multi contour shapes, which is not considered in the current version
 class SampledPathData {
   List<Offset> points1;
   List<Offset> points2;
@@ -15,10 +17,10 @@ class SampledPathData {
 
   SampledPathData(
       {required this.points1,
-        required this.points2,
-        required this.shiftedPoints,
-        required this.endIndices,
-        required this.boundingBox});
+      required this.points2,
+      required this.shiftedPoints,
+      required this.endIndices,
+      required this.boundingBox});
 }
 
 /// This class has all the methods you need to create your morph animations.
@@ -41,19 +43,21 @@ class PathMorph {
     Path path1 = shape1.generatePath(rect: rect);
     Path path2 = shape2.generatePath(rect: rect);
 
-    samplePaths(data, path1, path2, precision: precision, maxTrial: maxTrial, maxControlPoints: maxControlPoints);
+    samplePaths(data, path1, path2,
+        precision: precision,
+        maxTrial: maxTrial,
+        maxControlPoints: maxControlPoints);
     //return data;
   }
 
   static void samplePaths(
-      SampledPathData data,
-      Path path1,
-      Path path2, {
-        double precision = 0.001,
-        double maxTrial = 100,
-        int maxControlPoints = 12,
-      }) {
-
+    SampledPathData data,
+    Path path1,
+    Path path2, {
+    double precision = 0.001,
+    double maxTrial = 100,
+    int maxControlPoints = 12,
+  }) {
     ///first try to sample the key control points needed to paint the path
     ///by walking through the path using the pathMetric class and look at the tangent angles
     ///which means all straight lines should only be sampled at its beginning and end
@@ -75,7 +79,7 @@ class PathMorph {
     if (totalPoints < maxControlPoints) {
       ///if the shorter length shape has no equal length edge, then there is a unique way to add points to it
       if ((data.points2.length == totalPoints &&
-          haveEqualLength(data.points1) == false) ||
+              haveEqualLength(data.points1) == false) ||
           (data.points1.length == totalPoints &&
               haveEqualLength(data.points2) == false)) {
         data.points2 = supplyPoints(data.points2, totalPoints);
@@ -104,9 +108,6 @@ class PathMorph {
       }
     } else {
       ///total points is pretty big, probably one shape has curved edges, sample that shape evenly then
-      ///however we don't need much precision for the simplePathWalker,
-      ///the controlPointPathWalker needs much precision since we want to find the key control points
-      /// as precise as possible
       data.points1 = simplePathWalker(path1, precision: precision);
       data.points2 = simplePathWalker(path2, precision: precision);
     }
@@ -118,7 +119,6 @@ class PathMorph {
 
     ///shifted points are the points used to construct the intermediate path
     data.shiftedPoints.addAll(data.points1);
-    //return data;
   }
 
   static int computeMinimumOffsetIndex(
@@ -130,8 +130,7 @@ class PathMorph {
     for (int shift = 0; shift < length; shift++) {
       double currentOffset = 0.0;
       for (int i = 0; i < length; i++) {
-        currentOffset +=
-            (points1[(i + shift) % length] - points2[i]).distance;
+        currentOffset += (points1[(i + shift) % length] - points2[i]).distance;
       }
       if (currentOffset <= minimumOffset) {
         minimumOffset = currentOffset;
@@ -159,9 +158,7 @@ class PathMorph {
     return minimumOffset;
   }
 
-  /// Generates a bunch of animations that are responsible for moving
-  /// all the points of paths into the right positions.
-
+  ///get the intermediate Path at time/progress t
   static Path lerpPath(double t, SampledPathData data) {
     for (var i = 0; i < data.points1.length; i++) {
       var start = data.points1[i];
@@ -173,6 +170,7 @@ class PathMorph {
     return generatePath(data);
   }
 
+  ///get the intermediate control points at time/progress t
   static List<Offset> lerpPoints(double t, SampledPathData data) {
     for (var i = 0; i < data.points1.length; i++) {
       var start = data.points1[i];
@@ -204,7 +202,7 @@ class PathMorph {
 
   ///generate circles around the control points, for demonstration purposes
   static List<Offset> generatePoints(SampledPathData data) {
-    List<Offset> rst=[];
+    List<Offset> rst = [];
     for (var i = 0; i < data.shiftedPoints.length; i++) {
       rst.add(Offset(data.shiftedPoints[i].dx, data.shiftedPoints[i].dy));
     }
@@ -313,42 +311,40 @@ List<Offset> controlPointPathWalker(Path path, {double precision = 0.001}) {
   Offset? prevPoint;
 
   ///only support single contour shapes for now
-  PathMetric metric=path.computeMetrics().toList().first;
-    for (var i = 0.0; i <= 1.0 + precision; i += precision) {
-      ///use a large testMove to quickly go through straight lines
-      double testMove = min(20.0 * precision, 0.03);
-      while (testMove > precision) {
-        double newMove = i + testMove;
-        double? angle =
-            metric.getTangentForOffset(metric.length * newMove)?.angle;
-        if (angle != prevAngle) {
-          testMove /= 2;
-        } else {
-          i += testMove;
-          break;
-        }
-      }
-
-      Offset? position =
-          metric.getTangentForOffset(metric.length * i)?.position;
-      double? angle = metric.getTangentForOffset(metric.length * i)?.angle;
+  PathMetric metric = path.computeMetrics().toList().first;
+  for (var i = 0.0; i <= 1.0 + precision; i += precision) {
+    ///use a large testMove to quickly go through straight lines
+    double testMove = min(20.0 * precision, 0.02);
+    while (testMove > precision) {
+      double newMove = i + testMove;
+      double? angle =
+          metric.getTangentForOffset(metric.length * newMove)?.angle;
       if (angle != prevAngle) {
-        keyPoints.add(prevPoint ?? position ?? Offset.zero);
+        testMove /= 2;
+      } else {
+        i += testMove;
+        break;
       }
-      prevAngle = angle ?? double.infinity;
-      prevPoint = position;
     }
+
+    Offset? position = metric.getTangentForOffset(metric.length * i)?.position;
+    double? angle = metric.getTangentForOffset(metric.length * i)?.angle;
+    if (angle != prevAngle) {
+      keyPoints.add(prevPoint ?? position ?? Offset.zero);
+    }
+    prevAngle = angle ?? double.infinity;
+    prevPoint = position;
+  }
   return keyPoints;
 }
 
 List<Offset> simplePathWalker(Path path, {double precision = 0.001}) {
   List<Offset> keyPoints = [];
-  PathMetric metric=path.computeMetrics().toList().first;
-    for (var i = 0.0; i <= 1.0 + precision; i += precision) {
-      Offset position =
-          metric.getTangentForOffset(metric.length * i)?.position ??
-              Offset.zero;
-      keyPoints.add(position);
-    }
+  PathMetric metric = path.computeMetrics().toList().first;
+  for (var i = 0.0; i <= 1.0 + precision; i += precision) {
+    Offset position =
+        metric.getTangentForOffset(metric.length * i)?.position ?? Offset.zero;
+    keyPoints.add(position);
+  }
   return keyPoints;
 }

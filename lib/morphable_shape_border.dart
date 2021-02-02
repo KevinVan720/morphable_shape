@@ -26,6 +26,9 @@ export 'borderShapes/morph.dart';
 export 'borderShapes/trapezoid.dart';
 export 'borderShapes/path.dart';
 
+///The base class for various shapes implemented in this package
+///should be serializable/deserializable
+///generate a DynamicPath instance with all the control points, then convert to a Path
 abstract class Shape {
 
   const Shape();
@@ -63,6 +66,8 @@ abstract class Shape {
 
 }
 
+///ShapeBorder with various customizable shapes
+///can tween smoothly between arbitrary two instances of this class
 class MorphableShapeBorder extends ShapeBorder {
   final Shape shape;
   final Color borderColor;
@@ -92,6 +97,7 @@ class MorphableShapeBorder extends ShapeBorder {
     return this;
   }
 
+  ///Inner path is currently regarded the same as the outer path
   @override
   Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
     return shape.generatePath(rect: rect);
