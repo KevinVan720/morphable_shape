@@ -21,7 +21,7 @@ class ArcShape extends Shape {
         arcHeight = Length.fromJson(map["arcHeight"])??Length(20);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    Map<String, dynamic> rst = {"name": "ArcShape"};
     rst["arcHeight"] = arcHeight.toJson();
     rst["isOutward"] = isOutward;
     rst["side"]=side.toJson();

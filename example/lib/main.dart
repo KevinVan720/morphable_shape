@@ -130,7 +130,7 @@ class MyHomePageState extends State<MyHomePage>
           appBar: AppBar(
             backgroundColor: Colors.black87,
             titleSpacing: 0.0,
-            title: Text("Edit Shape: " + currentShape.runtimeType.toString()),
+            title: Text("Edit Shape: "),
             centerTitle: true,
             elevation: 0,
             leading: IconButton(

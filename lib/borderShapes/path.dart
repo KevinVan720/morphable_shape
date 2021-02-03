@@ -14,7 +14,7 @@ class PathShape extends Shape {
             DynamicPath(size: Size.zero, nodes: []);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    Map<String, dynamic> rst = {"name": "PathShape"};
     rst["path"] = path.toJson();
     return rst;
   }

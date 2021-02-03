@@ -54,7 +54,7 @@ class BubbleShape extends Shape {
             Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength;
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    Map<String, dynamic> rst = {"name": "BubbleShape"};
     rst["corner"] = corner.toJson();
     rst["borderRadius"] = borderRadius.toJson();
     rst["arrowHeight"] = arrowHeight.toJson();

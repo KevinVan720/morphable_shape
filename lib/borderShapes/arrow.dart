@@ -33,7 +33,7 @@ class ArrowShape extends Shape {
   ;
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst={"name": this.runtimeType.toString()};
+    Map<String, dynamic> rst={"name": "ArrowShape"};
     rst["side"]=side.toJson();
     rst["arrowHeight"]=arrowHeight.toJson();
     rst["tailWidth"]=tailWidth.toJson();

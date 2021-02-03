@@ -48,7 +48,7 @@ class StarShape extends Shape {
   }
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    Map<String, dynamic> rst = {"name": "StarShape"};
     rst["corners"] = corners;
     rst["inset"] = inset.toJson();
     rst["cornerRadius"]=cornerRadius.toJson();

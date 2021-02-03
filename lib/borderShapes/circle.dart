@@ -16,7 +16,7 @@ class CircleShape extends Shape {
         sweepAngle = map["sweepAngle"]??(2 * pi);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": this.runtimeType.toString()};
+    Map<String, dynamic> rst = {"name": "CircleShape"};
     rst["startAngle"]=startAngle;
     rst["sweepAngle"]=sweepAngle;
     return rst;
