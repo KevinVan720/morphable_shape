@@ -7,9 +7,6 @@ const Map<String, Shape> presetShapeMap = {
   "RoundRectangle10": const RectangleShape(
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10)))),
-  "RoundRectangle20": const RectangleShape(
-      borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(20)))),
   "DiagonalBottomRight": const RectangleShape(
     bottomRight: CornerStyle.straight,
       borderRadius: DynamicBorderRadius.only(

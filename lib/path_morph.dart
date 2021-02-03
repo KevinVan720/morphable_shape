@@ -31,8 +31,8 @@ class PathMorph {
     Shape shape2,
     Rect rect, {
     double precision = 0.001,
-    double maxTrial = 100,
-    int maxControlPoints = 12,
+    double maxTrial = 200,
+    int maxControlPoints = 16,
   }) {
     data.boundingBox = rect;
     data.points2.clear();

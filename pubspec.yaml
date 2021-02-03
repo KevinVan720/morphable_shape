@@ -13,8 +13,6 @@ dependencies:
 
 
   flutter_class_parser: ^0.0.2
-
-
   length_unit: ^0.0.1
 
 dev_dependencies:

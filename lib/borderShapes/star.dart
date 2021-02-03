@@ -132,7 +132,7 @@ class StarShape extends Shape {
 
         }
       } else {
-        if (cornerRadius == 0) {
+        if (insetRadius == 0) {
           r = radius - inset;
           nodes.add(DynamicNode(
               position: Offset(
