@@ -50,8 +50,9 @@ class _MorphShapePageState extends State<MorphShapePage>
 
   @override
   void dispose() {
-    super.dispose();
     controller.dispose();
+    super.dispose();
+
   }
 
   @override

@@ -40,6 +40,7 @@ class MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   static double nodeSize = 8;
   static int gridCount = 30;
+  static double shapeMinimumSize=20;
 
   Shape currentShape;
 
@@ -49,12 +50,15 @@ class MyHomePageState extends State<MyHomePage>
 
   Axis direction;
 
+  Widget control;
+
   @override
   void initState() {
     super.initState();
-    currentShape = RectangleShape(
-        borderRadius: DynamicBorderRadius.all(
-            DynamicRadius.elliptical(50.0.toPXLength, 50.0.toPXLength)));
+    //currentShape = RectangleShape(
+    //    borderRadius: DynamicBorderRadius.all(
+    //        DynamicRadius.elliptical(50.0.toPXLength, 50.0.toPXLength)));
+    currentShape = ArcShape(side: ShapeSide.top);
   }
 
   @override
@@ -218,6 +222,7 @@ class MyHomePageState extends State<MyHomePage>
   }
 
   List<Widget> buildEditingShapeControlWidgets() {
+
     List<Widget> stackedComponents = [];
     if (currentShape is ArcShape) {
       stackedComponents.addAll(buildArcEditingWidgets(currentShape));
@@ -309,8 +314,8 @@ class MyHomePageState extends State<MyHomePage>
                 position: Offset(shapeSize.width, shapeSize.height),
                 onPositionChanged: (Offset newPos) {
                   setState(() {
-                    shapeSize = Size(newPos.dx.clamp(0.0, double.infinity),
-                        newPos.dy.clamp(0.0, double.infinity));
+                    shapeSize = Size(newPos.dx.clamp(shapeMinimumSize, double.infinity),
+                        newPos.dy.clamp(shapeMinimumSize, double.infinity));
                   });
                 },
                 constraintSize: MediaQuery.of(context).size)));
@@ -541,7 +546,6 @@ class MyHomePageState extends State<MyHomePage>
       left: position.dx,
       top: position.dy,
       child: GestureDetector(
-        dragStartBehavior: DragStartBehavior.start,
         onPanUpdate: onDragUpdate,
         child: Container(
           width: 2 * nodeSize,
@@ -553,13 +557,14 @@ class MyHomePageState extends State<MyHomePage>
     );
   }
 
-  Length updateLength(Length length, double value,
+  Length updateLength(Length length,
       {double constraintSize,
-      double minimumSize = 0.1,
-      double maximumSize = double.infinity,
-      Offset offset,
-      double Function(Offset) offsetToDelta}) {
-    double newValue = value + 1.0 * offsetToDelta(offset);
+        double minimumSize = 0.00,
+        double maximumSize = double.infinity,
+        Offset offset,
+        double Function(Offset) offsetToDelta}) {
+    double newValue = length
+        .toPX(constraintSize: constraintSize) + 1.0 * offsetToDelta(offset);
     return length.copyWith(
         value: Length.newValue(
             newValue.clamp(minimumSize, maximumSize), length.unit,
@@ -617,12 +622,33 @@ class MyHomePageState extends State<MyHomePage>
         position: position,
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
+            /*
+            currentShape = (currentShape as ArcShape).copyWith(
+                arcHeight: Length(((currentShape as ArcShape)
+                            .arcHeight
+                            .toPX(constraintSize: shapeSize.height) +
+                        details.delta.dy)
+                    .clamp(0.0, shapeSize.height / 2)));
+
+             */
+
             currentShape = shape.copyWith(
-                arcHeight: updateLength(shape.arcHeight, arcHeight,
+                arcHeight: updateLength((currentShape as ArcShape)
+                    .arcHeight, constraintSize:
+                shape.side.isHorizontal ? size.height : size.width,
+                    maximumSize: maximumSize,
+                  offset: details.delta,
+                  offsetToDelta: dragOffsetToDelta
+                ));
+            /*
+            currentShape = shape.copyWith(
+                arcHeight: updateLength((currentShape as ArcShape).arcHeight, arcHeight,
                     constraintSize:
                         shape.side.isHorizontal ? size.height : size.width,
                     offset: details.delta,
                     offsetToDelta: dragOffsetToDelta));
+
+             */
           });
         }));
 
@@ -692,9 +718,10 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                arrowHeight: updateLength(shape.arrowHeight, arrowHeight,
+                arrowHeight: updateLength((currentShape as ArrowShape).arrowHeight,
                     constraintSize:
                         shape.side.isHorizontal ? size.width : size.height,
+                    maximumSize: shape.side.isHorizontal ? size.width : size.height,
                     offset: details.delta,
                     offsetToDelta: headOffsetToDelta));
           });
@@ -705,9 +732,10 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                tailWidth: updateLength(shape.tailWidth, tailWidth,
+                tailWidth: updateLength((currentShape as ArrowShape).tailWidth,
                     constraintSize:
                         shape.side.isHorizontal ? size.height : size.width,
+                    maximumSize: shape.side.isHorizontal ? size.height : size.width,
                     offset: details.delta,
                     offsetToDelta: tailOffsetToDelta));
           });
@@ -729,13 +757,14 @@ class MyHomePageState extends State<MyHomePage>
             size.height / 2 * (1 + sin(startAngle))),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
+            double startAngle=(currentShape as CircleShape).startAngle;
             Offset delta = details.delta;
             currentShape = shape.copyWith(
-                startAngle: startAngle +
+                startAngle: (startAngle +
                     (delta.dy * cos(startAngle) - delta.dx * sin(startAngle)) /
                         (Offset(size.width / 2 * cos(startAngle),
                                 size.height / 2 * sin(startAngle))
-                            .distance));
+                            .distance)).clamp(0.0, 2 * pi));
           });
         }));
 
@@ -745,13 +774,15 @@ class MyHomePageState extends State<MyHomePage>
             size.height / 2 * (1 + 1 / 2 * sin(endAngle))),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
+            double sweepAngle=(currentShape as CircleShape).sweepAngle;
+            double endAngle=(currentShape as CircleShape).startAngle+sweepAngle;
             Offset delta = details.delta;
             currentShape = shape.copyWith(
-                sweepAngle: sweepAngle +
+                sweepAngle: (sweepAngle +
                     (delta.dy * cos(endAngle) - delta.dx * sin(endAngle)) /
                         (Offset(size.width / 4 * cos(endAngle),
                                 size.height / 4 * sin(endAngle))
-                            .distance));
+                            .distance)).clamp(0.0, 2 * pi));
           });
         }));
 
@@ -796,13 +827,22 @@ class MyHomePageState extends State<MyHomePage>
     final double right = size.width - spacingRight;
     final double bottom = size.height - spacingBottom;
 
-    double radiusBound = 0;
+    double arrowCenterPositionBound=0,
+        arrowHeadPositionBound=0,
+        arrowWidthBound=0,
+    arrowHeightBound=0,
+        radiusBound = 0;
 
     if (shape.corner.isHorizontal) {
-      arrowCenterPosition = arrowCenterPosition.clamp(0.0, size.width);
-      arrowHeadPosition = arrowHeadPosition.clamp(0.0, size.width);
+      arrowCenterPositionBound=size.width;
+      arrowHeadPositionBound=size.width;
+      arrowCenterPosition = arrowCenterPosition.clamp(0.0, arrowCenterPositionBound);
+      arrowHeadPosition = arrowHeadPosition.clamp(0.0, arrowHeadPositionBound);
+      arrowHeightBound=size.height;
+      arrowWidthBound=2 * min(arrowCenterPosition, size.width - arrowCenterPosition);
+      arrowHeight=arrowHeight.clamp(0, arrowHeightBound);
       arrowWidth = arrowWidth.clamp(
-          0.0, 2 * min(arrowCenterPosition, size.width - arrowCenterPosition));
+          0.0, arrowWidthBound);
       radiusBound = min(
           min(right - arrowCenterPosition - arrowWidth / 2,
               arrowCenterPosition - arrowWidth / 2 - left),
@@ -810,8 +850,13 @@ class MyHomePageState extends State<MyHomePage>
       borderRadius =
           borderRadius.clamp(0.0, radiusBound >= 0.0 ? radiusBound : 0.0);
     } else {
-      arrowCenterPosition = arrowCenterPosition.clamp(0.0, size.height);
-      arrowHeadPosition = arrowHeadPosition.clamp(0.0, size.height);
+      arrowCenterPositionBound=size.height;
+      arrowHeadPositionBound=size.height;
+      arrowCenterPosition = arrowCenterPosition.clamp(0.0, arrowCenterPositionBound);
+      arrowHeadPosition = arrowHeadPosition.clamp(0.0, arrowHeadPositionBound);
+      arrowHeightBound=size.height;
+      arrowWidthBound=2 * min(arrowCenterPosition, size.height - arrowCenterPosition);
+      arrowHeight=arrowHeight.clamp(0, arrowHeightBound);
       arrowWidth = arrowWidth.clamp(
           0.0, 2 * min(arrowCenterPosition, size.height - arrowCenterPosition));
       radiusBound = min(
@@ -967,15 +1012,17 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                arrowHeight: updateLength(shape.arrowHeight, arrowHeight,
+                arrowHeight: updateLength((currentShape as BubbleShape).arrowHeight,
                     constraintSize:
                         shape.corner.isHorizontal ? size.height : size.width,
+                    maximumSize: arrowHeightBound,
                     offset: details.delta,
                     offsetToDelta: arrowCenterDragUpdateVertical),
                 arrowCenterPosition: updateLength(
-                    shape.arrowCenterPosition, arrowCenterPosition,
+                    (currentShape as BubbleShape).arrowCenterPosition,
                     constraintSize:
                         shape.corner.isHorizontal ? size.width : size.height,
+                    maximumSize: arrowCenterPositionBound,
                     offset: details.delta,
                     offsetToDelta: arrowCenterDragUpdateHorizontal));
           });
@@ -985,9 +1032,10 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                arrowWidth: updateLength(shape.arrowWidth, arrowWidth,
+                arrowWidth: updateLength((currentShape as BubbleShape).arrowWidth,
                     constraintSize:
                         shape.corner.isHorizontal ? size.width : size.height,
+                    maximumSize: arrowWidthBound,
                     offset: details.delta,
                     offsetToDelta: arrowWidthDragUpdate));
           });
@@ -998,9 +1046,10 @@ class MyHomePageState extends State<MyHomePage>
           setState(() {
             currentShape = shape.copyWith(
                 arrowHeadPosition: updateLength(
-                    shape.arrowHeadPosition, arrowHeadPosition,
+                    (currentShape as BubbleShape).arrowHeadPosition,
                     constraintSize:
                         shape.corner.isHorizontal ? size.width : size.height,
+                    maximumSize: arrowHeadPositionBound,
                     offset: details.delta,
                     offsetToDelta: arrowHeadDragUpdate));
           });
@@ -1010,8 +1059,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                borderRadius: updateLength(shape.borderRadius, borderRadius,
+                borderRadius: updateLength((currentShape as BubbleShape).borderRadius,
                     constraintSize: min(size.width, size.height),
+                    maximumSize: radiusBound,
                     offset: details.delta,
                     offsetToDelta: radiusDragUpdate));
           });
@@ -1044,8 +1094,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
-                x: updateLength(shape.borderRadius.topLeft.x, topLeftRadius,
+                x: updateLength((currentShape as RectangleShape).borderRadius.topLeft.x,
                     constraintSize: size.width,
+                    maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dx));
 
@@ -1060,8 +1111,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
-                x: updateLength(shape.borderRadius.topRight.x, topRightRadius,
+                x: updateLength((currentShape as RectangleShape).borderRadius.topRight.x,
                     constraintSize: size.width,
+                    maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dx));
 
@@ -1077,8 +1129,9 @@ class MyHomePageState extends State<MyHomePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 x: updateLength(
-                    shape.borderRadius.bottomLeft.x, bottomLeftRadius,
+                    (currentShape as RectangleShape).borderRadius.bottomLeft.x,
                     constraintSize: size.width,
+                    maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dx));
 
@@ -1095,8 +1148,9 @@ class MyHomePageState extends State<MyHomePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 x: updateLength(
-                    shape.borderRadius.bottomRight.x, bottomRightRadius,
+                    (currentShape as RectangleShape).borderRadius.bottomRight.x,
                     constraintSize: size.width,
+                    maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dx));
 
@@ -1111,8 +1165,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
-                y: updateLength(shape.borderRadius.topLeft.y, leftTopRadius,
+                y: updateLength((currentShape as RectangleShape).borderRadius.topLeft.y,
                     constraintSize: size.height,
+                    maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy));
 
@@ -1127,8 +1182,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
-                y: updateLength(shape.borderRadius.topRight.y, rightTopRadius,
+                y: updateLength((currentShape as RectangleShape).borderRadius.topRight.y,
                     constraintSize: size.height,
+                    maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy));
 
@@ -1144,8 +1200,9 @@ class MyHomePageState extends State<MyHomePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 y: updateLength(
-                    shape.borderRadius.bottomLeft.y, leftBottomRadius,
+                    (currentShape as RectangleShape).borderRadius.bottomLeft.y,
                     constraintSize: size.height,
+                    maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dy));
 
@@ -1162,8 +1219,9 @@ class MyHomePageState extends State<MyHomePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 y: updateLength(
-                    shape.borderRadius.bottomRight.y, rightBottomRadius,
+                    (currentShape as RectangleShape).borderRadius.bottomRight.y,
                     constraintSize: size.height,
+                    maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dy));
 
@@ -1209,8 +1267,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                cornerRadius: updateLength(shape.cornerRadius, cornerRadius,
+                cornerRadius: updateLength((currentShape as PolygonShape).cornerRadius,
                     constraintSize: scale,
+                    maximumSize: radius * cos(section / 2),
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy));
           });
@@ -1268,8 +1327,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                cornerRadius: updateLength(shape.cornerRadius, cornerRadius,
+                cornerRadius: updateLength((currentShape as StarShape).cornerRadius,
                     constraintSize: scale,
+                    maximumSize: sideLength * tan(beta),
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy / cos(beta) * tan(beta)));
           });
@@ -1282,8 +1342,9 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             currentShape = shape.copyWith(
-                inset: updateLength(shape.inset, inset,
+                inset: updateLength((currentShape as StarShape).inset,
                     constraintSize: radius,
+                    maximumSize: radius*0.99,
                     offset: details.delta,
                     offsetToDelta: (o) => (-o.dx / cos(-pi / 2 + alpha))));
           });
@@ -1306,8 +1367,9 @@ class MyHomePageState extends State<MyHomePage>
           onDragUpdate: (DragUpdateDetails details) {
             setState(() {
               currentShape = shape.copyWith(
-                  insetRadius: updateLength(shape.insetRadius, insetRadius,
+                  insetRadius: updateLength((currentShape as StarShape).insetRadius,
                       constraintSize: scale,
+                      maximumSize: avalSideLength * tan(gamma),
                       offset: details.delta,
                       offsetToDelta: (o) =>
                           (o.dx * cos(omega - gamma) +
@@ -1330,8 +1392,9 @@ class MyHomePageState extends State<MyHomePage>
           onDragUpdate: (DragUpdateDetails details) {
             setState(() {
               currentShape = shape.copyWith(
-                  insetRadius: updateLength(shape.insetRadius, insetRadius,
+                  insetRadius: updateLength((currentShape as StarShape).insetRadius,
                       constraintSize: scale,
+                      maximumSize: avalSideLength * tan(pi-gamma),
                       offset: details.delta,
                       offsetToDelta: (o) =>
                           -(o.dx * cos(omega - gamma) +
@@ -1388,9 +1451,11 @@ class MyHomePageState extends State<MyHomePage>
       onDragUpdate: (DragUpdateDetails details) {
         setState(() {
           currentShape = shape.copyWith(
-              inset: updateLength(shape.inset, inset,
+              inset: updateLength((currentShape as TrapezoidShape).inset,
                   constraintSize:
                       shape.side.isHorizontal ? size.width : size.height,
+                  maximumSize:
+                  shape.side.isHorizontal ? size.width/2 : size.height/2,
                   offset: details.delta,
                   offsetToDelta: onDragUpdate));
         });
@@ -1420,12 +1485,12 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicOffset newOffset = shape.point3.copyWith(
-                dx: updateLength(shape.point3.dx, point3.dx,
+                dx: updateLength((currentShape as TriangleShape).point3.dx,
                     constraintSize: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
-                dy: updateLength(shape.point3.dy, point3.dy,
+                dy: updateLength((currentShape as TriangleShape).point3.dy,
                     constraintSize: height,
                     maximumSize: height,
                     offset: details.delta,
@@ -1438,12 +1503,12 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicOffset newOffset = shape.point2.copyWith(
-                dx: updateLength(shape.point2.dx, point2.dx,
+                dx: updateLength((currentShape as TriangleShape).point2.dx,
                     constraintSize: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
-                dy: updateLength(shape.point2.dy, point2.dy,
+                dy: updateLength((currentShape as TriangleShape).point2.dy,
                     constraintSize: height,
                     maximumSize: height,
                     offset: details.delta,
@@ -1457,12 +1522,12 @@ class MyHomePageState extends State<MyHomePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicOffset newOffset = shape.point1.copyWith(
-                dx: updateLength(shape.point1.dx, point1.dx,
+                dx: updateLength((currentShape as TriangleShape).point1.dx,
                     constraintSize: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
-                dy: updateLength(shape.point1.dy, point1.dy,
+                dy: updateLength((currentShape as TriangleShape).point1.dy,
                     constraintSize: height,
                     maximumSize: height,
                     offset: details.delta,
@@ -1823,7 +1888,7 @@ class MyHomePageState extends State<MyHomePage>
                 currentShape = shape.copyWith(sides: newSide);
               });
             },
-            items: [3, 5, 6, 7, 8, 10, 12, 16, 20, 24]
+            items: [3, 4, 5, 6, 7, 8, 10, 12, 16, 20, 24]
                 .map((e) =>
                     DropdownMenuItem(value: e, child: Text(e.toString())))
                 .toList())));
@@ -2380,8 +2445,8 @@ class MyHomePageState extends State<MyHomePage>
               shapeSize +=
                   Offset(details.delta.dx * alignX, details.delta.dy * alignY) *
                       2;
-              shapeSize = Size(shapeSize.width.clamp(0.0, double.infinity),
-                  shapeSize.height.clamp(0.0, double.infinity));
+              shapeSize = Size(shapeSize.width.clamp(shapeMinimumSize, double.infinity),
+                  shapeSize.height.clamp(shapeMinimumSize, double.infinity));
               //shape.resize(shapeSize);
             });
           },
