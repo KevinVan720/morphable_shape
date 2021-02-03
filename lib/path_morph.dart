@@ -31,7 +31,7 @@ class PathMorph {
     Shape shape2,
     Rect rect, {
     double precision = 0.001,
-    double maxTrial = 200,
+    double maxTrial = 100,
     int maxControlPoints = 16,
   }) {
     data.boundingBox = rect;
@@ -56,7 +56,7 @@ class PathMorph {
     Path path2, {
     double precision = 0.001,
     double maxTrial = 100,
-    int maxControlPoints = 12,
+    int maxControlPoints = 16,
   }) {
     ///first try to sample the key control points needed to paint the path
     ///by walking through the path using the pathMetric class and look at the tangent angles
@@ -108,8 +108,8 @@ class PathMorph {
       }
     } else {
       ///total points is pretty big, probably one shape has curved edges, sample that shape evenly then
-      data.points1 = simplePathWalker(path1, precision: precision);
-      data.points2 = simplePathWalker(path2, precision: precision);
+      data.points1 = simplePathWalker(path1, precision: 5*precision);
+      data.points2 = simplePathWalker(path2, precision: 5*precision);
     }
 
     ///the control points are set up for both shape now,
