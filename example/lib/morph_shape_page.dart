@@ -133,14 +133,14 @@ class MorphControlPointsPainter extends CustomPainter {
     myPaint = Paint();
     myPaint.color = Color.fromRGBO(255, 0, 0, 1.0);
     myPaint.style = PaintingStyle.fill;
-    myPaint.strokeWidth = 5.0;
+    myPaint.strokeWidth = 2.0;
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     Path path = Path();
     controlPoints.forEach((element) {
-      path.addOval(Rect.fromCircle(center: element, radius: min(10,300/controlPoints.length)));
+      path.addOval(Rect.fromCircle(center: element, radius: min(4,300/controlPoints.length)));
     });
     canvas.drawPath(path, myPaint);
   }
