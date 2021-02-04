@@ -106,7 +106,7 @@ class DynamicPathMorph {
         data.supplyCounts1 = optimalCount1;
         data.supplyCounts2 = optimalCount2;
       } else {
-        totalPoints = lcm(path1.nodes.length, path2.nodes.length);
+        totalPoints = min(lcm(path1.nodes.length, path2.nodes.length), 120);
         data.supplyCounts1 =
             sampleSupplyCounts(path1, totalPoints, weightBased: false);
         data.supplyCounts2 =
