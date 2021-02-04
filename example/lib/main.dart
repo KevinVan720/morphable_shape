@@ -39,8 +39,7 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   static double nodeSize = 8;
-  static int gridCount = 30;
-  static double shapeMinimumSize=20;
+  static int gridCount = 30;  static double shapeMinimumSize=20;
 
   Shape currentShape;
 
@@ -492,10 +491,10 @@ class MyHomePageState extends State<MyHomePage>
         child: GestureDetector(
           onPanUpdate: (DragUpdateDetails details) {
             setState(() {
-              path.moveNodeControlTo(
+              shape.path.moveNodeControlTo(
                   selectedNodeIndex,
                   true,
-                  tempSelectedNode.prev +
+                  path.getNodeWithControlPoints(selectedNodeIndex).prev +
                       Offset(details.delta.dx, details.delta.dy)
                           .roundWithPrecision(2));
               currentShape = shape.copyWith(path: path);
@@ -516,10 +515,10 @@ class MyHomePageState extends State<MyHomePage>
         child: GestureDetector(
           onPanUpdate: (DragUpdateDetails details) {
             setState(() {
-              path.moveNodeControlTo(
+              shape.path.moveNodeControlTo(
                   selectedNodeIndex,
                   false,
-                  tempSelectedNode.next +
+                  path.getNodeWithControlPoints(selectedNodeIndex).next +
                       Offset(details.delta.dx, details.delta.dy)
                           .roundWithPrecision(2));
               currentShape = shape.copyWith(path: path);
