@@ -55,10 +55,9 @@ class MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-    //currentShape = RectangleShape(
-    //    borderRadius: DynamicBorderRadius.all(
-    //        DynamicRadius.elliptical(50.0.toPXLength, 50.0.toPXLength)));
-    currentShape = ArcShape(side: ShapeSide.top);
+    currentShape = RectangleShape(
+        borderRadius: DynamicBorderRadius.all(
+            DynamicRadius.elliptical(60.0.toPXLength, 60.0.toPXLength)));
   }
 
   @override
@@ -74,7 +73,7 @@ class MyHomePageState extends State<MyHomePage>
 
       if (shapeSize == null) {
         double length = (min(screenSize.width, screenSize.height) * 0.8)
-            .clamp(200.0, 400.0);
+            .clamp(200.0, 600.0);
         shapeSize = Size(length, length);
       }
 

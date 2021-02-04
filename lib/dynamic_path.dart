@@ -31,9 +31,8 @@ class DynamicNode {
 
 ///A Bezier path with either straight line or cubic Bezier line
 class DynamicPath {
-
-  static double boxBoundingTolerance=0.01;
-  static int defaultPointPrecision=2;
+  static double boxBoundingTolerance = 0.01;
+  static int defaultPointPrecision = 2;
 
   Size size;
   List<DynamicNode> nodes;
@@ -76,9 +75,12 @@ class DynamicPath {
     ///Effectively force the points and control points within the bounding rect
     for (int index = 0; index < nodes.length; index++) {
       moveNodeBy(index, Offset.zero);
-      nodes[index].position=nodes[index].position.roundWithPrecision(defaultPointPrecision);
-      nodes[index].prev=nodes[index].prev?.roundWithPrecision(defaultPointPrecision);
-      nodes[index].next=nodes[index].next?.roundWithPrecision(defaultPointPrecision);
+      nodes[index].position =
+          nodes[index].position.roundWithPrecision(defaultPointPrecision);
+      nodes[index].prev =
+          nodes[index].prev?.roundWithPrecision(defaultPointPrecision);
+      nodes[index].next =
+          nodes[index].next?.roundWithPrecision(defaultPointPrecision);
     }
 
     /// combine points that lie very close
@@ -158,7 +160,8 @@ class DynamicPath {
 
   void moveNodeTo(int index, Offset offset) {
     DynamicNode node = nodes[index];
-    Offset diff = (offset - node.position).roundWithPrecision(defaultPointPrecision);
+    Offset diff =
+        (offset - node.position).roundWithPrecision(defaultPointPrecision);
     node.position = offset;
     node.position =
         node.position.clamp(Offset.zero, Offset(size.width, size.height));
@@ -178,8 +181,9 @@ class DynamicPath {
       {NodeControlMode mode = NodeControlMode.none}) {
     DynamicNode node = nodes[index];
     Offset avalOffset = ((node.position + offset)
-            .clamp(Offset.zero, Offset(size.width, size.height)) -
-        node.position).roundWithPrecision(defaultPointPrecision);
+                .clamp(Offset.zero, Offset(size.width, size.height)) -
+            node.position)
+        .roundWithPrecision(defaultPointPrecision);
     /*
     if (node.prev != null) {
       Offset avalOffset2=availableOffset(node.prev!, offset);
@@ -330,22 +334,6 @@ class DynamicPath {
     return rst;
   }
 
-  ///split a cubic Bezier path at parameter t
-  static List<Offset> splitCubicAt(double t, List<Offset> controlPoints) {
-    Offset x1 = controlPoints[0];
-    Offset x2 = controlPoints[1];
-    Offset x3 = controlPoints[2];
-    Offset x4 = controlPoints[3];
-    Offset x12, x23, x34, x123, x234, x1234;
-    x12 = (x2 - x1) * t + x1;
-    x23 = (x3 - x2) * t + x2;
-    x34 = (x4 - x3) * t + x3;
-    x123 = (x23 - x12) * t + x12;
-    x234 = (x34 - x23) * t + x23;
-    x1234 = (x234 - x123) * t + x123;
-    return [x1, x12, x123, x1234, x234, x34, x4];
-  }
-
   ///convert this to a Path
   Path getPath(Size newSize) {
     Path path = Path();
@@ -399,5 +387,68 @@ class DynamicPath {
     final Matrix4 matrix4 = Matrix4.identity();
     matrix4.scale(newSize.width / size.width, newSize.height / size.height);
     return rst.map((e) => e.transform(matrix4.storage)).toList();
+  }
+
+  static double estimateCubicLength(List<Offset> controlPoints) {
+    Offset x0 = controlPoints[0];
+    Offset x1 = controlPoints[1];
+    Offset x2 = controlPoints[2];
+    Offset x3 = controlPoints[3];
+    return ((x3 - x0).distance +
+            (x1 - x0).distance +
+            (x2 - x1).distance +
+            (x3 - x2).distance) /
+        2;
+  }
+
+  ///split a cubic Bezier path at parameter t
+  static List<Offset> splitCubicAt(double t, List<Offset> controlPoints) {
+    Offset x1 = controlPoints[0];
+    Offset x2 = controlPoints[1];
+    Offset x3 = controlPoints[2];
+    Offset x4 = controlPoints[3];
+    Offset x12, x23, x34, x123, x234, x1234;
+    x12 = (x2 - x1) * t + x1;
+    x23 = (x3 - x2) * t + x2;
+    x34 = (x4 - x3) * t + x3;
+    x123 = (x23 - x12) * t + x12;
+    x234 = (x34 - x23) * t + x23;
+    x1234 = (x234 - x123) * t + x123;
+    return [x1, x12, x123, x1234, x234, x34, x4];
+  }
+
+  /*
+  static Offset cubicOffsetAt(double t, List<Offset> controlPoints) {
+    Offset x0 = controlPoints[0];
+    Offset x1 = controlPoints[1];
+    Offset x2 = controlPoints[2];
+    Offset x3 = controlPoints[3];
+    return x0 * (1 - t) * (1 - t) * (1 - t) +
+        x1 * 3 * (1 - t) * (1 - t) * t +
+        x2 * 3 * (1 - t) * t * t +
+        x3 * t * t * t;
+  }
+
+  static double calculateCubicLength(List<Offset> controlPoints) {
+    Offset last, current;
+    last = cubicOffsetAt(0, controlPoints);
+    int steps = 1000;
+    double rst = 0.0;
+    for (int i = 1; i <= steps; i++) {
+      current = cubicOffsetAt(i / steps, controlPoints);
+      rst += (current - last).distance;
+      last = current;
+    }
+    return rst;
+  }
+  */
+
+  double getPathLengthAt(int index) {
+    List<Offset> points = getNextPathControlPointsAt(index);
+    if (points.length == 4) {
+      return estimateCubicLength(points);
+    } else {
+      return (points[1] - points[0]).distance;
+    }
   }
 }

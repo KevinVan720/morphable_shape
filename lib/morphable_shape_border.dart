@@ -3,6 +3,7 @@ import 'path_morph.dart';
 import 'package:morphable_shape/borderShapes/rectangle.dart';
 import 'package:morphable_shape/borderShapes/morph.dart';
 import 'dynamic_path.dart';
+import 'dynamic_path_morph.dart';
 import 'package:flutter_class_parser/flutter_class_parser.dart';
 
 
@@ -138,31 +139,30 @@ class MorphableShapeBorder extends ShapeBorder {
 ///Because to morph shape we need to know the rect at every time step,
 /// which can only be retrieved from a shapeBorder
 class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
-  late SampledPathData data;
+  late SampledDynamicPathData data;
   MorphableShapeBorderTween(
       {MorphableShapeBorder? begin,
       MorphableShapeBorder? end})
       : super(begin: begin, end: end) {
     Rect originalRect = Rect.fromLTRB(0, 0, 100, 100);
-    data = SampledPathData(
-        points1: [],
-        points2: [],
-        shiftedPoints: [],
-        endIndices: [],
+    data = SampledDynamicPathData(
+      path1: DynamicPath(size: originalRect.size,nodes: []),
+        path2: DynamicPath(size: originalRect.size,nodes: []),
+        //shiftedPath: DynamicPath(size: originalRect.size,nodes: []),
         boundingBox: Rect.zero);
     begin=begin??MorphableShapeBorder(
         shape: RectangleShape());
     end=end??MorphableShapeBorder(
         shape: RectangleShape());
-    PathMorph.samplePathsFromShape(data, begin.shape, end.shape, originalRect);
+    //DynamicPathMorph.samplePathsFromShape(data, begin.shape, end.shape, originalRect);
   }
 
   @override
   MorphableShapeBorder lerp(double t) {
     ///due to the finite sampling accuracy of the morphing,
     ///let the start and end time shape be the original ones
-    if (t < 0.005) return begin!;
-    if (t > 0.995) return end!;
+    //if (t < 0.005) return begin!;
+    //if (t > 0.995) return end!;
     return MorphableShapeBorder(
         shape: MorphShape(
             startShape: begin!.shape, endShape: end!.shape, t: t, data: data),

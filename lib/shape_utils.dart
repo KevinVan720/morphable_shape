@@ -109,6 +109,17 @@ extension IndexedIterable<E> on Iterable<E> {
   }
 }
 
+int lcm(int a, int b) => (a * b) ~/ gcd(a, b);
+
+int gcd(int a, int b) {
+  while (b != 0) {
+    var t = b;
+    b = a % t;
+    a = t;
+  }
+  return a;
+}
+
 double getThirdSideLength(double a, double b, double angle) {
   double c2 = a * a + b * b - 2 * a * b * cos(angle);
   return sqrt(c2);

@@ -23,6 +23,7 @@ class SampledPathData {
       required this.boundingBox});
 }
 
+
 /// This class has all the methods you need to create your morph animations.
 class PathMorph {
   static void samplePathsFromShape(

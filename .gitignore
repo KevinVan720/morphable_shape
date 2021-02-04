@@ -73,4 +73,5 @@ build/
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 
-
+**/web/**
+**/*firebase*

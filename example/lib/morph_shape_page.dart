@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/preset_shape_map.dart';
 import 'value_pickers.dart';
+import 'package:morphable_shape/dynamic_path_morph.dart';
 
 class MorphShapePage extends StatefulWidget {
   Shape shape;
@@ -59,7 +60,7 @@ class _MorphShapePageState extends State<MorphShapePage>
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    shapeWidth=(min(screenSize.width, screenSize.height)*0.8).clamp(200.0, 400.0);
+    shapeWidth=(min(screenSize.width, screenSize.height)*0.8).clamp(200.0, 600.0);
     shapeHeight=shapeWidth;
 
     MorphableShapeBorder startBorder;
@@ -102,9 +103,9 @@ class _MorphShapePageState extends State<MorphShapePage>
                 double t = animation.value;
                 return Center(
                   child: CustomPaint(
-                      painter: MorphControlPointsPainter(
-                          PathMorph.lerpPoints(t, shapeBorderTween.data)),
-                      child:Material(
+                    painter: MorphControlPointsPainter(
+                    DynamicPathMorph.lerpPath(t, shapeBorderTween.data).nodes.map((e) => e.position).toList()),
+                child: Material(
                         animationDuration: Duration.zero,
                         shape: shapeBorderTween.lerp(t),
                         clipBehavior: Clip.antiAlias,
@@ -114,7 +115,7 @@ class _MorphShapePageState extends State<MorphShapePage>
                           height: shapeHeight,
                           child: CustomPaint(
                             painter: MorphControlPointsPainter(
-                                PathMorph.lerpPoints(t, shapeBorderTween.data)),
+                                DynamicPathMorph.lerpPath(t, shapeBorderTween.data).nodes.map((e) => e.position).toList()),
                           ),
                         ),
                       )),
@@ -139,7 +140,7 @@ class MorphControlPointsPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Path path = Path();
     controlPoints.forEach((element) {
-      path.addOval(Rect.fromCircle(center: element, radius: min(10,1000/controlPoints.length)));
+      path.addOval(Rect.fromCircle(center: element, radius: min(10,300/controlPoints.length)));
     });
     canvas.drawPath(path, myPaint);
   }
