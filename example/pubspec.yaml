@@ -1,5 +1,5 @@
-name: example
-description: A new Flutter project.
+name: flutter_shape_editor
+description: An online editor for editing various Flutter shapes and morph between them.
 
 version: 1.0.0+1
 
@@ -13,6 +13,8 @@ dependencies:
     path: ../
 
   length_unit: ^0.0.1
+
+  flutter_markdown: ^0.5.2
 
 
 dev_dependencies:

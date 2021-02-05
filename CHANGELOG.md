@@ -10,3 +10,7 @@ Update the shape editor.
 ## [0.0.3] - 02.04.2021
 
 Fix control point drag lag when editing freeform shapes
+
+## [0.0.4] - 02.04.2021
+
+Lets you select morph method 
