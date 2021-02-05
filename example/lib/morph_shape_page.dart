@@ -26,6 +26,8 @@ class _MorphShapePageState extends State<MorphShapePage>
   double shapeWidth;
   double shapeHeight;
 
+  MorphMethod method = MorphMethod.auto;
+
   @override
   void initState() {
     super.initState();
@@ -53,15 +55,15 @@ class _MorphShapePageState extends State<MorphShapePage>
   void dispose() {
     controller.dispose();
     super.dispose();
-
   }
 
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    shapeWidth=(min(screenSize.width, screenSize.height)*0.8).clamp(200.0, 600.0);
-    shapeHeight=shapeWidth;
+    shapeWidth =
+        (min(screenSize.width, screenSize.height) * 0.8).clamp(200.0, 600.0);
+    shapeHeight = shapeWidth;
 
     MorphableShapeBorder startBorder;
     MorphableShapeBorder endBorder;
@@ -71,8 +73,10 @@ class _MorphShapePageState extends State<MorphShapePage>
     endBorder = MorphableShapeBorder(
         shape: endShape, borderColor: Colors.redAccent, borderWidth: 1);
 
-    MorphableShapeBorderTween shapeBorderTween =
-        MorphableShapeBorderTween(begin: startBorder, end: endBorder);
+    MorphableShapeBorderTween shapeBorderTween = MorphableShapeBorderTween(
+        begin: startBorder, end: endBorder, method: method);
+
+
 
     return Scaffold(
         appBar: AppBar(
@@ -95,32 +99,77 @@ class _MorphShapePageState extends State<MorphShapePage>
             })
           ],
         ),
-        body: Container(
-          color: Colors.black54,
-          child: AnimatedBuilder(
-              animation: animation,
-              builder: (BuildContext context, Widget child) {
-                double t = animation.value;
-                return Center(
-                  child: CustomPaint(
-                    painter: MorphControlPointsPainter(
-                    DynamicPathMorph.lerpPath(t, shapeBorderTween.data).nodes.map((e) => e.position).toList()),
-                child: Material(
-                        animationDuration: Duration.zero,
-                        shape: shapeBorderTween.lerp(t),
-                        clipBehavior: Clip.antiAlias,
-                        child: Container(
-                          color: Colors.amberAccent,
-                          width: shapeWidth,
-                          height: shapeHeight,
-                          child: CustomPaint(
-                            painter: MorphControlPointsPainter(
-                                DynamicPathMorph.lerpPath(t, shapeBorderTween.data).nodes.map((e) => e.position).toList()),
-                          ),
-                        ),
-                      )),
-                );
-              })
+        body: Stack(
+          children: [
+            Container(
+                color: Colors.black54,
+                child: AnimatedBuilder(
+                    animation: animation,
+                    builder: (BuildContext context, Widget child) {
+                      double t = animation.value;
+                      List<Offset> controlPoints=DynamicPathMorph.lerpPath(
+                          t, shapeBorderTween.data)
+                          .nodes
+                          .map((e) => e.position)
+                          .toList();
+                      return Center(
+                        child: Stack(
+                          children: [
+                            Material(
+                              animationDuration: Duration.zero,
+                              shape: shapeBorderTween.lerp(t),
+                              clipBehavior: Clip.antiAlias,
+                              child: Container(
+                                color: Colors.amberAccent,
+                                width: shapeWidth,
+                                height: shapeHeight,
+                              ),
+                            ),
+                            CustomPaint(
+                                painter: MorphControlPointsPainter(
+                                    controlPoints),
+                              child: Container(
+                              width: shapeWidth,
+                              height: shapeHeight,
+                            ),
+                            ),
+                          ],
+                        )
+                      );
+                    })),
+            Positioned(
+                right: 20,
+                top: 20,
+                child: Container(
+                  child: Row(
+                    children: [
+                      Text("Morph Method: ", style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+
+                      ),),
+                      DropdownButton<MorphMethod>(
+                        dropdownColor: Colors.grey,
+                        value: method,
+                        onChanged: (MorphMethod newValue) {
+                          setState(() {
+                            method = newValue;
+                          });
+                        },
+                        items: MorphMethod.values.map((e) {
+                          return DropdownMenuItem<MorphMethod>(
+                            value: e,
+                            child: Text(e.toString().stripFirstDot(), style: TextStyle(
+                              color: Colors.white,
+                            ),),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ))
+          ],
         ));
   }
 }
@@ -140,7 +189,8 @@ class MorphControlPointsPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Path path = Path();
     controlPoints.forEach((element) {
-      path.addOval(Rect.fromCircle(center: element, radius: min(4,300/controlPoints.length)));
+      path.addOval(Rect.fromCircle(
+          center: element, radius: min(4, 300 / controlPoints.length)));
     });
     canvas.drawPath(path, myPaint);
   }

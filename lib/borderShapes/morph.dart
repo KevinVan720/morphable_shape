@@ -20,9 +20,6 @@ class MorphShape extends Shape {
           endShape,
           rect);
     }
-    //DynamicPathMorph.lerpPath(t, data).forEach((element) {
-    //  nodes.add(DynamicNode(position: element));
-    //});
     return DynamicPathMorph.lerpPath(t, data)..resize(rect.size);
   }
 

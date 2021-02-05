@@ -1,3 +1,7 @@
+///original path morph algorithm
+///deprecated now
+
+/*
 import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
@@ -349,3 +353,4 @@ List<Offset> simplePathWalker(Path path, {double precision = 0.001}) {
   }
   return keyPoints;
 }
+*/

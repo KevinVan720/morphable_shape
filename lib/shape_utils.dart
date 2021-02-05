@@ -189,3 +189,9 @@ extension addDynamicNodeExtension on List<DynamicNode> {
     }
   }
 }
+
+extension doubleExtension on double {
+  double snapWithNumber(double number) {
+    return (this*number).round()/number;
+  }
+}

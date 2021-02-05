@@ -54,13 +54,18 @@ abstract class Shape {
       borderPaint.color = borderColor;
       borderPaint.strokeWidth = borderWidth;
       ///Possible different borderColor and style in the future?
+
       /*
+      int count=0;
       List<Path> paths=generateDynamicPath(rect).getPaths(rect.size);
       paths.forEach((element) {
         borderPaint.color=Colors.black;
+        borderPaint.strokeWidth=count+1;
         canvas.drawPath(element, borderPaint);
+        count++;
       });
-       */
+      */
+
       canvas.drawPath(generatePath(rect: rect), borderPaint);
     }
   }
@@ -142,27 +147,22 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
   late SampledDynamicPathData data;
   MorphableShapeBorderTween(
       {MorphableShapeBorder? begin,
-      MorphableShapeBorder? end})
+      MorphableShapeBorder? end,
+      MorphMethod method=MorphMethod.auto})
       : super(begin: begin, end: end) {
-    Rect originalRect = Rect.fromLTRB(0, 0, 100, 100);
     data = SampledDynamicPathData(
-      path1: DynamicPath(size: originalRect.size,nodes: []),
-        path2: DynamicPath(size: originalRect.size,nodes: []),
-        //shiftedPath: DynamicPath(size: originalRect.size,nodes: []),
-        boundingBox: Rect.zero);
+      path1: DynamicPath(size: Size.zero,nodes: []),
+        path2: DynamicPath(size: Size.zero,nodes: []),
+        boundingBox: Rect.zero,
+        method: method);
     begin=begin??MorphableShapeBorder(
         shape: RectangleShape());
     end=end??MorphableShapeBorder(
         shape: RectangleShape());
-    //DynamicPathMorph.samplePathsFromShape(data, begin.shape, end.shape, originalRect);
   }
 
   @override
   MorphableShapeBorder lerp(double t) {
-    ///due to the finite sampling accuracy of the morphing,
-    ///let the start and end time shape be the original ones
-    //if (t < 0.005) return begin!;
-    //if (t > 0.995) return end!;
     return MorphableShapeBorder(
         shape: MorphShape(
             startShape: begin!.shape, endShape: end!.shape, t: t, data: data),
