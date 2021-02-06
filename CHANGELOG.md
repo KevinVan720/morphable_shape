@@ -26,3 +26,7 @@ Update package README
 ## [0.0.7] - 02.06.2021
 
 Update package README
+
+## [0.0.8] - 02.06.2021
+
+Update package README
