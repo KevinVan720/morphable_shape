@@ -8,11 +8,13 @@ const Map<String, Shape> presetShapeMap = {
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10)))),
   "DiagonalBottomRight": const RectangleShape(
-    bottomRight: CornerStyle.straight,
+      bottomRight: CornerStyle.straight,
       borderRadius: DynamicBorderRadius.only(
-          bottomRight: const DynamicRadius.elliptical(Length(100, unit: LengthUnit.percent), Length(15, unit: LengthUnit.percent)))),
+          bottomRight: const DynamicRadius.elliptical(
+              Length(100, unit: LengthUnit.percent),
+              Length(15, unit: LengthUnit.percent)))),
   "CutCornerAll10": const RectangleShape(
-    topLeft: CornerStyle.straight,
+      topLeft: CornerStyle.straight,
       topRight: CornerStyle.straight,
       bottomLeft: CornerStyle.straight,
       bottomRight: CornerStyle.straight,

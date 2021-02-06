@@ -21,15 +21,15 @@ class RectangleShape extends Shape {
     this.bottomRight = CornerStyle.rounded,
   });
 
-  RectangleShape copyWith({
-    CornerStyle? topLeft,
-  CornerStyle? topRight,
-   CornerStyle? bottomLeft,
-  CornerStyle? bottomRight,
-    DynamicBorderRadius? borderRadius}) {
+  RectangleShape copyWith(
+      {CornerStyle? topLeft,
+      CornerStyle? topRight,
+      CornerStyle? bottomLeft,
+      CornerStyle? bottomRight,
+      DynamicBorderRadius? borderRadius}) {
     return RectangleShape(
-        topLeft: topLeft?? this.topLeft,
-        topRight: topRight?? this.topRight,
+        topLeft: topLeft ?? this.topLeft,
+        topRight: topRight ?? this.topRight,
         bottomLeft: bottomLeft ?? this.bottomLeft,
         bottomRight: bottomRight ?? this.bottomRight,
         borderRadius: borderRadius ?? this.borderRadius);
@@ -122,7 +122,8 @@ class RectangleShape extends Shape {
             -pi / 2);
         break;
       case CornerStyle.cutout:
-        nodes.add(DynamicNode(position: Offset(right - topRightRadius, top + rightTopRadius)));
+        nodes.add(DynamicNode(
+            position: Offset(right - topRightRadius, top + rightTopRadius)));
         nodes.add(DynamicNode(position: Offset(right, top + rightTopRadius)));
     }
 
@@ -132,14 +133,16 @@ class RectangleShape extends Shape {
       case CornerStyle.rounded:
         nodes.arcTo(
             Rect.fromCenter(
-                center: Offset(right - bottomRightRadius, bottom - rightBottomRadius),
+                center: Offset(
+                    right - bottomRightRadius, bottom - rightBottomRadius),
                 width: 2 * bottomRightRadius,
                 height: 2 * rightBottomRadius),
             0,
             pi / 2);
         break;
       case CornerStyle.straight:
-        nodes.add(DynamicNode(position: Offset(right-bottomRightRadius, bottom)));
+        nodes.add(
+            DynamicNode(position: Offset(right - bottomRightRadius, bottom)));
         break;
       case CornerStyle.concave:
         nodes.arcTo(
@@ -151,8 +154,11 @@ class RectangleShape extends Shape {
             -pi / 2);
         break;
       case CornerStyle.cutout:
-        nodes.add(DynamicNode(position: Offset(right-bottomRightRadius, bottom-rightBottomRadius)));
-        nodes.add(DynamicNode(position: Offset(right-bottomRightRadius, bottom)));
+        nodes.add(DynamicNode(
+            position:
+                Offset(right - bottomRightRadius, bottom - rightBottomRadius)));
+        nodes.add(
+            DynamicNode(position: Offset(right - bottomRightRadius, bottom)));
     }
 
     nodes.add(DynamicNode(position: Offset(left + bottomLeftRadius, bottom)));
@@ -161,14 +167,16 @@ class RectangleShape extends Shape {
       case CornerStyle.rounded:
         nodes.arcTo(
             Rect.fromCenter(
-                center: Offset(left + bottomLeftRadius, bottom - leftBottomRadius),
+                center:
+                    Offset(left + bottomLeftRadius, bottom - leftBottomRadius),
                 width: 2 * bottomLeftRadius,
                 height: 2 * leftBottomRadius),
-            pi / 2 ,
+            pi / 2,
             pi / 2);
         break;
       case CornerStyle.straight:
-        nodes.add(DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
+        nodes.add(
+            DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
         break;
       case CornerStyle.concave:
         nodes.arcTo(
@@ -180,8 +188,11 @@ class RectangleShape extends Shape {
             -pi / 2);
         break;
       case CornerStyle.cutout:
-        nodes.add(DynamicNode(position: Offset(left+bottomLeftRadius, bottom-leftBottomRadius)));
-        nodes.add(DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
+        nodes.add(DynamicNode(
+            position:
+                Offset(left + bottomLeftRadius, bottom - leftBottomRadius)));
+        nodes.add(
+            DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
     }
 
     nodes.add(DynamicNode(position: Offset(left, top + leftTopRadius)));
@@ -190,14 +201,14 @@ class RectangleShape extends Shape {
       case CornerStyle.rounded:
         nodes.arcTo(
             Rect.fromCenter(
-                center: Offset(left + topLeftRadius, top+leftTopRadius),
+                center: Offset(left + topLeftRadius, top + leftTopRadius),
                 width: 2 * topLeftRadius,
                 height: 2 * leftTopRadius),
-            pi  ,
+            pi,
             pi / 2);
         break;
       case CornerStyle.straight:
-        nodes.add(DynamicNode(position: Offset(left+topLeftRadius, top)));
+        nodes.add(DynamicNode(position: Offset(left + topLeftRadius, top)));
         break;
       case CornerStyle.concave:
         nodes.arcTo(
@@ -205,12 +216,13 @@ class RectangleShape extends Shape {
                 center: Offset(left, top),
                 width: 2 * topLeftRadius,
                 height: 2 * leftTopRadius),
-            pi/2,
+            pi / 2,
             -pi / 2);
         break;
       case CornerStyle.cutout:
-        nodes.add(DynamicNode(position: Offset(left+topLeftRadius, top+leftTopRadius)));
-        nodes.add(DynamicNode(position: Offset(left+topLeftRadius, top)));
+        nodes.add(DynamicNode(
+            position: Offset(left + topLeftRadius, top + leftTopRadius)));
+        nodes.add(DynamicNode(position: Offset(left + topLeftRadius, top)));
     }
 
     return DynamicPath(size: rect.size, nodes: nodes);

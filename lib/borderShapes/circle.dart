@@ -5,33 +5,31 @@ import 'dart:math';
 
 ///Circle shape with a start and sweep angle
 class CircleShape extends Shape {
-
   final double startAngle;
   final double sweepAngle;
 
   const CircleShape({this.startAngle = 0, this.sweepAngle = 2 * pi});
 
   CircleShape.fromJson(Map<String, dynamic> map)
-      : startAngle = map["startAngle"]??0.0,
-        sweepAngle = map["sweepAngle"]??(2 * pi);
+      : startAngle = map["startAngle"] ?? 0.0,
+        sweepAngle = map["sweepAngle"] ?? (2 * pi);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"name": "CircleShape"};
-    rst["startAngle"]=startAngle;
-    rst["sweepAngle"]=sweepAngle;
+    rst["startAngle"] = startAngle;
+    rst["sweepAngle"] = sweepAngle;
     return rst;
   }
 
   CircleShape copyWith({
-  double? startAngle,
+    double? startAngle,
     double? sweepAngle,
-}) {
+  }) {
     return CircleShape(
-      startAngle: startAngle??this.startAngle,
-      sweepAngle: sweepAngle??this.sweepAngle,
+      startAngle: startAngle ?? this.startAngle,
+      sweepAngle: sweepAngle ?? this.sweepAngle,
     );
   }
-
 
   DynamicPath generateDynamicPath(Rect rect) {
     final size = rect.size;

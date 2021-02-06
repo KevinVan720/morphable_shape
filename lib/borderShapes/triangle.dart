@@ -33,12 +33,15 @@ class TriangleShape extends Shape {
   }
 
   TriangleShape.fromJson(Map<String, dynamic> map)
-      : point1 = parseDynamicOffset(map["point1"])??DynamicOffset(const Length(0, unit: LengthUnit.percent),
-            const Length(0, unit: LengthUnit.percent)),
-        point2 = parseDynamicOffset(map["point2"])??DynamicOffset(const Length(100, unit: LengthUnit.percent),
-            const Length(0, unit: LengthUnit.percent)),
-        point3 = parseDynamicOffset(map["point3"])??DynamicOffset(const Length(50, unit: LengthUnit.percent),
-            const Length(100, unit: LengthUnit.percent));
+      : point1 = parseDynamicOffset(map["point1"]) ??
+            DynamicOffset(const Length(0, unit: LengthUnit.percent),
+                const Length(0, unit: LengthUnit.percent)),
+        point2 = parseDynamicOffset(map["point2"]) ??
+            DynamicOffset(const Length(100, unit: LengthUnit.percent),
+                const Length(0, unit: LengthUnit.percent)),
+        point3 = parseDynamicOffset(map["point3"]) ??
+            DynamicOffset(const Length(50, unit: LengthUnit.percent),
+                const Length(100, unit: LengthUnit.percent));
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"name": "TriangleShape"};

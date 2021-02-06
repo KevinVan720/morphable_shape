@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
-import '../path_morph.dart';
+
 import '../dynamic_path_morph.dart';
 
 ///this class should only be called by a morphShapeTween
@@ -12,13 +12,16 @@ class MorphShape extends Shape {
 
   SampledDynamicPathData data;
 
-  MorphShape({required this.startShape, required this.endShape, required this.t, required this.data});
+  MorphShape(
+      {required this.startShape,
+      required this.endShape,
+      required this.t,
+      required this.data});
 
   DynamicPath generateDynamicPath(Rect rect) {
-    if(rect.width!=data.boundingBox.width||rect.height!=data.boundingBox.height) {
-      DynamicPathMorph.samplePathsFromShape(data, startShape,
-          endShape,
-          rect);
+    if (rect.width != data.boundingBox.width ||
+        rect.height != data.boundingBox.height) {
+      DynamicPathMorph.samplePathsFromShape(data, startShape, endShape, rect);
     }
     return DynamicPathMorph.lerpPath(t, data)..resize(rect.size);
   }
@@ -30,5 +33,4 @@ class MorphShape extends Shape {
   Shape copyWith() {
     return this;
   }
-
 }

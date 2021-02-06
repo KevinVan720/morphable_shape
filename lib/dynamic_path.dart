@@ -200,16 +200,16 @@ class DynamicPath {
     node.position =
         node.position.clamp(Offset.zero, Offset(size.width, size.height));
 
-      if (node.prev != null) {
-        node.prev = node.prev! + avalOffset;
-        node.prev =
-            node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
-      }
-      if (node.next != null) {
-        node.next = node.next! + avalOffset;
-        node.next =
-            node.next!.clamp(Offset.zero, Offset(size.width, size.height));
-      }
+    if (node.prev != null) {
+      node.prev = node.prev! + avalOffset;
+      node.prev =
+          node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
+    }
+    if (node.next != null) {
+      node.next = node.next! + avalOffset;
+      node.next =
+          node.next!.clamp(Offset.zero, Offset(size.width, size.height));
+    }
 
     /*
     else{
@@ -288,16 +288,15 @@ class DynamicPath {
   void moveNodeControlTo(int index, bool prev, Offset offset,
       {NodeControlMode mode = NodeControlMode.none}) {
     DynamicNode node = nodes[index];
-      if (prev) {
-        node.prev = offset.roundWithPrecision(defaultPointPrecision);
-        node.prev =
-            node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
-      } else {
-        node.next = offset.roundWithPrecision(defaultPointPrecision);
-        node.next =
-            node.next!.clamp(Offset.zero, Offset(size.width, size.height));
-      }
-
+    if (prev) {
+      node.prev = offset.roundWithPrecision(defaultPointPrecision);
+      node.prev =
+          node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
+    } else {
+      node.next = offset.roundWithPrecision(defaultPointPrecision);
+      node.next =
+          node.next!.clamp(Offset.zero, Offset(size.width, size.height));
+    }
   }
 
   ///Get the necessary points to draw the straight or cubic Bezier path at index

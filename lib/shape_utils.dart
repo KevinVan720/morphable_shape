@@ -1,12 +1,12 @@
-import 'morphable_shape_border.dart';
-import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:flutter/material.dart';
+import 'morphable_shape_border.dart';
 
 ///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
 
 ///represent a shape feature at one of the four side of a rectangle
-///and also one of the four corners of the rectangle
+///plus one of the four corners of the rectangle
 enum ShapeCorner {
   topLeft,
   topRight,
@@ -18,7 +18,7 @@ enum ShapeCorner {
   rightBottom
 }
 
-enum CornerStyle{
+enum CornerStyle {
   rounded,
   concave,
   straight,
@@ -96,9 +96,9 @@ extension OffsetExtension on Offset {
     return Offset(
         this.dx.clamp(lower.dx, upper.dx), this.dy.clamp(lower.dy, upper.dy));
   }
+
   Offset roundWithPrecision(int N) {
-    return Offset(
-        this.dx.roundWithPrecision(N), this.dy.roundWithPrecision(N));
+    return Offset(this.dx.roundWithPrecision(N), this.dy.roundWithPrecision(N));
   }
 }
 
@@ -120,6 +120,7 @@ int gcd(int a, int b) {
   return a;
 }
 
+///get third angle or side length in a triangle
 double getThirdSideLength(double a, double b, double angle) {
   double c2 = a * a + b * b - 2 * a * b * cos(angle);
   return sqrt(c2);
@@ -130,6 +131,7 @@ double getThirdAngle(double a, double b, double c) {
   return acos(cosA);
 }
 
+///get point coordinate/first derivative at parameter t on an arc
 Offset getPointOnArc(Rect rect, double t) {
   double xc = rect.center.dx,
       yc = rect.center.dy,
@@ -143,6 +145,7 @@ Offset getDerivativeOnArc(Rect rect, double t) {
   return Offset(-rx * sin(t), ry * cos(t));
 }
 
+///recursively split an arc into multiple cubic Bezier
 List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
     {double limit = pi / 4}) {
   if (sweepAngle.abs() > limit) {
@@ -192,6 +195,6 @@ extension addDynamicNodeExtension on List<DynamicNode> {
 
 extension doubleExtension on double {
   double snapWithNumber(double number) {
-    return (this*number).round()/number;
+    return (this * number).round() / number;
   }
 }

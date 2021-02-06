@@ -39,7 +39,6 @@ class ClipShadowPath extends StatelessWidget {
     required this.shadow,
     required this.clipper,
     required this.child,
-
   });
 
   @override
@@ -69,8 +68,12 @@ class _ShapeBorderPaint extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       child: child,
-      painter: borderOnForeground ? null : _ShapeBorderPainter(shape, Directionality.maybeOf(context)),
-      foregroundPainter: borderOnForeground ? _ShapeBorderPainter(shape, Directionality.maybeOf(context)) : null,
+      painter: borderOnForeground
+          ? null
+          : _ShapeBorderPainter(shape, Directionality.maybeOf(context)),
+      foregroundPainter: borderOnForeground
+          ? _ShapeBorderPainter(shape, Directionality.maybeOf(context))
+          : null,
     );
   }
 }
@@ -118,9 +121,7 @@ class DynamicMaterial extends StatelessWidget {
   final Widget child;
 
   DynamicMaterial(
-      {required this.shape,
-      this.shadow = const [],
-      required this.child});
+      {required this.shape, this.shadow = const [], required this.child});
 
   @override
   Widget build(BuildContext context) {

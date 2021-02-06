@@ -30,3 +30,11 @@ Update package README
 ## [0.0.8] - 02.06.2021
 
 Update package README
+
+## [0.0.9] - 02.06.2021
+
+Update package structure
+
+## [1.0.0] - 02.06.2021
+
+Update the auto morph method. First stable version ready.

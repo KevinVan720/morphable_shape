@@ -30,7 +30,6 @@ export 'borderShapes/path.dart';
 ///should be serializable/deserializable
 ///generate a DynamicPath instance with all the control points, then convert to a Path
 abstract class Shape {
-
   const Shape();
 
   Map<String, dynamic> toJson();
@@ -40,7 +39,6 @@ abstract class Shape {
   DynamicPath generateDynamicPath(Rect rect);
 
   Path generatePath({required Rect rect}) {
-
     return generateDynamicPath(rect).getPath(rect.size);
   }
 
@@ -52,6 +50,7 @@ abstract class Shape {
       borderPaint.style = PaintingStyle.stroke;
       borderPaint.color = borderColor;
       borderPaint.strokeWidth = borderWidth;
+
       ///Possible different borderColor and style in the future?
 
       /*
@@ -68,7 +67,6 @@ abstract class Shape {
       canvas.drawPath(generatePath(rect: rect), borderPaint);
     }
   }
-
 }
 
 ///ShapeBorder with various customizable shapes
@@ -120,7 +118,6 @@ class MorphableShapeBorder extends ShapeBorder {
 
   @override
   bool operator ==(dynamic other) {
-
     if (runtimeType != other.runtimeType) return false;
     final MorphableShapeBorder typedOther = other;
 
@@ -130,8 +127,7 @@ class MorphableShapeBorder extends ShapeBorder {
   }
 
   @override
-  int get hashCode =>
-      hashValues(shape, borderColor, borderWidth);
+  int get hashCode => hashValues(shape, borderColor, borderWidth);
 
   @override
   String toString() {
@@ -147,17 +143,15 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
   MorphableShapeBorderTween(
       {MorphableShapeBorder? begin,
       MorphableShapeBorder? end,
-      MorphMethod method=MorphMethod.auto})
+      MorphMethod method = MorphMethod.auto})
       : super(begin: begin, end: end) {
     data = SampledDynamicPathData(
-      path1: DynamicPath(size: Size.zero,nodes: []),
-        path2: DynamicPath(size: Size.zero,nodes: []),
+        path1: DynamicPath(size: Size.zero, nodes: []),
+        path2: DynamicPath(size: Size.zero, nodes: []),
         boundingBox: Rect.zero,
         method: method);
-    begin=begin??MorphableShapeBorder(
-        shape: RectangleShape());
-    end=end??MorphableShapeBorder(
-        shape: RectangleShape());
+    begin = begin ?? MorphableShapeBorder(shape: RectangleShape());
+    end = end ?? MorphableShapeBorder(shape: RectangleShape());
   }
 
   @override

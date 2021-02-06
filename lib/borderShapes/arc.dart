@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 
-
 ///A rectangle with one side replaced by an arc with a certain height
 class ArcShape extends Shape {
   final ShapeSide side;
@@ -17,15 +16,15 @@ class ArcShape extends Shape {
   });
 
   ArcShape.fromJson(Map<String, dynamic> map)
-      : side = parseShapeSide(map['side'])??ShapeSide.bottom,
+      : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
         isOutward = map["isOutward"],
-        arcHeight = Length.fromJson(map["arcHeight"])??Length(20);
+        arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"name": "ArcShape"};
     rst["arcHeight"] = arcHeight.toJson();
     rst["isOutward"] = isOutward;
-    rst["side"]=side.toJson();
+    rst["side"] = side.toJson();
     return rst;
   }
 
@@ -48,13 +47,13 @@ class ArcShape extends Shape {
 
     double arcHeight = 0;
     if (this.side.isHorizontal) {
-      arcHeight = this.arcHeight
+      arcHeight = this
+          .arcHeight
           .toPX(constraintSize: size.height)
           .clamp(0, maximumSize);
     } else {
-      arcHeight = this.arcHeight
-          .toPX(constraintSize: size.width)
-          .clamp(0, maximumSize);
+      arcHeight =
+          this.arcHeight.toPX(constraintSize: size.width).clamp(0, maximumSize);
     }
     double theta1, theta2, theta3, radius;
     if (this.side.isHorizontal) {
@@ -71,7 +70,7 @@ class ArcShape extends Shape {
 
     List<DynamicNode> nodes = [];
 
-    if(arcHeight==0) {
+    if (arcHeight == 0) {
       nodes.add(DynamicNode(position: Offset(0, 0.0)));
       nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
       nodes.add(DynamicNode(position: Offset(size.width, size.height)));
@@ -188,5 +187,4 @@ class ArcShape extends Shape {
     }
     return DynamicPath(nodes: nodes, size: size);
   }
-
 }

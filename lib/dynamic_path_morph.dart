@@ -13,9 +13,9 @@ enum MorphMethod {
 }
 
 ///Data class associated with a MorphableShapeTween
-///supplyCounts are used to make two paths becoming equal length, they are
+///supplyCounts are used to make two dynamic paths becoming equal length, they are
 ///initialized when the morphing first starts and does not change afterwards
-///even with the bounding box changing size.
+///even if the bounding box changes size.
 class SampledDynamicPathData {
   DynamicPath path1;
   DynamicPath path2;
@@ -59,91 +59,154 @@ class DynamicPathMorph {
     Shape shape1,
     Shape shape2,
     Rect rect, {
-    double maxTrial = 100,
-    int maxControlPoints = 16,
+    int maxTrial = 100,
+    int minControlPoints = 16,
+    int maxControlPoints = 120,
   }) {
     data.boundingBox = rect;
     DynamicPath path1 = shape1.generateDynamicPath(rect);
     DynamicPath path2 = shape2.generateDynamicPath(rect);
 
     sampleDynamicPaths(data, path1, path2,
-        maxTrial: maxTrial, maxControlPoints: maxControlPoints);
+        maxTrial: maxTrial,
+        minControlPoints: minControlPoints,
+        maxControlPoints: maxControlPoints);
   }
 
   static void sampleDynamicPaths(
     SampledDynamicPathData data,
     DynamicPath path1,
     DynamicPath path2, {
-    double maxTrial = 100,
-    int maxControlPoints = 16,
+    required int maxTrial,
+    required int minControlPoints,
+    required int maxControlPoints,
   }) {
+    ///the supply points have been calculated
     if (data.supplyCounts1 != null && data.supplyCounts2 != null) {
       data.path1 = supplyPoints(path1, data.supplyCounts1!);
       data.path2 = supplyPoints(path2, data.supplyCounts2!);
+      data.path1.nodes =
+          rotateList(data.path1.nodes, data.minimumShift!) as List<DynamicNode>;
     } else {
-      int totalPoints = max(path1.nodes.length, path2.nodes.length);
-      if (data.method == MorphMethod.weighted ||
-          (data.method == MorphMethod.auto &&
-              totalPoints <= maxControlPoints)) {
+      List rst = [];
+      if (data.method == MorphMethod.weighted) {
         ///we try adding points multiple times and choose the one that need the least offset to morph
         ///from one shape to another. Because the function to choose the least weighted edge is random,
         ///this is a Monte Carlo method. Because the total points is small, it should be fine to try
         ///multiple times (maxTrial) here
-
-        double tempMinOffset = double.infinity;
-        DynamicPath optimalPath1 =
-                DynamicPath(size: data.boundingBox.size, nodes: []),
-            optimalPath2 = DynamicPath(size: data.boundingBox.size, nodes: []);
-        List<int> tempCounts1 = [], tempCounts2 = [];
-        List<int> optimalCount1 = tempCounts1, optimalCount2 = tempCounts2;
-        DynamicPath tempPath1, tempPath2;
-        for (int trial = 0; trial < maxTrial; trial++) {
-          tempCounts1 = sampleSupplyCounts(path1, totalPoints);
-          tempCounts2 = sampleSupplyCounts(path2, totalPoints);
-          tempPath1 = supplyPoints(path1, tempCounts1);
-          tempPath2 = supplyPoints(path2, tempCounts2);
-          double tempOffset = computeMinimumOffset(
-              tempPath1.nodes.map((e) => e.position).toList(),
-              tempPath2.nodes.map((e) => e.position).toList());
-          if (tempOffset < tempMinOffset) {
-            tempMinOffset = tempOffset;
-            optimalPath1 = tempPath1;
-            optimalPath2 = tempPath2;
-            optimalCount1 = tempCounts1;
-            optimalCount2 = tempCounts2;
-          }
-        }
-        data.path1 = optimalPath1;
-        data.path2 = optimalPath2;
-        data.supplyCounts1 = optimalCount1;
-        data.supplyCounts2 = optimalCount2;
+        rst = weightedSampling(path1, path2, maxTrial: maxTrial);
+      } else if (data.method == MorphMethod.unweighted) {
+        ///use the unweighted method, spread the extra points needed evenly on each curve
+        rst = unweightedSampling(path1, path2,
+            minControlPoints: minControlPoints,
+            maxControlPoints: maxControlPoints);
       } else {
-        totalPoints = lcm(path1.nodes.length, path2.nodes.length);
-        if (totalPoints < maxControlPoints) {
-          totalPoints = path1.nodes.length * path2.nodes.length;
-        }
-        if (totalPoints > 120) {
-          totalPoints = max(120, max(path1.nodes.length, path2.nodes.length));
-        }
-        data.supplyCounts1 =
-            sampleSupplyCounts(path1, totalPoints, weightBased: false);
-        data.supplyCounts2 =
-            sampleSupplyCounts(path2, totalPoints, weightBased: false);
-        data.path1 = supplyPoints(path1, data.supplyCounts1!);
-        data.path2 = supplyPoints(path2, data.supplyCounts2!);
+        List rst1 = weightedSampling(path1, path2, maxTrial: maxTrial);
+        List rst2 = unweightedSampling(path1, path2,
+            minControlPoints: minControlPoints,
+            maxControlPoints: maxControlPoints);
+        rst = rst1[5] > rst2[5] ? rst2 : rst1;
+      }
+      data.path1 = rst[2];
+      data.path2 = rst[3];
+      data.supplyCounts1 = rst[0];
+      data.supplyCounts2 = rst[1];
+      data.minimumShift = rst[4];
+    }
+  }
+
+  static List<dynamic> weightedSampling(DynamicPath path1, DynamicPath path2,
+      {required int maxTrial}) {
+    int totalPoints = max(path1.nodes.length, path2.nodes.length);
+
+    double tempMinOffset = double.infinity;
+    List<int> tempCounts1, tempCounts2 = [];
+    DynamicPath tempPath1, tempPath2;
+
+    DynamicPath optimalPath1 = DynamicPath(size: Size.zero, nodes: []),
+        optimalPath2 = DynamicPath(size: Size.zero, nodes: []);
+    List<int> optimalCount1 = [], optimalCount2 = [];
+
+    ///Monte Carlo to find the optimal way to distribute the extra control points
+    for (int trial = 0; trial < maxTrial; trial++) {
+      tempCounts1 = sampleSupplyCounts(path1, totalPoints);
+      tempCounts2 = sampleSupplyCounts(path2, totalPoints);
+      tempPath1 = supplyPoints(path1, tempCounts1);
+      tempPath2 = supplyPoints(path2, tempCounts2);
+      double tempOffset = computeMinimumOffset(
+          tempPath1.nodes.map((e) => e.position).toList(),
+          tempPath2.nodes.map((e) => e.position).toList());
+      if (tempOffset < tempMinOffset) {
+        tempMinOffset = tempOffset;
+        optimalPath1 = tempPath1;
+        optimalPath2 = tempPath2;
+        optimalCount1 = tempCounts1;
+        optimalCount2 = tempCounts2;
       }
     }
+    int shift = computeMinimumOffsetIndex(
+        optimalPath1.nodes.map((e) => e.position).toList(),
+        optimalPath2.nodes.map((e) => e.position).toList());
 
-    int shift;
-    if (data.minimumShift == null) {
-      shift = computeMinimumOffsetIndex(
-          data.path1.nodes.map((e) => e.position).toList(),
-          data.path2.nodes.map((e) => e.position).toList());
-      data.minimumShift = shift;
-    } else {
-      shift = data.minimumShift!;
+    optimalPath1.nodes =
+        rotateList(optimalPath1.nodes, shift) as List<DynamicNode>;
+
+    return [
+      optimalCount1,
+      optimalCount2,
+      optimalPath1,
+      optimalPath2,
+      shift,
+      (centerOfMass(optimalPath1.nodes.map((e) => e.position).toList()) -
+                  centerOfMass(
+                      optimalPath2.nodes.map((e) => e.position).toList()))
+              .distance *
+          optimalPath1.nodes.length,
+    ];
+  }
+
+  static List<dynamic> unweightedSampling(
+    DynamicPath path1,
+    DynamicPath path2, {
+    required int minControlPoints,
+    required int maxControlPoints,
+  }) {
+    int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
+    if (totalPoints < minControlPoints) {
+      totalPoints = path1.nodes.length * path2.nodes.length;
     }
-    data.path1.nodes = rotateList(data.path1.nodes, shift) as List<DynamicNode>;
+
+    ///cap at maxControlPoints, but it is possible that the minimum required points
+    ///(max(points1, points2)) is larger than maxControlPoints.
+    if (totalPoints > maxControlPoints) {
+      totalPoints =
+          max(maxControlPoints, max(path1.nodes.length, path2.nodes.length));
+    }
+    List<int> optimalCount1 =
+        sampleSupplyCounts(path1, totalPoints, weightBased: false);
+    List<int> optimalCount2 =
+        sampleSupplyCounts(path2, totalPoints, weightBased: false);
+    DynamicPath optimalPath1 = supplyPoints(path1, optimalCount1);
+    DynamicPath optimalPath2 = supplyPoints(path2, optimalCount2);
+    int shift = computeMinimumOffsetIndex(
+        optimalPath1.nodes.map((e) => e.position).toList(),
+        optimalPath2.nodes.map((e) => e.position).toList());
+
+    optimalPath1.nodes =
+        rotateList(optimalPath1.nodes, shift) as List<DynamicNode>;
+
+    return [
+      optimalCount1,
+      optimalCount2,
+      optimalPath1,
+      optimalPath2,
+      shift,
+      (centerOfMass(optimalPath1.nodes.map((e) => e.position).toList()) -
+                  centerOfMass(
+                      optimalPath2.nodes.map((e) => e.position).toList()))
+              .distance *
+          optimalPath1.nodes.length,
+    ];
   }
 
   static int computeMinimumOffsetIndex(
@@ -165,6 +228,25 @@ class DynamicPathMorph {
     return minimumShift;
   }
 
+  static Offset centerOfMass(List<Offset> points) {
+    int length = points.length;
+    Offset rst = Offset.zero;
+    for (int i = 0; i < length; i += 1) {
+      rst += points[i];
+    }
+    return rst / length.toDouble();
+  }
+
+  static double computeTotalOffset(List<Offset> points1, List<Offset> points2) {
+    assert(points1.length == points2.length);
+    int length = points1.length;
+    double currentOffset = 0.0;
+    for (int i = 0; i < length; i += 1) {
+      currentOffset += (points1[i] - points2[i]).distance;
+    }
+    return currentOffset;
+  }
+
   static double computeMinimumOffset(
       List<Offset> points1, List<Offset> points2) {
     double minimumOffset = double.infinity;
@@ -173,8 +255,7 @@ class DynamicPathMorph {
     for (int shift = 0; shift < length; shift++) {
       double currentOffset = 0.0;
       for (int i = 0; i < length; i += 1) {
-        currentOffset +=
-            (points1[(i + shift) % length] - points2[i]).distanceSquared;
+        currentOffset += (points1[(i + shift) % length] - points2[i]).distance;
       }
       if (currentOffset <= minimumOffset) {
         minimumOffset = currentOffset;
@@ -236,30 +317,6 @@ int randomChoose(List<num> list) {
   for (int i = 0; i < list.length; i++) {
     if (randomDraw <= currentSum) return i;
     currentSum += list[i];
-  }
-  return index;
-}
-
-int nonzeroMinWeighted(List<num> list, List<double> weights) {
-  int index = 0;
-  num currentMin = double.infinity;
-  for (int i = 0; i < list.length; i++) {
-    bool replace = false;
-    if (list[i] > 0) {
-      if (list[i] < currentMin ||
-          (list[i] == currentMin && weights[i] < weights[index])) {
-        replace = true;
-      } else if (list[i] == currentMin && weights[i] == weights[index]) {
-        ///randomly choose between equal weight and equal value indices,
-        ///key to using Monte Carlo to find the optimal control points in function supplyPoints
-        var rng = new Random();
-        replace = rng.nextInt(2).isEven;
-      }
-    }
-    if (replace) {
-      index = i;
-      currentMin = list[i];
-    }
   }
   return index;
 }

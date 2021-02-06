@@ -57,13 +57,13 @@ ShapeCorner? parseShapeCorner(String? string) {
 }
 
 DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
-
   if (map == null || map["name"] == null) return null;
-  Size? size=parseSize(map["size"]);
-  List<DynamicNode>? nodes=(map["nodes"] as List).map((e) => DynamicNode.fromJson(e)).toList();
-  if(size==null || nodes==null) {
+  Size? size = parseSize(map["size"]);
+  List<DynamicNode>? nodes =
+      (map["nodes"] as List?)?.map((e) => DynamicNode.fromJson(e)).toList();
+  if (size == null || nodes == null) {
     return null;
-  }else{
+  } else {
     return DynamicPath(size: size, nodes: nodes);
   }
 }
@@ -94,14 +94,14 @@ Shape? parseShape(Map<String, dynamic>? map) {
     default:
       return null;
   }
-
 }
 
 MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
   if (map == null) return null;
   return MorphableShapeBorder(
     shape: parseShape(map["shape"]) ??
-        RectangleShape(borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
+        RectangleShape(
+            borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
     borderWidth: map["borderWidth"] ?? 0.0,
     borderColor: parseColor(map["borderColor"]) ?? Colors.black,
   );
