@@ -53,12 +53,13 @@ class TrapezoidShape extends Shape {
     switch (side) {
       case ShapeSide.top:
         {
-          nodes.add(DynamicNode(position: Offset(0, 0)));
-          nodes.add(DynamicNode(position: Offset(size.width, 0)));
-          nodes.add(DynamicNode(
-              position: Offset(size.width * (1 - inset / 2), size.height)));
-          nodes.add(DynamicNode(
-              position: Offset(size.width * (inset / 2), size.height)));
+          nodes.add(
+              DynamicNode(position: Offset(inset, 0)));
+          nodes.add(
+              DynamicNode(position: Offset(size.width - inset, 0)));
+
+          nodes.add(DynamicNode(position: Offset(size.width, size.height)));
+          nodes.add(DynamicNode(position: Offset(0, size.height)));
         }
         break;
       case ShapeSide.bottom:

@@ -38,3 +38,7 @@ Update package structure
 ## [1.0.0] - 02.06.2021
 
 Update the auto morph method. First stable version ready.
+
+## [1.0.1] - 02.06.2021
+
+Update the auto morph method. More intuitive.

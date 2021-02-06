@@ -1,3 +1,5 @@
+import 'package:length_unit/length_unit.dart';
+
 import 'morphable_shape_border.dart';
 
 const Map<String, Shape> presetShapeMap = {
@@ -6,7 +8,7 @@ const Map<String, Shape> presetShapeMap = {
       borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
   "RoundRectangle10": const RectangleShape(
       borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(10)))),
+          const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "DiagonalBottomRight": const RectangleShape(
       bottomRight: CornerStyle.straight,
       borderRadius: DynamicBorderRadius.only(
@@ -19,21 +21,21 @@ const Map<String, Shape> presetShapeMap = {
       bottomLeft: CornerStyle.straight,
       bottomRight: CornerStyle.straight,
       borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(10)))),
+          const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "CutoutCornerAll10": const RectangleShape(
       topLeft: CornerStyle.cutout,
       topRight: CornerStyle.cutout,
       bottomLeft: CornerStyle.cutout,
       bottomRight: CornerStyle.cutout,
       borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(10)))),
+          const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "ConcaveCornerAll10": const RectangleShape(
       topLeft: CornerStyle.concave,
       topRight: CornerStyle.concave,
       bottomLeft: CornerStyle.concave,
       bottomRight: CornerStyle.concave,
       borderRadius: DynamicBorderRadius.all(
-          const DynamicRadius.circular(const Length(10)))),
+          const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "BubbleTopLeft": const BubbleShape(corner: ShapeCorner.topLeft),
   "BubbleBottomRight": const BubbleShape(corner: ShapeCorner.bottomRight),
   "BubbleLeftTop": const BubbleShape(corner: ShapeCorner.leftTop),
@@ -43,7 +45,9 @@ const Map<String, Shape> presetShapeMap = {
   "ArcBottom": const ArcShape(
       side: ShapeSide.bottom, arcHeight: Length(20, unit: LengthUnit.percent)),
   "ArrowRight": const ArrowShape(),
+  "ArrowLeft": const ArrowShape(side: ShapeSide.left),
   "Trapezoid": const TrapezoidShape(),
+  "TrapezoidBottom": const TrapezoidShape(side: ShapeSide.top),
   "Polygon3": const PolygonShape(sides: 3),
   "Polygon5": const PolygonShape(sides: 5),
   "Polygon6": const PolygonShape(sides: 6),
@@ -55,4 +59,22 @@ const Map<String, Shape> presetShapeMap = {
   "Star8": const StarShape(corners: 8),
   "Star12": const StarShape(corners: 12),
   "Triangle": const TriangleShape(),
+  "TriangleLeft": const TriangleShape(point1 : const DynamicOffset(
+      const Length(0, unit: LengthUnit.percent),
+      const Length(0, unit: LengthUnit.percent)),
+      point2 :const DynamicOffset(
+          const Length(100, unit: LengthUnit.percent),
+          const Length(0, unit: LengthUnit.percent)),
+      point3 : const DynamicOffset(
+          const Length(0, unit: LengthUnit.percent),
+          const Length(100, unit: LengthUnit.percent))),
+  "TriangleRight": const TriangleShape(point1 : const DynamicOffset(
+      const Length(0, unit: LengthUnit.percent),
+      const Length(0, unit: LengthUnit.percent)),
+      point2 :const DynamicOffset(
+          const Length(100, unit: LengthUnit.percent),
+          const Length(0, unit: LengthUnit.percent)),
+      point3 : const DynamicOffset(
+          const Length(100, unit: LengthUnit.percent),
+          const Length(100, unit: LengthUnit.percent))),
 };
