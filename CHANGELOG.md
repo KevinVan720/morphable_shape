@@ -22,3 +22,7 @@ Fixed some static code warnings
 ## [0.0.6] - 02.05.2021
 
 Update package README
+
+## [0.0.7] - 02.06.2021
+
+Update package README

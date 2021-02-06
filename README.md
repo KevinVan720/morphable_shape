@@ -71,7 +71,7 @@ You can make a triangle, a diamond, a trapezoid,
 or even an arrow shape by just using the RectangleShape  
 class and providing the right corner style and radius.
 
-![rectangle](readme_pics/rectangle.png)
+![rectangle](https://i.imgur.com/I0jXJu2.png)
 
 ### CircleShape
 CircleShape allows you to choose the start angle and sweep angle:
@@ -81,7 +81,7 @@ startAngle: 0,
 sweepAngle: 2*pi,
 )
 ```
-![circle](readme_pics/circle.png)
+![circle](https://i.imgur.com/AYWNWXQ.png)
 
 ### PolygonShape
 PolygonShape supports changing the number of sides as well as corner radius and corner style:
@@ -92,7 +92,7 @@ cornerRadius: 10.toPercentLength,
 cornerStyle: CornerStyle.rounded
 )
 ```
-![polygon](readme_pics/polygon.png)
+![polygon](https://i.imgur.com/pzADQHO.png)
 ### StarShape
 The StarShape allows you to change the number of corners,  
 the inset, the border radius, the border style, the inset  
@@ -107,7 +107,7 @@ insetRadius: 0.toPXLength,
 insetStyle: CornerStyle.rounded
 )
 ```
-![star](readme_pics/star.png)
+![star](https://i.imgur.com/00JT5jK.png)
 
 ## Shape Morphing
 
@@ -134,7 +134,7 @@ shapeBorderTween.lerp(t)
 For an explanation and demonstration of the morphing capabilities, take a look at this
 [Medium post](https://kevinvan.medium.com/creating-morphable-shapes-in-flutter-a-complete-rewrite-ac899bfe4222).
 
-![morph](readme_pics/combined.gif)
+![morph](https://i.imgur.com/cwpoj0Z.gifv)
 
 ## Shape Serialization
 
