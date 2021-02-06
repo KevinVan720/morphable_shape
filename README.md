@@ -134,7 +134,7 @@ shapeBorderTween.lerp(t)
 For an explanation and demonstration of the morphing capabilities, take a look at this
 [Medium post](https://kevinvan.medium.com/creating-morphable-shapes-in-flutter-a-complete-rewrite-ac899bfe4222).
 
-![morph](https://i.imgur.com/cwpoj0Z.gifv)
+![morph](https://i.imgur.com/cwpoj0Z.gif)
 
 ## Shape Serialization
 
