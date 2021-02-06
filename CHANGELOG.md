@@ -18,3 +18,7 @@ Lets you select morph method
 ## [0.0.5] - 02.05.2021
 
 Fixed some static code warnings
+
+## [0.0.6] - 02.05.2021
+
+Update package README
