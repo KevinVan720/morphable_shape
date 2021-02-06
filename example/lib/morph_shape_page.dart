@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
-import 'package:morphable_shape/preset_shape_map.dart';
 import 'value_pickers.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
 
@@ -27,6 +26,8 @@ class _MorphShapePageState extends State<MorphShapePage>
   double shapeHeight;
 
   MorphMethod method = MorphMethod.auto;
+  bool showControl=true;
+  int durationInSec=3;
 
   @override
   void initState() {
@@ -37,7 +38,7 @@ class _MorphShapePageState extends State<MorphShapePage>
     endShape = StarShape();
 
     controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 3));
+        AnimationController(vsync: this, duration: Duration(seconds: durationInSec));
     Animation curve =
         CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
 
@@ -107,11 +108,6 @@ class _MorphShapePageState extends State<MorphShapePage>
                     animation: animation,
                     builder: (BuildContext context, Widget child) {
                       double t = animation.value;
-                      List<Offset> controlPoints=DynamicPathMorph.lerpPath(
-                          t, shapeBorderTween.data)
-                          .nodes
-                          .map((e) => e.position)
-                          .toList();
                       return Center(
                         child: Stack(
                           children: [
@@ -125,13 +121,20 @@ class _MorphShapePageState extends State<MorphShapePage>
                                 height: shapeHeight,
                               ),
                             ),
-                            CustomPaint(
+                            showControl ? CustomPaint(
                                 painter: MorphControlPointsPainter(
-                                    controlPoints),
+                                    DynamicPathMorph.lerpPath(
+                                        t, shapeBorderTween.data)
+                                        .nodes
+                                        .map((e) => e.position)
+                                        .toList()),
                               child: Container(
                               width: shapeWidth,
                               height: shapeHeight,
                             ),
+                            ): Container(
+                              width: shapeWidth,
+                              height: shapeHeight,
                             ),
                           ],
                         )
@@ -141,7 +144,9 @@ class _MorphShapePageState extends State<MorphShapePage>
                 right: 20,
                 top: 20,
                 child: Container(
+                  width: 240,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("Morph Method: ", style: TextStyle(
                         color: Colors.white,
@@ -150,6 +155,8 @@ class _MorphShapePageState extends State<MorphShapePage>
 
                       ),),
                       DropdownButton<MorphMethod>(
+                        iconSize: 18,
+                        isDense: true,
                         dropdownColor: Colors.grey,
                         value: method,
                         onChanged: (MorphMethod newValue) {
@@ -168,7 +175,69 @@ class _MorphShapePageState extends State<MorphShapePage>
                       ),
                     ],
                   ),
-                ))
+                )),
+            Positioned(
+                right: 20,
+                top: 55,
+                child: Container(
+                  width: 240,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Control Points: ", style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+
+                      ),),
+                      Switch(
+                          activeColor: Colors.white70,
+                          value: showControl, onChanged: (value
+                      ) {
+                        setState(() {
+                          showControl=value;
+                        });
+                      }),
+                    ],
+                  ),
+                )),
+            Positioned(
+                right: 20,
+                top: 100,
+                child: Container(
+                  width: 240,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Duration: ", style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+
+                      ),),
+                      DropdownButton<int>(
+                        iconSize: 18,
+                        isDense: true,
+                        dropdownColor: Colors.grey,
+                        value: durationInSec,
+                        onChanged: (int newValue) {
+                          setState(() {
+                            durationInSec=newValue;
+                            controller.duration=Duration(seconds: durationInSec);
+                          });
+                        },
+                        items: [1,2,3,4,5,10,15].map((e) {
+                          return DropdownMenuItem<int>(
+                            value: e,
+                            child: Text(e.toString().stripFirstDot(), style: TextStyle(
+                              color: Colors.white,
+                            ),),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                )),
           ],
         ));
   }

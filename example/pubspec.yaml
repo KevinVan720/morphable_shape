@@ -9,8 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  morphable_shape:
-    path: ../
+  morphable_shape: ^0.0.5
 
   length_unit: ^0.0.1
 

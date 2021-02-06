@@ -27,7 +27,10 @@ class SampledDynamicPathData {
   int? minimumShift;
 
   SampledDynamicPathData(
-      {required this.path1, required this.path2, required this.boundingBox, this.method=MorphMethod.auto});
+      {required this.path1,
+      required this.path2,
+      required this.boundingBox,
+      this.method = MorphMethod.auto});
 }
 
 ///Class for controlling the morphing of two shapes
@@ -79,7 +82,9 @@ class DynamicPathMorph {
       data.path2 = supplyPoints(path2, data.supplyCounts2!);
     } else {
       int totalPoints = max(path1.nodes.length, path2.nodes.length);
-      if (data.method==MorphMethod.weighted || (data.method==MorphMethod.auto && totalPoints <= maxControlPoints)) {
+      if (data.method == MorphMethod.weighted ||
+          (data.method == MorphMethod.auto &&
+              totalPoints <= maxControlPoints)) {
         ///we try adding points multiple times and choose the one that need the least offset to morph
         ///from one shape to another. Because the function to choose the least weighted edge is random,
         ///this is a Monte Carlo method. Because the total points is small, it should be fine to try
@@ -114,6 +119,9 @@ class DynamicPathMorph {
         data.supplyCounts2 = optimalCount2;
       } else {
         totalPoints = lcm(path1.nodes.length, path2.nodes.length);
+        if (totalPoints < maxControlPoints) {
+          totalPoints = path1.nodes.length * path2.nodes.length;
+        }
         if (totalPoints > 120) {
           totalPoints = max(120, max(path1.nodes.length, path2.nodes.length));
         }

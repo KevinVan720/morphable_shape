@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:convert';
-import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -9,7 +8,6 @@ import 'package:morphable_shape/borderShapes/bubble.dart';
 import 'package:morphable_shape/borderShapes/circle.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/morphable_shape_border.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'value_pickers.dart';
 import 'morph_shape_page.dart';
@@ -2693,9 +2691,9 @@ class StackDividerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double DashWidth = 5;
-    double xDashDivisions = size.width / DashWidth * 0.5;
-    double yDashDivisions = size.height / DashWidth * 0.5;
+    double dashWidth = 5;
+    double xDashDivisions = size.width / dashWidth * 0.5;
+    double yDashDivisions = size.height / dashWidth * 0.5;
 
     final paint = Paint();
     paint.color = Colors.grey.withOpacity(0.6);
@@ -2709,10 +2707,10 @@ class StackDividerPainter extends CustomPainter {
       for (int dashi = 0; dashi < xDashDivisions; dashi++) {
         canvas.drawLine(
             Offset(startX, size.height * i / yDivisions),
-            Offset(startX + DashWidth, size.height * i / yDivisions)
+            Offset(startX + dashWidth, size.height * i / yDivisions)
                 .clamp(Offset.zero, Offset(size.width, size.height)),
             paint);
-        final space = 2 * DashWidth;
+        final space = 2 * dashWidth;
         startX += space;
       }
     }
@@ -2721,10 +2719,10 @@ class StackDividerPainter extends CustomPainter {
       for (int dashi = 0; dashi < yDashDivisions; dashi++) {
         canvas.drawLine(
             Offset(size.width * i / xDivisions, startY),
-            Offset(size.width * i / xDivisions, startY + DashWidth)
+            Offset(size.width * i / xDivisions, startY + dashWidth)
                 .clamp(Offset.zero, Offset(size.width, size.height)),
             paint);
-        final space = 2 * DashWidth;
+        final space = 2 * dashWidth;
         startY += space;
       }
     }
@@ -2744,13 +2742,13 @@ class StackDividerPainter extends CustomPainter {
       borderPaint.color = Colors.black;
       borderPaint.strokeWidth = 0.5;
       double startX = 0, startY = 0;
-      for (int dashi = 0; dashi < size.width / (2 * DashWidth); dashi++) {
-        if (startX + DashWidth <= size.width) {
+      for (int dashi = 0; dashi < size.width / (2 * dashWidth); dashi++) {
+        if (startX + dashWidth <= size.width) {
           canvas.drawLine(
-              Offset(startX, 0), Offset(startX + DashWidth, 0), borderPaint);
+              Offset(startX, 0), Offset(startX + dashWidth, 0), borderPaint);
           canvas.drawLine(Offset(startX, size.height),
-              Offset(startX + DashWidth, size.height), borderPaint);
-          startX += 2 * DashWidth;
+              Offset(startX + dashWidth, size.height), borderPaint);
+          startX += 2 * dashWidth;
         } else {
           canvas.drawLine(
               Offset(startX, 0), Offset(size.width, 0), borderPaint);
@@ -2758,13 +2756,13 @@ class StackDividerPainter extends CustomPainter {
               Offset(size.width, size.height), borderPaint);
         }
       }
-      for (int dashj = 0; dashj < size.height / (2 * DashWidth); dashj++) {
-        if (startY + DashWidth <= size.height) {
+      for (int dashj = 0; dashj < size.height / (2 * dashWidth); dashj++) {
+        if (startY + dashWidth <= size.height) {
           canvas.drawLine(
-              Offset(0, startY), Offset(0, startY + DashWidth), borderPaint);
+              Offset(0, startY), Offset(0, startY + dashWidth), borderPaint);
           canvas.drawLine(Offset(size.width, startY),
-              Offset(size.width, startY + DashWidth), borderPaint);
-          startY += 2 * DashWidth;
+              Offset(size.width, startY + dashWidth), borderPaint);
+          startY += 2 * dashWidth;
         } else {
           canvas.drawLine(
               Offset(0, startY), Offset(0, size.height), borderPaint);

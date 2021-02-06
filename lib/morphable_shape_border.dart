@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'path_morph.dart';
 import 'package:morphable_shape/borderShapes/rectangle.dart';
 import 'package:morphable_shape/borderShapes/morph.dart';
+
+import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'dynamic_path.dart';
 import 'dynamic_path_morph.dart';
-import 'package:flutter_class_parser/flutter_class_parser.dart';
-
 
 export 'shape_utils.dart';
 export 'package:flutter_class_parser/parse_json.dart';
