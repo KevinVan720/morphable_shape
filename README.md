@@ -28,34 +28,83 @@ child: ...
 The responsive feature means you can have a single shape instance that adapts to different window sizes 
 without you calculating the desired dimensions. For example:
 ```
-var shape=ArrowShape(
- side: ShapeSide.right,
- arrowHeight: const Length(25, unit: LengthUnit.percent),
- tailWidth: const Length(40, unit: LengthUnit.px)
+Shape rectangle=RectangleShape(
+borderRadius: DynamicBorderRadius.only(
+topLeft: DynamicRadius.circular(10.toPXLength),
+bottomRight: DynamicRadius.elliptical(60.0.toPXLength, 10.0.toPercentLength))
 );
 ```
-will create an arrow shape pointing to the right, with a arrow height that is 25% of the bounding box's width
-and a tail with a fixed width 40px. For more information of how to use the Length class, see [length_unit](https://pub.dev/packages/length_unit).
+will give you a rectangle with a 60 px circular radius at the top left corner and a (60 px, 10%) elliptical corner at the bottom right.  
+For more information of how to use the Length class, see [length_unit](https://pub.dev/packages/length_unit).
 
 ## Supported Shapes
 
 Currently supported shapes are:
 
+### RectangleShape
+The most powerful and commonly used one should be the RectangleShape class.  
+It allows to you configure each corner of the rectangle individually or at once.  
+If two radii overlap at one of the sides of the rectangle (like 60% and 50%),  
+it automatically scales both sides so that they don’t overlap (just like what CSS does).  
+The RenctangleShape also supports other corner styles:
 ```
-Arc
-Arrow
-Bubble
-Circle
-Path
-Polygon
-Rectangle
-Star
-Trapezoid
-Triangle
+enum CornerStyle{
+  rounded,
+  concave,
+  straight,
+  cutout,
+}
+Shape rectangle=RectangleShape(
+topLeft: CornerStyle.rounded,
+topRight: CornerStyle.concave,
+bottomLeft: CornerStyle.cutout,
+bottomRight: CornerStyle.straight,
+borderRadius: DynamicBorderRadius.all(
+DynamicRadius.circular(50.toPXLength)
+);
 ```
 
-Each shape class has various parameters to modify (like corner radius and corner style for rectangle, polygon and star). 
-You can play with the shape editor example to get the shape you want. 
+You can make a triangle, a diamond, a trapezoid,  
+or even an arrow shape by just using the RectangleShape  
+class and providing the right corner style and radius.
+
+![rectangle](readme_pics/rectangle.png)
+
+### CircleShape
+CircleShape allows you to choose the start angle and sweep angle:
+```
+CircleShape(
+startAngle: 0,
+sweepAngle: 2*pi,
+)
+```
+![circle](readme_pics/circle.png)
+
+### PolygonShape
+PolygonShape supports changing the number of sides as well as corner radius and corner style:
+```
+PolygonShape(
+sides:6,
+cornerRadius: 10.toPercentLength,
+cornerStyle: CornerStyle.rounded
+)
+```
+![polygon](readme_pics/polygon.png)
+### StarShape
+The StarShape allows you to change the number of corners,  
+the inset, the border radius, the border style, the inset  
+radius, and the inset style.
+```
+StarShape(
+corners: 5,
+inset: 50.toPercentLength,
+cornerRadius: 0.toPXLength,
+cornerStyle: CornerStyle.rounded,
+insetRadius: 0.toPXLength,
+insetStyle: CornerStyle.rounded
+)
+```
+![star](readme_pics/star.png)
 
 ## Shape Morphing
 
