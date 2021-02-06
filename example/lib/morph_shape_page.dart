@@ -83,7 +83,18 @@ class _MorphShapePageState extends State<MorphShapePage>
         appBar: AppBar(
           backgroundColor: Colors.black87,
           titleSpacing: 0.0,
-          title: Text("Shape Morphing"),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image(
+                  width: 30,
+                  height: 30,
+                  image: AssetImage('assets/images/Icon-192.png')),
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: Text("Shape Morph"))
+            ],
+          ),
           centerTitle: true,
           elevation: 0,
           leading: IconButton(
@@ -145,6 +156,7 @@ class _MorphShapePageState extends State<MorphShapePage>
                 top: 20,
                 child: Container(
                   width: 240,
+                  height: 40,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -178,9 +190,10 @@ class _MorphShapePageState extends State<MorphShapePage>
                 )),
             Positioned(
                 right: 20,
-                top: 55,
+                top: 60,
                 child: Container(
                   width: 240,
+                  height: 40,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -206,6 +219,7 @@ class _MorphShapePageState extends State<MorphShapePage>
                 top: 100,
                 child: Container(
                   width: 240,
+                  height: 40,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

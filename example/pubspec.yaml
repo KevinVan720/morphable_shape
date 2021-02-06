@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  morphable_shape: ^0.0.5
+  morphable_shape: ^0.0.6
 
   length_unit: ^0.0.1
 
@@ -22,4 +22,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/Icon-512.png
+    - assets/images/Icon-192.png
 

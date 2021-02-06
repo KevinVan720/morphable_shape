@@ -63,7 +63,9 @@ class EditShapePageState extends State<EditShapePage>
         direction = Axis.vertical;
       }
 
-      if (shapeSize == null) {
+      if (shapeSize == null ||
+          shapeSize.width > screenSize.width * 0.8 ||
+          shapeSize.height > screenSize.height * 0.8) {
         double length = (min(screenSize.width, screenSize.height) * 0.8)
             .clamp(200.0, 600.0);
         shapeSize = Size(length, length);
@@ -136,7 +138,18 @@ class EditShapePageState extends State<EditShapePage>
           appBar: AppBar(
             backgroundColor: Colors.black87,
             titleSpacing: 0.0,
-            title: Text("Edit Shape"),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image(
+                    width: 30,
+                    height: 30,
+                    image: AssetImage('assets/images/Icon-192.png')),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                    child: Text("Edit Shape"))
+              ],
+            ),
             centerTitle: true,
             elevation: 0,
             leading: IconButton(
@@ -184,27 +197,37 @@ class EditShapePageState extends State<EditShapePage>
                         return AlertDialog(
                           content: SingleChildScrollView(
                             child: Container(
-                                  width: min(screenSize.width * 0.8, 400),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text("Welcome to Flutter shape editor!", style: Theme.of(context).textTheme.headline6),
-                                      Divider(),
-                                      Text("Double click to enable/disable shape editing."),
-                                      Divider(),
-                                      Text("Resize the shape by dragging the four handles when shape editing is disabled."),
-                                      Divider(),
-                                      Text('''Drag the various handles on the shape to change shape properties (or edit their values directly in the side panel) when in shape editing mode.'''),
-                                      Divider(),
-                                      Text("Click the To Bezier button to convert the shape to a freeform path shape."),
-                                      Divider(),
-                                      Text("Click the shape icon button to choose other shapes."),
-                                      Divider(),
-                                      Text("Click the code icon button at the top right corner to see the JSON representation of the current shape."),
-                                      Divider(),
-                                      Text("Click the eye icon button at the top left corner to see the current shape morph between other predefined shapes."),
-                                    ],
-                                  )),
+                                width: min(screenSize.width * 0.8, 400),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Welcome to Flutter shape editor!",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline6),
+                                    Divider(),
+                                    Text(
+                                        "Double click to enable/disable shape editing."),
+                                    Divider(),
+                                    Text(
+                                        "Resize the shape by dragging the four handles when shape editing is disabled."),
+                                    Divider(),
+                                    Text(
+                                        '''Drag the various handles on the shape to change shape properties (or edit their values directly in the side panel) when in shape editing mode.'''),
+                                    Divider(),
+                                    Text(
+                                        "Click the To Bezier button to convert the shape to a freeform path shape."),
+                                    Divider(),
+                                    Text(
+                                        "Click the shape icon button to choose other shapes."),
+                                    Divider(),
+                                    Text(
+                                        "Click the code icon button at the top right corner to see the JSON representation of the current shape."),
+                                    Divider(),
+                                    Text(
+                                        "Click the eye icon button at the top left corner to see the current shape morph between other predefined shapes."),
+                                  ],
+                                )),
                           ),
                           actions: <Widget>[
                             TextButton(
@@ -218,7 +241,6 @@ class EditShapePageState extends State<EditShapePage>
                       },
                     );
                   }),
-
             ],
           ),
           body: Container(
@@ -604,7 +626,6 @@ class EditShapePageState extends State<EditShapePage>
                       Offset(details.delta.dx, details.delta.dy)
                           .roundWithPrecision(2));
               updateCurrentShape(shape.copyWith(path: path));
-             
             });
           },
           onPanEnd: (DragEndDetails details) {
@@ -644,7 +665,6 @@ class EditShapePageState extends State<EditShapePage>
                       Offset(details.delta.dx, details.delta.dy)
                           .roundWithPrecision(2));
               updateCurrentShape(shape.copyWith(path: path));
-              
             });
           },
           onPanEnd: (DragEndDetails details) {
