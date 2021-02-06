@@ -37,6 +37,9 @@ bottomRight: DynamicRadius.elliptical(60.0.toPXLength, 10.0.toPercentLength))
 will give you a rectangle with a 60 px circular radius at the top left corner and a (60 px, 10%) elliptical corner at the bottom right.  
 For more information of how to use the Length class, see [length_unit](https://pub.dev/packages/length_unit).
 
+For you to design the shape you want more easily, I have created the shape editing tool under the example/ folder
+(also at [https://fluttershape.com/](https://fluttershape.com/))
+
 ## Supported Shapes
 
 Currently supported shapes are:
@@ -129,12 +132,12 @@ shapeBorderTween.lerp(t)
 ```
 
 For an explanation and demonstration of the morphing capabilities, take a look at this
-[Medium post](https://kevinvan.medium.com/creating-morphable-shapes-in-flutter-f17bcfecb0ed).
+[Medium post](https://kevinvan.medium.com/creating-morphable-shapes-in-flutter-a-complete-rewrite-ac899bfe4222).
 
-#Shape Serialization and Editing
+![morph](readme_pics/combined.gif)
 
-Every shape in this package can be serialized and deserialized. So if you have designed some shape you like, just call toJson()
-on it can then you can reuse it wherever you want. 
+## Shape Serialization
 
-For you to design the shape you want more easily, I have created the shape editing tool under the example/ folder 
-(also at [http://fluttershape.com/](http://fluttershape.com/))
+Every shape in this package supports serialization.  
+If you have designed some shape you like, just call toJson() on it.  
+Then you can reuse it by calling Shape.fromJson(json).
