@@ -22,7 +22,7 @@ class PolygonShape extends Shape {
         sides = map["sides"] ?? 5;
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": "PolygonShape"};
+    Map<String, dynamic> rst = {"type": "PolygonShape"};
     rst["sides"] = sides;
     rst["cornerRadius"] = cornerRadius.toJson();
     rst["cornerStyle"] = cornerStyle.toJson();

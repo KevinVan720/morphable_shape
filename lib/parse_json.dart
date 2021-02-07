@@ -57,7 +57,7 @@ ShapeCorner? parseShapeCorner(String? string) {
 }
 
 DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
-  if (map == null || map["name"] == null) return null;
+  if (map == null) return null;
   Size? size = parseSize(map["size"]);
   List<DynamicNode>? nodes =
       (map["nodes"] as List?)?.map((e) => DynamicNode.fromJson(e)).toList();
@@ -69,9 +69,9 @@ DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
 }
 
 Shape? parseShape(Map<String, dynamic>? map) {
-  if (map == null || map["name"] == null) return null;
+  if (map == null || map["type"] == null) return null;
 
-  String shapeName = map["name"];
+  String shapeName = map["type"];
   switch (shapeName) {
     case "ArcShape":
       return ArcShape.fromJson(map);

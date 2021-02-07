@@ -31,7 +31,7 @@ class ArrowShape extends Shape {
             Length(40, unit: LengthUnit.percent);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": "ArrowShape"};
+    Map<String, dynamic> rst = {"type": "ArrowShape"};
     rst["side"] = side.toJson();
     rst["arrowHeight"] = arrowHeight.toJson();
     rst["tailWidth"] = tailWidth.toJson();

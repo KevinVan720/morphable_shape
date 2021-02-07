@@ -28,7 +28,7 @@ class TrapezoidShape extends Shape {
             Length(20, unit: LengthUnit.percent);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": "TrapezoidShape"};
+    Map<String, dynamic> rst = {"type": "TrapezoidShape"};
     rst["inset"] = inset.toJson();
     rst["side"] = side.toJson();
     return rst;

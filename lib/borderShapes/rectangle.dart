@@ -44,7 +44,7 @@ class RectangleShape extends Shape {
         this.bottomRight = CornerStyle.rounded;
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": "RectangleShape"};
+    Map<String, dynamic> rst = {"type": "RectangleShape"};
     rst["borderRadius"] = borderRadius.toJson();
     return rst;
   }

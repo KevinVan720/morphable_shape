@@ -46,3 +46,7 @@ Update the auto morph method. More intuitive.
 ## [1.0.2] - 02.07.2021
 
 Update api due to length_unit update.
+
+## [1.0.3] - 02.07.2021
+
+Use type instead of name in toJson() methods.

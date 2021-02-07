@@ -44,7 +44,7 @@ class TriangleShape extends Shape {
                 const Length(100, unit: LengthUnit.percent));
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"name": "TriangleShape"};
+    Map<String, dynamic> rst = {"type": "TriangleShape"};
     rst["point1"] = point1.toJson();
     rst["point2"] = point2.toJson();
     rst["point3"] = point3.toJson();
