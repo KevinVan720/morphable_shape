@@ -58,7 +58,7 @@ class RectangleShape extends Shape {
     final double bottom = rect.bottom;
     final double right = rect.right;
 
-    BorderRadius borderRadius = this.borderRadius.toBorderRadius(size);
+    BorderRadius borderRadius = this.borderRadius.toBorderRadius(size: size);
 
     double topLeftRadius = borderRadius.topLeft.x;
     double topRightRadius = borderRadius.topRight.x;

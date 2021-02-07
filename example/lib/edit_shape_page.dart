@@ -1224,7 +1224,7 @@ class EditShapePageState extends State<EditShapePage>
 
     Size size = shapeSize;
 
-    BorderRadius borderRadius = shape.borderRadius.toBorderRadius(size);
+    BorderRadius borderRadius = shape.borderRadius.toBorderRadius(size: size);
 
     double topLeftRadius = borderRadius.topLeft.x.clamp(0, size.width);
     double topRightRadius = borderRadius.topRight.x.clamp(0, size.width);
@@ -1633,12 +1633,15 @@ class EditShapePageState extends State<EditShapePage>
     final width = size.width;
     final height = size.height;
 
-    Offset point3 =
-        shape.point3.toOffset(size).clamp(Offset.zero, Offset(width, height));
-    Offset point2 =
-        shape.point2.toOffset(size).clamp(Offset.zero, Offset(width, height));
-    Offset point1 =
-        shape.point1.toOffset(size).clamp(Offset.zero, Offset(width, height));
+    Offset point3 = shape.point3
+        .toOffset(size: size)
+        .clamp(Offset.zero, Offset(width, height));
+    Offset point2 = shape.point2
+        .toOffset(size: size)
+        .clamp(Offset.zero, Offset(width, height));
+    Offset point1 = shape.point1
+        .toOffset(size: size)
+        .clamp(Offset.zero, Offset(width, height));
 
     nodeControls.add(buildShapeEditingDragHandle(
         position: point3,

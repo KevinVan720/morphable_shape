@@ -58,12 +58,18 @@ class TriangleShape extends Shape {
     final width = rect.width;
     final height = rect.height;
 
-    Offset point3 =
-        this.point3.toOffset(size).clamp(Offset.zero, Offset(width, height));
-    Offset point2 =
-        this.point2.toOffset(size).clamp(Offset.zero, Offset(width, height));
-    Offset point1 =
-        this.point1.toOffset(size).clamp(Offset.zero, Offset(width, height));
+    Offset point3 = this
+        .point3
+        .toOffset(size: size)
+        .clamp(Offset.zero, Offset(width, height));
+    Offset point2 = this
+        .point2
+        .toOffset(size: size)
+        .clamp(Offset.zero, Offset(width, height));
+    Offset point1 = this
+        .point1
+        .toOffset(size: size)
+        .clamp(Offset.zero, Offset(width, height));
 
     Offset center = (point1 + point2 + point3) / 3;
 

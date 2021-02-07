@@ -31,12 +31,12 @@ class CustomShapeBorderClipper extends CustomClipper<Path> {
 }
 
 class ClipShadowPath extends StatelessWidget {
-  final List<Shadow> shadow;
+  final List<Shadow>? shadows;
   final CustomClipper<Path> clipper;
   final Widget child;
 
   ClipShadowPath({
-    required this.shadow,
+    this.shadows,
     required this.clipper,
     required this.child,
   });
@@ -46,7 +46,7 @@ class ClipShadowPath extends StatelessWidget {
     return CustomPaint(
       painter: _ClipShadowShadowPainter(
         clipper: this.clipper,
-        shadow: this.shadow,
+        shadows: this.shadows,
       ),
       child: ClipPath(child: child, clipper: this.clipper),
     );
@@ -95,14 +95,14 @@ class _ShapeBorderPainter extends CustomPainter {
 }
 
 class _ClipShadowShadowPainter extends CustomPainter {
-  final List<Shadow> shadow;
+  final List<Shadow>? shadows;
   final CustomClipper<Path> clipper;
 
-  _ClipShadowShadowPainter({required this.shadow, required this.clipper});
+  _ClipShadowShadowPainter({required this.shadows, required this.clipper});
 
   @override
   void paint(Canvas canvas, Size size) {
-    shadow.forEach((element) {
+    shadows?.forEach((element) {
       var paint = element.toPaint();
       var clipPath = clipper.getClip(size).shift(element.offset);
       canvas.drawPath(clipPath, paint);
@@ -117,20 +117,21 @@ class _ClipShadowShadowPainter extends CustomPainter {
 
 class DynamicMaterial extends StatelessWidget {
   final ShapeBorder shape;
-  final List<Shadow> shadow;
+  final List<Shadow>? shadows;
   final Widget child;
 
   DynamicMaterial(
-      {required this.shape, this.shadow = const [], required this.child});
+      {required this.shape, this.shadows, required this.child});
 
   @override
   Widget build(BuildContext context) {
+
     return ClipShadowPath(
       clipper: CustomShapeBorderClipper(
         shape: shape,
         textDirection: Directionality.maybeOf(context),
       ),
-      shadow: shadow,
+      shadows: shadows,
       child: _ShapeBorderPaint(
         shape: shape,
         child: child,
