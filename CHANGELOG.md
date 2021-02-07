@@ -50,3 +50,7 @@ Update api due to length_unit update.
 ## [1.0.3] - 02.07.2021
 
 Use type instead of name in toJson() methods.
+
+## [1.0.4] - 02.07.2021
+
+Rename DynamicMaterial to ShadowedShape

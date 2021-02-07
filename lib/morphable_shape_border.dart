@@ -9,7 +9,7 @@ import 'dynamic_path_morph.dart';
 export 'shape_utils.dart';
 export 'package:flutter_class_parser/parse_json.dart';
 export 'package:flutter_class_parser/to_json.dart';
-export 'dynamic_material.dart';
+export 'shadowed_shape.dart';
 
 export 'package:length_unit/length_unit.dart';
 export 'dynamic_path.dart';

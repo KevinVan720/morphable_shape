@@ -115,12 +115,12 @@ class _ClipShadowShadowPainter extends CustomPainter {
   }
 }
 
-class DynamicMaterial extends StatelessWidget {
+class ShadowedShape extends StatelessWidget {
   final ShapeBorder shape;
   final List<Shadow>? shadows;
   final Widget child;
 
-  DynamicMaterial(
+  ShadowedShape(
       {required this.shape, this.shadows, required this.child});
 
   @override
