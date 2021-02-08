@@ -98,14 +98,16 @@ class DynamicPathMorph {
         ///from one shape to another. Because the function to choose the least weighted edge is random,
         ///this is a Monte Carlo method. Because the total points is small, it should be fine to try
         ///multiple times (maxTrial) here
-        rst = weightedSampling(path1, path2, maxTrial: maxTrial);
+        rst = weightedSampling(path1, path2,
+            maxTrial: maxTrial, minControlPoints: minControlPoints);
       } else if (data.method == MorphMethod.unweighted) {
         ///use the unweighted method, spread the extra points needed evenly on each curve
         rst = unweightedSampling(path1, path2,
             minControlPoints: minControlPoints,
             maxControlPoints: maxControlPoints);
       } else {
-        List rst1 = weightedSampling(path1, path2, maxTrial: maxTrial);
+        List rst1 = weightedSampling(path1, path2,
+            maxTrial: maxTrial, minControlPoints: minControlPoints);
         List rst2 = unweightedSampling(path1, path2,
             minControlPoints: minControlPoints,
             maxControlPoints: maxControlPoints);
@@ -120,7 +122,7 @@ class DynamicPathMorph {
   }
 
   static List<dynamic> weightedSampling(DynamicPath path1, DynamicPath path2,
-      {required int maxTrial}) {
+      {required int minControlPoints, required int maxTrial}) {
     int totalPoints = max(path1.nodes.length, path2.nodes.length);
 
     double tempMinOffset = double.infinity;
@@ -131,23 +133,34 @@ class DynamicPathMorph {
         optimalPath2 = DynamicPath(size: Size.zero, nodes: []);
     List<int> optimalCount1 = [], optimalCount2 = [];
 
-    ///Monte Carlo to find the optimal way to distribute the extra control points
-    for (int trial = 0; trial < maxTrial; trial++) {
-      tempCounts1 = sampleSupplyCounts(path1, totalPoints);
-      tempCounts2 = sampleSupplyCounts(path2, totalPoints);
-      tempPath1 = supplyPoints(path1, tempCounts1);
-      tempPath2 = supplyPoints(path2, tempCounts2);
-      double tempOffset = computeMinimumOffset(
-          tempPath1.nodes.map((e) => e.position).toList(),
-          tempPath2.nodes.map((e) => e.position).toList());
-      if (tempOffset < tempMinOffset) {
-        tempMinOffset = tempOffset;
-        optimalPath1 = tempPath1;
-        optimalPath2 = tempPath2;
-        optimalCount1 = tempCounts1;
-        optimalCount2 = tempCounts2;
+    ///for total points that are large, don't need much trials
+    maxTrial =
+        min((maxTrial * minControlPoints / totalPoints).round(), maxTrial);
+
+    ///for total points that are small, try add a few extra points to the Monte
+    ///Carlo simulation to see if we can find a better solution
+    int totalPointsVariation =
+        totalPoints > minControlPoints ? 0 : (minControlPoints / 5).round();
+    for (int iter = 0; iter <= totalPointsVariation; iter++) {
+      for (int trial = 0; trial < maxTrial; trial++) {
+        tempCounts1 = sampleSupplyCounts(path1, totalPoints);
+        tempCounts2 = sampleSupplyCounts(path2, totalPoints);
+        tempPath1 = supplyPoints(path1, tempCounts1);
+        tempPath2 = supplyPoints(path2, tempCounts2);
+        double tempOffset = computeMinimumOffset(
+            tempPath1.nodes.map((e) => e.position).toList(),
+            tempPath2.nodes.map((e) => e.position).toList());
+        if (tempOffset < tempMinOffset) {
+          tempMinOffset = tempOffset;
+          optimalPath1 = tempPath1;
+          optimalPath2 = tempPath2;
+          optimalCount1 = tempCounts1;
+          optimalCount2 = tempCounts2;
+        }
       }
+      totalPoints++;
     }
+
     int shift = computeMinimumOffsetIndex(
         optimalPath1.nodes.map((e) => e.position).toList(),
         optimalPath2.nodes.map((e) => e.position).toList());
@@ -166,7 +179,15 @@ class DynamicPathMorph {
         .abs()
         .clamp(1e-10, double.infinity);
 
-    //print("weightd "+centerShift.toString()+", "+angleShift.toString());
+    /*
+    print("weightd " +
+        centerShift.toString() +
+        ", " +
+        angleShift.toString() +
+        ", " +
+        (centerShift * optimalPath1.nodes.length * angleShift).toString());
+
+     */
 
     return [
       optimalCount1,
@@ -174,7 +195,10 @@ class DynamicPathMorph {
       optimalPath1,
       optimalPath2,
       shift,
-      centerShift * optimalPath1.nodes.length * angleShift,
+      centerShift *
+          optimalPath1.nodes.length *
+          optimalPath2.nodes.length *
+          angleShift,
     ];
   }
 
@@ -225,7 +249,10 @@ class DynamicPathMorph {
       optimalPath1,
       optimalPath2,
       shift,
-      centerShift * optimalPath1.nodes.length * angleShift,
+      centerShift *
+          optimalPath1.nodes.length *
+          optimalPath2.nodes.length *
+          angleShift,
     ];
   }
 

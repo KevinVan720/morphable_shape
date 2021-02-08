@@ -107,7 +107,6 @@ class _MorphShapePageState extends State<MorphShapePage>
             BottomSheetShapePicker(valueChanged: (shape) {
               setState(() {
                 endShape = shape;
-                shapeHeight -= 50;
               });
             })
           ],

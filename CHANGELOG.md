@@ -62,3 +62,11 @@ Add animated shadowed shape
 ## [1.0.6] - 02.08.2021
 
 Bug fix for animated shadowed shape
+
+## [1.0.8-nullsafety] - 02.08.2021
+
+Null safety
+
+## [1.0.9-nullsafety] - 02.08.2021
+
+Update the auto morph method.

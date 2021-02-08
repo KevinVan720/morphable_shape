@@ -3,6 +3,10 @@
 A Flutter package for creating various shapes that are responsive 
 and can morph betweem each other.
 
+Notice: Please always try to use the latest version of this package  
+(which has null safety enabled). All subsequent development will happen
+there.
+
 ## Getting Started
 
 Shapes that are responsive (using px or percentage as length measure) and
