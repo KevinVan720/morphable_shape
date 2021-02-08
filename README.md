@@ -9,7 +9,7 @@ Shapes that are responsive (using px or percentage as length measure) and
 able to morph between each other. You can use the shape to create a shapeBorder
 that gets used by the Material widget or ClipPath.
 
-```
+```dart
 var border=MorphableShapeBorder(
 shape: ...,
 borderColor: ...,
@@ -27,7 +27,7 @@ child: ...
 
 The responsive feature means you can have a single shape instance that adapts to different window sizes 
 without you calculating the desired dimensions. For example:
-```
+```dart
 Shape rectangle=RectangleShape(
 borderRadius: DynamicBorderRadius.only(
 topLeft: DynamicRadius.circular(10.toPXLength),
@@ -50,7 +50,7 @@ It allows to you configure each corner of the rectangle individually or at once.
 If two radii overlap at one of the sides of the rectangle (like 60% and 50%),  
 it automatically scales both sides so that they don’t overlap (just like what CSS does).  
 The RenctangleShape also supports other corner styles:
-```
+```dart
 enum CornerStyle{
   rounded,
   concave,
@@ -75,7 +75,7 @@ class and providing the right corner style and radius.
 
 ### CircleShape
 CircleShape allows you to choose the start angle and sweep angle:
-```
+```dart
 CircleShape(
 startAngle: 0,
 sweepAngle: 2*pi,
@@ -85,7 +85,7 @@ sweepAngle: 2*pi,
 
 ### PolygonShape
 PolygonShape supports changing the number of sides as well as corner radius and corner style:
-```
+```dart
 PolygonShape(
 sides:6,
 cornerRadius: 10.toPercentLength,
@@ -97,7 +97,7 @@ cornerStyle: CornerStyle.rounded
 The StarShape allows you to change the number of corners,  
 the inset, the border radius, the border style, the inset  
 radius, and the inset style.
-```
+```dart
 StarShape(
 corners: 5,
 inset: 50.toPercentLength,
@@ -112,7 +112,7 @@ insetStyle: CornerStyle.rounded
 ## Shape Morphing
 
 Every shape in this package can be gracefully morphed into another shape. By creating a ShapeBorderTween:
-```
+```dart
 MorphableShapeBorder startBorder;
 MorphableShapeBorder endBorder;
 
@@ -127,7 +127,7 @@ MorphableShapeBorderTween shapeBorderTween =
 
 you can get the intermediate shapes at progress t by calling:
 
-```
+```dart
 shapeBorderTween.lerp(t)
 ```
 
