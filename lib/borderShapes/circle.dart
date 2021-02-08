@@ -22,8 +22,8 @@ class CircleShape extends Shape {
   }
 
   CircleShape copyWith({
-    double? startAngle,
-    double? sweepAngle,
+    double startAngle,
+    double sweepAngle,
   }) {
     return CircleShape(
       startAngle: startAngle ?? this.startAngle,

@@ -30,9 +30,9 @@ class PolygonShape extends Shape {
   }
 
   PolygonShape copyWith({
-    CornerStyle? cornerStyle,
-    Length? cornerRadius,
-    int? sides,
+    CornerStyle cornerStyle,
+    Length cornerRadius,
+    int sides,
   }) {
     return PolygonShape(
       cornerStyle: cornerStyle ?? this.cornerStyle,

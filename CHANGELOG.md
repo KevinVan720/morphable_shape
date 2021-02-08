@@ -62,3 +62,7 @@ Add animated shadowed shape
 ## [1.0.6] - 02.08.2021
 
 Bug fix for animated shadowed shape
+
+## [1.0.7] - 02.08.2021
+
+Update readme

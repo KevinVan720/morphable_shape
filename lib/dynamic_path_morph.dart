@@ -20,21 +20,21 @@ class SampledDynamicPathData {
   Shape begin;
   Shape end;
 
-  late DynamicPath path1;
-  late DynamicPath path2;
+  DynamicPath path1;
+  DynamicPath path2;
   Rect boundingBox;
 
   MorphMethod method;
-  List<int>? supplyCounts1;
-  List<int>? supplyCounts2;
-  int? minimumShift;
+  List<int> supplyCounts1;
+  List<int> supplyCounts2;
+  int minimumShift;
 
   SampledDynamicPathData(
-      {required this.begin,
-      required this.end,
+      {this.begin,
+      this.end,
       //required this.path1,
       //required this.path2,
-      required this.boundingBox,
+      this.boundingBox,
       this.method = MorphMethod.auto});
 }
 
@@ -78,19 +78,19 @@ class DynamicPathMorph {
     SampledDynamicPathData data,
     DynamicPath path1,
     DynamicPath path2, {
-    required int maxTrial,
-    required int minControlPoints,
-    required int maxControlPoints,
+    int maxTrial,
+    int minControlPoints,
+    int maxControlPoints,
   }) {
     ///the supply points have been calculated
     if (data.supplyCounts1 != null &&
         data.supplyCounts2 != null &&
-        path1.nodes.length == data.supplyCounts1!.length &&
-        path2.nodes.length == data.supplyCounts2!.length) {
-      data.path1 = supplyPoints(path1, data.supplyCounts1!);
-      data.path2 = supplyPoints(path2, data.supplyCounts2!);
+        path1.nodes.length == data.supplyCounts1.length &&
+        path2.nodes.length == data.supplyCounts2.length) {
+      data.path1 = supplyPoints(path1, data.supplyCounts1);
+      data.path2 = supplyPoints(path2, data.supplyCounts2);
       data.path1.nodes =
-          rotateList(data.path1.nodes, data.minimumShift!) as List<DynamicNode>;
+          rotateList(data.path1.nodes, data.minimumShift) as List<DynamicNode>;
     } else {
       List rst = [];
       if (data.method == MorphMethod.weighted) {
@@ -120,7 +120,7 @@ class DynamicPathMorph {
   }
 
   static List<dynamic> weightedSampling(DynamicPath path1, DynamicPath path2,
-      {required int maxTrial}) {
+      {int maxTrial}) {
     int totalPoints = max(path1.nodes.length, path2.nodes.length);
 
     double tempMinOffset = double.infinity;
@@ -181,8 +181,8 @@ class DynamicPathMorph {
   static List<dynamic> unweightedSampling(
     DynamicPath path1,
     DynamicPath path2, {
-    required int minControlPoints,
-    required int maxControlPoints,
+    int minControlPoints,
+    int maxControlPoints,
   }) {
     int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
     if (totalPoints < minControlPoints) {
@@ -397,7 +397,7 @@ DynamicPath supplyPoints(DynamicPath path, List<int> counts) {
 
   DynamicPath newPath = DynamicPath(size: path.size, nodes: []);
 
-  Offset? updatedPrev;
+  Offset updatedPrev;
 
   for (int i = 0; i < length; i++) {
     newPath.nodes.add(DynamicNode(

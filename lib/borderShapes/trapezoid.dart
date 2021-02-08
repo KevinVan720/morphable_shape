@@ -13,8 +13,8 @@ class TrapezoidShape extends Shape {
       this.inset = const Length(20, unit: LengthUnit.percent)});
 
   Shape copyWith({
-    ShapeSide? side,
-    Length? inset,
+    ShapeSide side,
+    Length inset,
   }) {
     return TrapezoidShape(
       side: side ?? this.side,

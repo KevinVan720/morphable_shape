@@ -29,9 +29,9 @@ class ArcShape extends Shape {
   }
 
   ArcShape copyWith({
-    ShapeSide? side,
-    bool? isOutward,
-    Length? arcHeight,
+    ShapeSide side,
+    bool isOutward,
+    Length arcHeight,
   }) {
     return ArcShape(
       side: side ?? this.side,

@@ -3,7 +3,7 @@ import 'package:flutter_class_parser/parse_json.dart';
 
 import 'morphable_shape_border.dart';
 
-CornerStyle? parseCornerStyle(String? string) {
+CornerStyle parseCornerStyle(String string) {
   if (string == null) return null;
   switch (string) {
     case "rounded":
@@ -18,7 +18,7 @@ CornerStyle? parseCornerStyle(String? string) {
   return null;
 }
 
-ShapeSide? parseShapeSide(String? string) {
+ShapeSide parseShapeSide(String string) {
   if (string == null) return null;
   switch (string) {
     case "top":
@@ -33,7 +33,7 @@ ShapeSide? parseShapeSide(String? string) {
   return null;
 }
 
-ShapeCorner? parseShapeCorner(String? string) {
+ShapeCorner parseShapeCorner(String string) {
   if (string == null) return null;
   switch (string) {
     case "topLeft":
@@ -56,11 +56,11 @@ ShapeCorner? parseShapeCorner(String? string) {
   return null;
 }
 
-DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
+DynamicPath parseDynamicPath(Map<String, dynamic> map) {
   if (map == null) return null;
-  Size? size = parseSize(map["size"]);
-  List<DynamicNode>? nodes =
-      (map["nodes"] as List?)?.map((e) => DynamicNode.fromJson(e)).toList();
+  Size size = parseSize(map["size"]);
+  List<DynamicNode> nodes =
+      (map["nodes"] as List)?.map((e) => DynamicNode.fromJson(e)).toList();
   if (size == null || nodes == null) {
     return null;
   } else {
@@ -68,7 +68,7 @@ DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
   }
 }
 
-Shape? parseShape(Map<String, dynamic>? map) {
+Shape parseShape(Map<String, dynamic> map) {
   if (map == null || map["type"] == null) return null;
 
   String shapeName = map["type"];
@@ -96,7 +96,7 @@ Shape? parseShape(Map<String, dynamic>? map) {
   }
 }
 
-MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
+MorphableShapeBorder parseMorphableShapeBorder(Map<String, dynamic> map) {
   if (map == null) return null;
   return MorphableShapeBorder(
     shape: parseShape(map["shape"]) ??

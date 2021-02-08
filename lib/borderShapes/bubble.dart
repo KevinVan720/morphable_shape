@@ -25,12 +25,12 @@ class BubbleShape extends Shape {
   });
 
   BubbleShape copyWith({
-    ShapeCorner? corner,
-    Length? borderRadius,
-    Length? arrowHeight,
-    Length? arrowWidth,
-    Length? arrowCenterPosition,
-    Length? arrowHeadPosition,
+    ShapeCorner corner,
+    Length borderRadius,
+    Length arrowHeight,
+    Length arrowWidth,
+    Length arrowCenterPosition,
+    Length arrowHeadPosition,
   }) {
     return BubbleShape(
       corner: corner ?? this.corner,

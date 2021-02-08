@@ -6,7 +6,7 @@ import 'package:morphable_shape/morphable_shape.dart';
 
 class CustomShapeBorderClipper extends CustomClipper<Path> {
   const CustomShapeBorderClipper({
-    required this.shape,
+    this.shape,
     this.textDirection,
   });
 
@@ -17,7 +17,7 @@ class CustomShapeBorderClipper extends CustomClipper<Path> {
   ///
   /// [ShapeBorder]s can depend on the text direction (e.g having a "dent"
   /// towards the start of the shape).
-  final TextDirection? textDirection;
+  final TextDirection textDirection;
 
   /// Returns the outer path of [shape] as the clip.
   @override
@@ -32,14 +32,14 @@ class CustomShapeBorderClipper extends CustomClipper<Path> {
 }
 
 class ClipShadowPath extends StatelessWidget {
-  final List<Shadow>? shadows;
+  final List<Shadow> shadows;
   final CustomClipper<Path> clipper;
   final Widget child;
 
   ClipShadowPath({
     this.shadows,
-    required this.clipper,
-    required this.child,
+    this.clipper,
+    this.child,
   });
 
   @override
@@ -61,8 +61,8 @@ class _ShapeBorderPaint extends StatelessWidget {
     this.borderOnForeground = true,
   });
 
-  final Widget? child;
-  final ShapeBorder? shape;
+  final Widget child;
+  final ShapeBorder shape;
   final bool borderOnForeground;
 
   @override
@@ -81,8 +81,8 @@ class _ShapeBorderPaint extends StatelessWidget {
 
 class _ShapeBorderPainter extends CustomPainter {
   _ShapeBorderPainter(this.border, this.textDirection);
-  final ShapeBorder? border;
-  final TextDirection? textDirection;
+  final ShapeBorder border;
+  final TextDirection textDirection;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -96,10 +96,10 @@ class _ShapeBorderPainter extends CustomPainter {
 }
 
 class _ClipShadowShadowPainter extends CustomPainter {
-  final List<Shadow>? shadows;
+  final List<Shadow> shadows;
   final CustomClipper<Path> clipper;
 
-  _ClipShadowShadowPainter({required this.shadows, required this.clipper});
+  _ClipShadowShadowPainter({this.shadows, this.clipper});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -117,9 +117,9 @@ class _ClipShadowShadowPainter extends CustomPainter {
 }
 
 class ShadowedShape extends StatelessWidget {
-  final ShapeBorder? shape;
-  final List<Shadow>? shadows;
-  final Widget? child;
+  final ShapeBorder shape;
+  final List<Shadow> shadows;
+  final Widget child;
 
   ShadowedShape(
       {this.shape, this.shadows, this.child});

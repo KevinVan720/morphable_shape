@@ -21,9 +21,9 @@ class TriangleShape extends Shape {
           const Length(100, unit: LengthUnit.percent))});
 
   Shape copyWith({
-    DynamicOffset? point1,
-    DynamicOffset? point2,
-    DynamicOffset? point3,
+    DynamicOffset point1,
+    DynamicOffset point2,
+    DynamicOffset point3,
   }) {
     return TriangleShape(
       point1: point1 ?? this.point1,

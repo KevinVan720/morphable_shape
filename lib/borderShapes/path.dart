@@ -7,7 +7,7 @@ import '../morphable_shape_border.dart';
 class PathShape extends Shape {
   final DynamicPath path;
 
-  const PathShape({required this.path});
+  const PathShape({this.path});
 
   PathShape.fromJson(Map<String, dynamic> map)
       : path = parseDynamicPath(map["path"]) ??
@@ -20,7 +20,7 @@ class PathShape extends Shape {
   }
 
   PathShape copyWith({
-    DynamicPath? path,
+    DynamicPath path,
   }) {
     return PathShape(path: path ?? this.path);
   }

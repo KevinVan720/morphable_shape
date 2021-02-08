@@ -31,12 +31,12 @@ class StarShape extends Shape {
         insetRadius = Length.fromJson(map["insetRadius"]) ?? Length(0);
 
   StarShape copyWith({
-    int? corners,
-    Length? inset,
-    Length? cornerRadius,
-    Length? insetRadius,
-    CornerStyle? cornerStyle,
-    CornerStyle? insetStyle,
+    int corners,
+    Length inset,
+    Length cornerRadius,
+    Length insetRadius,
+    CornerStyle cornerStyle,
+    CornerStyle insetStyle,
   }) {
     return StarShape(
       corners: corners ?? this.corners,
@@ -91,7 +91,7 @@ class StarShape extends Shape {
     }
 
     for (int i = 0; i < vertices; i++) {
-      final double r;
+       double r;
       final double omega = -pi / 2 + alpha * i;
       if (i.isEven) {
         if (cornerRadius == 0) {

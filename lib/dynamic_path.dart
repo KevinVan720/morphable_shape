@@ -10,10 +10,10 @@ enum NodeControlMode {
 ///A single point with two possible control points
 class DynamicNode {
   Offset position;
-  Offset? prev;
-  Offset? next;
+  Offset prev;
+  Offset next;
 
-  DynamicNode({required this.position, this.prev, this.next});
+  DynamicNode({this.position, this.prev, this.next});
 
   DynamicNode.fromJson(Map<String, dynamic> map)
       : position = parseOffset(map["pos"]) ?? Offset(0, 0),
@@ -37,7 +37,7 @@ class DynamicPath {
   Size size;
   List<DynamicNode> nodes;
 
-  DynamicPath({required this.size, required this.nodes}) {
+  DynamicPath({this.size, this.nodes}) {
     ///Some control points may lie outside the bounding rect, in this case,
     ///I break the involved Bezier line segment into two so that the new control points may be inside
     ///the bounding box or move closer to it. Repeat this process to get an optimal result
@@ -87,7 +87,7 @@ class DynamicPath {
     cleanOverlappingNodes();
   }
 
-  int getOutlierIndex({required Rect bound}) {
+  int getOutlierIndex({Rect bound}) {
     int outlierIndex = -1;
     for (int index = 0; index < nodes.length; index++) {
       if (!bound.contains(nodes[index].position) ||
@@ -166,14 +166,14 @@ class DynamicPath {
     node.position =
         node.position.clamp(Offset.zero, Offset(size.width, size.height));
     if (node.prev != null) {
-      node.prev = node.prev! + diff;
+      node.prev = node.prev + diff;
       node.prev =
-          node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
+          node.prev.clamp(Offset.zero, Offset(size.width, size.height));
     }
     if (node.next != null) {
-      node.next = node.next! + diff;
+      node.next = node.next + diff;
       node.next =
-          node.next!.clamp(Offset.zero, Offset(size.width, size.height));
+          node.next.clamp(Offset.zero, Offset(size.width, size.height));
     }
   }
 
@@ -201,14 +201,14 @@ class DynamicPath {
         node.position.clamp(Offset.zero, Offset(size.width, size.height));
 
     if (node.prev != null) {
-      node.prev = node.prev! + avalOffset;
+      node.prev = node.prev + avalOffset;
       node.prev =
-          node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
+          node.prev.clamp(Offset.zero, Offset(size.width, size.height));
     }
     if (node.next != null) {
-      node.next = node.next! + avalOffset;
+      node.next = node.next + avalOffset;
       node.next =
-          node.next!.clamp(Offset.zero, Offset(size.width, size.height));
+          node.next.clamp(Offset.zero, Offset(size.width, size.height));
     }
 
     /*
@@ -291,11 +291,11 @@ class DynamicPath {
     if (prev) {
       node.prev = offset.roundWithPrecision(defaultPointPrecision);
       node.prev =
-          node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
+          node.prev.clamp(Offset.zero, Offset(size.width, size.height));
     } else {
       node.next = offset.roundWithPrecision(defaultPointPrecision);
       node.next =
-          node.next!.clamp(Offset.zero, Offset(size.width, size.height));
+          node.next.clamp(Offset.zero, Offset(size.width, size.height));
     }
   }
 
@@ -303,8 +303,8 @@ class DynamicPath {
   List<Offset> getNextPathControlPointsAt(int index) {
     List<Offset> rst = [];
     int nextIndex = (index + 1) % nodes.length;
-    Offset? control1 = nodes[index].next;
-    Offset? control2 = nodes[nextIndex].prev;
+    Offset control1 = nodes[index].next;
+    Offset control2 = nodes[nextIndex].prev;
     if (control1 != null && control2 != null) {
       rst.add(nodes[index].position);
       rst.add(control1);

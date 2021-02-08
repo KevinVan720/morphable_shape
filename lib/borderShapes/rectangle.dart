@@ -22,11 +22,11 @@ class RectangleShape extends Shape {
   });
 
   RectangleShape copyWith(
-      {CornerStyle? topLeft,
-      CornerStyle? topRight,
-      CornerStyle? bottomLeft,
-      CornerStyle? bottomRight,
-      DynamicBorderRadius? borderRadius}) {
+      {CornerStyle topLeft,
+      CornerStyle topRight,
+      CornerStyle bottomLeft,
+      CornerStyle bottomRight,
+      DynamicBorderRadius borderRadius}) {
     return RectangleShape(
         topLeft: topLeft ?? this.topLeft,
         topRight: topRight ?? this.topRight,

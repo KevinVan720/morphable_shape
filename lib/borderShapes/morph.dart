@@ -9,7 +9,7 @@ class MorphShape extends Shape {
   final double t;
   final SampledDynamicPathData data;
 
-  MorphShape({required this.t, required this.data});
+  MorphShape({this.t, this.data});
 
   DynamicPath generateDynamicPath(Rect rect) {
     if (rect.width != data.boundingBox.width ||

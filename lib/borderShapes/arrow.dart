@@ -13,9 +13,9 @@ class ArrowShape extends Shape {
       this.tailWidth = const Length(40, unit: LengthUnit.percent)});
 
   ArrowShape copyWith({
-    ShapeSide? side,
-    Length? arrowHeight,
-    Length? tailWidth,
+    ShapeSide side,
+    Length arrowHeight,
+    Length tailWidth,
   }) {
     return ArrowShape(
         side: side ?? this.side,
