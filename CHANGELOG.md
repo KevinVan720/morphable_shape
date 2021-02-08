@@ -54,3 +54,7 @@ Use type instead of name in toJson() methods.
 ## [1.0.4] - 02.07.2021
 
 Rename DynamicMaterial to ShadowedShape
+
+## [1.0.5] - 02.08.2021
+
+Add animated shadowed shape

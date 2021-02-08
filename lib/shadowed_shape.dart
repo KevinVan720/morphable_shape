@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///A simpler version of the Material class
 ///Not in use right now
@@ -55,13 +56,13 @@ class ClipShadowPath extends StatelessWidget {
 
 class _ShapeBorderPaint extends StatelessWidget {
   const _ShapeBorderPaint({
-    required this.child,
-    required this.shape,
+    this.child,
+    this.shape,
     this.borderOnForeground = true,
   });
 
-  final Widget child;
-  final ShapeBorder shape;
+  final Widget? child;
+  final ShapeBorder? shape;
   final bool borderOnForeground;
 
   @override
@@ -80,12 +81,12 @@ class _ShapeBorderPaint extends StatelessWidget {
 
 class _ShapeBorderPainter extends CustomPainter {
   _ShapeBorderPainter(this.border, this.textDirection);
-  final ShapeBorder border;
+  final ShapeBorder? border;
   final TextDirection? textDirection;
 
   @override
   void paint(Canvas canvas, Size size) {
-    border.paint(canvas, Offset.zero & size, textDirection: textDirection);
+    border?.paint(canvas, Offset.zero & size, textDirection: textDirection);
   }
 
   @override
@@ -116,19 +117,19 @@ class _ClipShadowShadowPainter extends CustomPainter {
 }
 
 class ShadowedShape extends StatelessWidget {
-  final ShapeBorder shape;
+  final ShapeBorder? shape;
   final List<Shadow>? shadows;
-  final Widget child;
+  final Widget? child;
 
   ShadowedShape(
-      {required this.shape, this.shadows, required this.child});
+      {this.shape, this.shadows, this.child});
 
   @override
   Widget build(BuildContext context) {
 
     return ClipShadowPath(
       clipper: CustomShapeBorderClipper(
-        shape: shape,
+        shape: shape??MorphableShapeBorder(shape: RectangleShape()),
         textDirection: Directionality.maybeOf(context),
       ),
       shadows: shadows,
