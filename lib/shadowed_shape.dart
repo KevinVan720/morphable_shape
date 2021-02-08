@@ -121,15 +121,13 @@ class ShadowedShape extends StatelessWidget {
   final List<Shadow> shadows;
   final Widget child;
 
-  ShadowedShape(
-      {this.shape, this.shadows, this.child});
+  ShadowedShape({this.shape, this.shadows, this.child});
 
   @override
   Widget build(BuildContext context) {
-
     return ClipShadowPath(
       clipper: CustomShapeBorderClipper(
-        shape: shape??MorphableShapeBorder(shape: RectangleShape()),
+        shape: shape ?? MorphableShapeBorder(shape: RectangleShape()),
         textDirection: Directionality.maybeOf(context),
       ),
       shadows: shadows,

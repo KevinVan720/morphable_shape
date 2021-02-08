@@ -78,9 +78,7 @@ class MorphableShapeBorder extends ShapeBorder {
   final double borderWidth;
 
   const MorphableShapeBorder(
-      {this.shape,
-      this.borderColor = Colors.black,
-      this.borderWidth = 1});
+      {this.shape, this.borderColor = Colors.black, this.borderWidth = 1});
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
@@ -183,9 +181,7 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
               Colors.transparent,
           borderWidth: Tween(begin: begin.borderWidth, end: 0.0).transform(t));
     }
-    if (data == null ||
-        begin.shape != data.begin ||
-        end.shape != data.end) {
+    if (data == null || begin.shape != data.begin || end.shape != data.end) {
       data = SampledDynamicPathData(
           begin: begin.shape,
           end: end.shape,
@@ -195,11 +191,10 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
     }
     return MorphableShapeBorder(
         shape: MorphShape(t: t, data: data),
-        borderColor:
-            ColorTween(begin: begin.borderColor, end: end.borderColor)
-                    .transform(t) ??
-                Colors.transparent,
-        borderWidth: Tween(begin: begin.borderWidth, end: end.borderWidth)
-            .transform(t));
+        borderColor: ColorTween(begin: begin.borderColor, end: end.borderColor)
+                .transform(t) ??
+            Colors.transparent,
+        borderWidth:
+            Tween(begin: begin.borderWidth, end: end.borderWidth).transform(t));
   }
 }

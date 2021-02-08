@@ -91,7 +91,7 @@ class StarShape extends Shape {
     }
 
     for (int i = 0; i < vertices; i++) {
-       double r;
+      double r;
       final double omega = -pi / 2 + alpha * i;
       if (i.isEven) {
         if (cornerRadius == 0) {

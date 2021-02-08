@@ -167,13 +167,11 @@ class DynamicPath {
         node.position.clamp(Offset.zero, Offset(size.width, size.height));
     if (node.prev != null) {
       node.prev = node.prev + diff;
-      node.prev =
-          node.prev.clamp(Offset.zero, Offset(size.width, size.height));
+      node.prev = node.prev.clamp(Offset.zero, Offset(size.width, size.height));
     }
     if (node.next != null) {
       node.next = node.next + diff;
-      node.next =
-          node.next.clamp(Offset.zero, Offset(size.width, size.height));
+      node.next = node.next.clamp(Offset.zero, Offset(size.width, size.height));
     }
   }
 
@@ -202,13 +200,11 @@ class DynamicPath {
 
     if (node.prev != null) {
       node.prev = node.prev + avalOffset;
-      node.prev =
-          node.prev.clamp(Offset.zero, Offset(size.width, size.height));
+      node.prev = node.prev.clamp(Offset.zero, Offset(size.width, size.height));
     }
     if (node.next != null) {
       node.next = node.next + avalOffset;
-      node.next =
-          node.next.clamp(Offset.zero, Offset(size.width, size.height));
+      node.next = node.next.clamp(Offset.zero, Offset(size.width, size.height));
     }
 
     /*
@@ -290,12 +286,10 @@ class DynamicPath {
     DynamicNode node = nodes[index];
     if (prev) {
       node.prev = offset.roundWithPrecision(defaultPointPrecision);
-      node.prev =
-          node.prev.clamp(Offset.zero, Offset(size.width, size.height));
+      node.prev = node.prev.clamp(Offset.zero, Offset(size.width, size.height));
     } else {
       node.next = offset.roundWithPrecision(defaultPointPrecision);
-      node.next =
-          node.next.clamp(Offset.zero, Offset(size.width, size.height));
+      node.next = node.next.clamp(Offset.zero, Offset(size.width, size.height));
     }
   }
 

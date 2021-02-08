@@ -22,7 +22,7 @@ class AnimatedShadowedShape extends ImplicitlyAnimatedWidget {
     this.shape,
     this.method,
     Curve curve = Curves.linear,
-   Duration duration,
+    Duration duration,
     VoidCallback onEnd,
   }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
 

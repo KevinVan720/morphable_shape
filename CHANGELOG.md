@@ -66,3 +66,7 @@ Bug fix for animated shadowed shape
 ## [1.0.7] - 02.08.2021
 
 Update readme
+
+## [1.0.8] - 02.08.2021
+
+Back to no null safety
