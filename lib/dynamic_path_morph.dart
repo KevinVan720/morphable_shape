@@ -17,8 +17,11 @@ enum MorphMethod {
 ///initialized when the morphing first starts and does not change afterwards
 ///even if the bounding box changes size.
 class SampledDynamicPathData {
-  DynamicPath path1;
-  DynamicPath path2;
+  Shape begin;
+  Shape end;
+
+  late DynamicPath path1;
+  late DynamicPath path2;
   Rect boundingBox;
 
   MorphMethod method;
@@ -27,8 +30,10 @@ class SampledDynamicPathData {
   int? minimumShift;
 
   SampledDynamicPathData(
-      {required this.path1,
-      required this.path2,
+      {required this.begin,
+      required this.end,
+      //required this.path1,
+      //required this.path2,
       required this.boundingBox,
       this.method = MorphMethod.auto});
 }
@@ -55,17 +60,13 @@ class SampledDynamicPathData {
 
 class DynamicPathMorph {
   static void samplePathsFromShape(
-    SampledDynamicPathData data,
-    Shape shape1,
-    Shape shape2,
-    Rect rect, {
+    SampledDynamicPathData data, {
     int maxTrial = 100,
     int minControlPoints = 16,
     int maxControlPoints = 120,
   }) {
-    data.boundingBox = rect;
-    DynamicPath path1 = shape1.generateDynamicPath(rect);
-    DynamicPath path2 = shape2.generateDynamicPath(rect);
+    DynamicPath path1 = data.begin.generateDynamicPath(data.boundingBox);
+    DynamicPath path2 = data.end.generateDynamicPath(data.boundingBox);
 
     sampleDynamicPaths(data, path1, path2,
         maxTrial: maxTrial,
@@ -82,7 +83,10 @@ class DynamicPathMorph {
     required int maxControlPoints,
   }) {
     ///the supply points have been calculated
-    if (data.supplyCounts1 != null && data.supplyCounts2 != null) {
+    if (data.supplyCounts1 != null &&
+        data.supplyCounts2 != null &&
+        path1.nodes.length == data.supplyCounts1!.length &&
+        path2.nodes.length == data.supplyCounts2!.length) {
       data.path1 = supplyPoints(path1, data.supplyCounts1!);
       data.path2 = supplyPoints(path2, data.supplyCounts2!);
       data.path1.nodes =
@@ -154,10 +158,13 @@ class DynamicPathMorph {
     double centerShift = (centerOfMass(
                 optimalPath1.nodes.map((e) => e.position).toList()) -
             centerOfMass(optimalPath2.nodes.map((e) => e.position).toList()))
-        .distance.clamp(1e-10, double.infinity);
+        .distance
+        .clamp(1e-10, double.infinity);
     double angleShift = computeTotalRotation(
-        optimalPath1.nodes.map((e) => e.position).toList(),
-        optimalPath2.nodes.map((e) => e.position).toList()).abs().clamp(1e-10, double.infinity);
+            optimalPath1.nodes.map((e) => e.position).toList(),
+            optimalPath2.nodes.map((e) => e.position).toList())
+        .abs()
+        .clamp(1e-10, double.infinity);
 
     //print("weightd "+centerShift.toString()+", "+angleShift.toString());
 
@@ -204,10 +211,13 @@ class DynamicPathMorph {
     double centerShift = (centerOfMass(
                 optimalPath1.nodes.map((e) => e.position).toList()) -
             centerOfMass(optimalPath2.nodes.map((e) => e.position).toList()))
-        .distance.clamp(1e-10, double.infinity);
+        .distance
+        .clamp(1e-10, double.infinity);
     double angleShift = computeTotalRotation(
-        optimalPath1.nodes.map((e) => e.position).toList(),
-        optimalPath2.nodes.map((e) => e.position).toList()).abs().clamp(1e-10, double.infinity);
+            optimalPath1.nodes.map((e) => e.position).toList(),
+            optimalPath2.nodes.map((e) => e.position).toList())
+        .abs()
+        .clamp(1e-10, double.infinity);
 
     return [
       optimalCount1,
@@ -264,10 +274,11 @@ class DynamicPathMorph {
     double currentAngle = 0.0;
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
-      double diff=(points1[i] - center1).direction - (points2[i] - center2).direction;
-      if(diff<-pi) diff+=2*pi;
-      if(diff>pi) diff-=2*pi;
-      currentAngle +=diff;
+      double diff =
+          (points1[i] - center1).direction - (points2[i] - center2).direction;
+      if (diff < -pi) diff += 2 * pi;
+      if (diff > pi) diff -= 2 * pi;
+      currentAngle += diff;
     }
     return currentAngle;
   }

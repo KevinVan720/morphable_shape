@@ -76,7 +76,7 @@ class StarShape extends Shape {
     final double centerY = height / 2;
 
     double inset = this.inset.toPX(constraintSize: radius);
-    inset = inset.clamp(5.0, radius);
+    inset = inset.clamp(0.01 * scale, radius);
     double sideLength = getThirdSideLength(radius, radius - inset, alpha);
     double beta = getThirdAngle(sideLength, radius, radius - inset);
     double gamma = alpha + beta;

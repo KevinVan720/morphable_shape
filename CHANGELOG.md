@@ -58,3 +58,7 @@ Rename DynamicMaterial to ShadowedShape
 ## [1.0.5] - 02.08.2021
 
 Add animated shadowed shape
+
+## [1.0.6] - 02.08.2021
+
+Bug fix for animated shadowed shape

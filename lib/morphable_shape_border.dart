@@ -10,6 +10,7 @@ export 'shape_utils.dart';
 export 'package:flutter_class_parser/parse_json.dart';
 export 'package:flutter_class_parser/to_json.dart';
 export 'shadowed_shape.dart';
+export 'animated_shadowd_shape.dart';
 
 export 'package:length_unit/length_unit.dart';
 export 'dynamic_path.dart';
@@ -138,27 +139,62 @@ class MorphableShapeBorder extends ShapeBorder {
 ///Why is there no shapeTween?
 ///Because to morph shape we need to know the rect at every time step,
 /// which can only be retrieved from a shapeBorder
-class MorphableShapeBorderTween extends Tween<MorphableShapeBorder> {
-  late SampledDynamicPathData data;
+class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
+  SampledDynamicPathData? data;
+  MorphMethod method;
   MorphableShapeBorderTween(
       {MorphableShapeBorder? begin,
       MorphableShapeBorder? end,
-      MorphMethod method = MorphMethod.auto})
-      : super(begin: begin, end: end) {
-    data = SampledDynamicPathData(
-        path1: DynamicPath(size: Size.zero, nodes: []),
-        path2: DynamicPath(size: Size.zero, nodes: []),
-        boundingBox: Rect.zero,
-        method: method);
-    begin = begin ?? MorphableShapeBorder(shape: RectangleShape());
-    end = end ?? MorphableShapeBorder(shape: RectangleShape());
-  }
+      this.method = MorphMethod.auto})
+      : super(begin: begin, end: end);
 
   @override
-  MorphableShapeBorder lerp(double t) {
+  MorphableShapeBorder? lerp(double t) {
+    if (begin == null && end == null) {
+      return null;
+    }
+    if (begin == null) {
+      if (data == null || end!.shape != data!.end) {
+        data = SampledDynamicPathData(
+            begin: RectangleShape(),
+            end: end!.shape,
+            boundingBox: Rect.fromLTRB(0, 0, 100, 100),
+            method: method);
+        DynamicPathMorph.samplePathsFromShape(data!);
+      }
+      return MorphableShapeBorder(
+          shape: MorphShape(t: t, data: data!),
+          borderColor: ColorTween(end: end!.borderColor).transform(t) ??
+              Colors.transparent,
+          borderWidth: Tween(begin: 0.0, end: end!.borderWidth).transform(t));
+    }
+    if (end == null) {
+      if (data == null) {
+        data = SampledDynamicPathData(
+            begin: begin!.shape,
+            end: RectangleShape(),
+            boundingBox: Rect.fromLTRB(0, 0, 100, 100),
+            method: method);
+        DynamicPathMorph.samplePathsFromShape(data!);
+      }
+      return MorphableShapeBorder(
+          shape: MorphShape(t: t, data: data!),
+          borderColor: ColorTween(begin: begin!.borderColor).transform(t) ??
+              Colors.transparent,
+          borderWidth: Tween(begin: begin!.borderWidth, end: 0.0).transform(t));
+    }
+    if (data == null ||
+        begin!.shape != data!.begin ||
+        end!.shape != data!.end) {
+      data = SampledDynamicPathData(
+          begin: begin!.shape,
+          end: end!.shape,
+          boundingBox: Rect.fromLTRB(0, 0, 100, 100),
+          method: method);
+      DynamicPathMorph.samplePathsFromShape(data!);
+    }
     return MorphableShapeBorder(
-        shape: MorphShape(
-            startShape: begin!.shape, endShape: end!.shape, t: t, data: data),
+        shape: MorphShape(t: t, data: data!),
         borderColor:
             ColorTween(begin: begin!.borderColor, end: end!.borderColor)
                     .transform(t) ??

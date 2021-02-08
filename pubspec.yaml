@@ -1,6 +1,6 @@
 name: morphable_shape
 description: A Flutter package for creating various shapes that are responsive and can morph betweem each other.
-version: 1.0.5
+version: 1.0.6
 repository: https://github.com/KevinVan720/morphable_shape
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  pedantic: ^1.9.0
+
 
   flutter_class_parser: ^0.0.2
   length_unit: ^0.0.4

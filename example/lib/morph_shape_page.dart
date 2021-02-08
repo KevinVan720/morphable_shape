@@ -26,8 +26,8 @@ class _MorphShapePageState extends State<MorphShapePage>
   double shapeHeight;
 
   MorphMethod method = MorphMethod.auto;
-  bool showControl=true;
-  int durationInSec=3;
+  bool showControl = true;
+  int durationInSec = 3;
 
   @override
   void initState() {
@@ -37,8 +37,8 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     endShape = StarShape();
 
-    controller =
-        AnimationController(vsync: this, duration: Duration(seconds: durationInSec));
+    controller = AnimationController(
+        vsync: this, duration: Duration(seconds: durationInSec));
     Animation curve =
         CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
 
@@ -62,9 +62,11 @@ class _MorphShapePageState extends State<MorphShapePage>
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
 
-    shapeWidth =
-        (min(screenSize.width, screenSize.height) * 0.8).clamp(200.0, 600.0);
-    shapeHeight = shapeWidth;
+    if (shapeWidth == null) {
+      shapeWidth =
+          (min(screenSize.width, screenSize.height) * 0.8).clamp(200.0, 600.0);
+      shapeHeight = shapeWidth;
+    }
 
     MorphableShapeBorder startBorder;
     MorphableShapeBorder endBorder;
@@ -76,8 +78,6 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     MorphableShapeBorderTween shapeBorderTween = MorphableShapeBorderTween(
         begin: startBorder, end: endBorder, method: method);
-
-
 
     return Scaffold(
         appBar: AppBar(
@@ -107,12 +107,29 @@ class _MorphShapePageState extends State<MorphShapePage>
             BottomSheetShapePicker(valueChanged: (shape) {
               setState(() {
                 endShape = shape;
+                shapeHeight -= 50;
               });
             })
           ],
         ),
         body: Stack(
           children: [
+            /*
+          Container(
+          color: Colors.black54,
+          child:Center(
+              child: AnimatedShadowedShape(
+                  duration: Duration(seconds: durationInSec),
+                  shape: endBorder,
+                  child: AnimatedContainer(
+                    duration: Duration(seconds: durationInSec),
+                    color: Colors.amberAccent,
+                    width: shapeWidth,
+                    height: shapeHeight,
+                  )),
+            )),
+            */
+
             Container(
                 color: Colors.black54,
                 child: AnimatedBuilder(
@@ -120,36 +137,37 @@ class _MorphShapePageState extends State<MorphShapePage>
                     builder: (BuildContext context, Widget child) {
                       double t = animation.value;
                       return Center(
-                        child: Stack(
-                          children: [
-                            Material(
-                              animationDuration: Duration.zero,
-                              shape: shapeBorderTween.lerp(t),
-                              clipBehavior: Clip.antiAlias,
-                              child: Container(
-                                color: Colors.amberAccent,
-                                width: shapeWidth,
-                                height: shapeHeight,
-                              ),
-                            ),
-                            showControl ? CustomPaint(
-                                painter: MorphControlPointsPainter(
-                                    DynamicPathMorph.lerpPath(
-                                        t, shapeBorderTween.data)
-                                        .nodes
-                                        .map((e) => e.position)
-                                        .toList()),
-                              child: Container(
+                          child: Stack(
+                        children: [
+                          Material(
+                            animationDuration: Duration.zero,
+                            shape: shapeBorderTween.lerp(t),
+                            clipBehavior: Clip.antiAlias,
+                            child: Container(
+                              color: Colors.amberAccent,
                               width: shapeWidth,
                               height: shapeHeight,
                             ),
-                            ): Container(
-                              width: shapeWidth,
-                              height: shapeHeight,
-                            ),
-                          ],
-                        )
-                      );
+                          ),
+                          showControl
+                              ? CustomPaint(
+                                  painter: MorphControlPointsPainter(
+                                      DynamicPathMorph.lerpPath(
+                                              t, shapeBorderTween.data)
+                                          .nodes
+                                          .map((e) => e.position)
+                                          .toList()),
+                                  child: Container(
+                                    width: shapeWidth,
+                                    height: shapeHeight,
+                                  ),
+                                )
+                              : Container(
+                                  width: shapeWidth,
+                                  height: shapeHeight,
+                                ),
+                        ],
+                      ));
                     })),
             Positioned(
                 right: 20,
@@ -160,12 +178,14 @@ class _MorphShapePageState extends State<MorphShapePage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Morph Method: ", style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-
-                      ),),
+                      Text(
+                        "Morph Method: ",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
                       DropdownButton<MorphMethod>(
                         iconSize: 18,
                         isDense: true,
@@ -179,9 +199,12 @@ class _MorphShapePageState extends State<MorphShapePage>
                         items: MorphMethod.values.map((e) {
                           return DropdownMenuItem<MorphMethod>(
                             value: e,
-                            child: Text(e.toString().stripFirstDot(), style: TextStyle(
-                              color: Colors.white,
-                            ),),
+                            child: Text(
+                              e.toString().stripFirstDot(),
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
                           );
                         }).toList(),
                       ),
@@ -197,20 +220,22 @@ class _MorphShapePageState extends State<MorphShapePage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Control Points: ", style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-
-                      ),),
+                      Text(
+                        "Control Points: ",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
                       Switch(
                           activeColor: Colors.white70,
-                          value: showControl, onChanged: (value
-                      ) {
-                        setState(() {
-                          showControl=value;
-                        });
-                      }),
+                          value: showControl,
+                          onChanged: (value) {
+                            setState(() {
+                              showControl = value;
+                            });
+                          }),
                     ],
                   ),
                 )),
@@ -223,12 +248,14 @@ class _MorphShapePageState extends State<MorphShapePage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Duration: ", style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-
-                      ),),
+                      Text(
+                        "Duration: ",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
                       DropdownButton<int>(
                         iconSize: 18,
                         isDense: true,
@@ -236,16 +263,20 @@ class _MorphShapePageState extends State<MorphShapePage>
                         value: durationInSec,
                         onChanged: (int newValue) {
                           setState(() {
-                            durationInSec=newValue;
-                            controller.duration=Duration(seconds: durationInSec);
+                            durationInSec = newValue;
+                            controller.duration =
+                                Duration(seconds: durationInSec);
                           });
                         },
-                        items: [1,2,3,4,5,10,15].map((e) {
+                        items: [1, 2, 3, 4, 5, 10, 15].map((e) {
                           return DropdownMenuItem<int>(
                             value: e,
-                            child: Text(e.toString().stripFirstDot(), style: TextStyle(
-                              color: Colors.white,
-                            ),),
+                            child: Text(
+                              e.toString().stripFirstDot(),
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
                           );
                         }).toList(),
                       ),

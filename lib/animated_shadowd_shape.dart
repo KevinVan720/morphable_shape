@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/dynamic_path_morph.dart';
 
-class ListShadowTween extends Tween<List<Shadow>> {
+class ListShadowTween extends Tween<List<Shadow>?> {
   ListShadowTween({
     List<Shadow>? begin,
     List<Shadow>? end,
   }) : super(begin: begin, end: end);
 
   @override
-  List<Shadow> lerp(double t) {
-    return Shadow.lerpList(begin, end, t) ?? [];
+  List<Shadow>? lerp(double t) {
+    return Shadow.lerpList(begin, end, t);
   }
 }
 
@@ -19,14 +20,16 @@ class AnimatedShadowedShape extends ImplicitlyAnimatedWidget {
     this.child,
     this.shadows,
     this.shape,
+    this.method,
     Curve curve = Curves.linear,
     required Duration duration,
     VoidCallback? onEnd,
   }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
 
-  Widget? child;
-  List<Shadow>? shadows;
-  ShapeBorder? shape;
+  final Widget? child;
+  final List<Shadow>? shadows;
+  final ShapeBorder? shape;
+  final MorphMethod? method;
 
   @override
   _AnimatedShadowedShapeState createState() => _AnimatedShadowedShapeState();
@@ -42,8 +45,9 @@ class _AnimatedShadowedShapeState
     _shapeBorderTween = visitor(
             _shapeBorderTween,
             widget.shape,
-            (dynamic value) =>
-                MorphableShapeBorderTween(begin: value as MorphableShapeBorder))
+            (dynamic value) => MorphableShapeBorderTween(
+                begin: value as MorphableShapeBorder,
+                method: widget.method ?? MorphMethod.auto))
         as MorphableShapeBorderTween?;
     _listShadowTween = visitor(_listShadowTween, widget.shadows,
             (dynamic value) => ListShadowTween(begin: value as List<Shadow>))
