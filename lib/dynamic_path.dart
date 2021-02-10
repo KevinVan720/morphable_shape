@@ -37,6 +37,8 @@ class DynamicPath {
   Size size;
   List<DynamicNode> nodes;
 
+  Path? _path;
+
   DynamicPath({required this.size, required this.nodes}) {
     ///Some control points may lie outside the bounding rect, in this case,
     ///I break the involved Bezier line segment into two so that the new control points may be inside
@@ -124,6 +126,24 @@ class DynamicPath {
     rst["size"] = size.toJson();
     rst["nodes"] = nodes.map((e) => e.toJson()).toList();
     return rst;
+  }
+
+  Offset getCenterOfMass() {
+    Offset center=Offset.zero;
+    nodes.forEach((element) {center+=element.position;});
+    return center/nodes.length.toDouble();
+  }
+
+  void shift(Offset shift) {
+    nodes.forEach((element) {
+      element.position = element.position+shift;
+      if(element.prev!=null) {
+        element.prev = element.prev!+shift;
+      }
+      if(element.next!=null) {
+        element.next = element.next!+shift;
+      }
+    });
   }
 
   void resize(Size newSize) {
@@ -333,57 +353,211 @@ class DynamicPath {
 
   ///convert this to a Path
   Path getPath(Size newSize) {
-    Path path = Path();
-    if (nodes.isNotEmpty) {
-      path.moveTo(nodes[0].position.dx, nodes[0].position.dy);
-    }
-    for (int i = 0; i < nodes.length; i++) {
-      List<Offset> controlPoints = getNextPathControlPointsAt(i);
-      if (controlPoints.length == 4) {
-        path
-          ..cubicTo(
-              controlPoints[1].dx,
-              controlPoints[1].dy,
-              controlPoints[2].dx,
-              controlPoints[2].dy,
-              controlPoints[3].dx,
-              controlPoints[3].dy);
-      } else {
-        path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
+    if (newSize == size && _path != null) {
+      return _path!;
+    } else {
+      resize(newSize);
+      Path path = Path();
+      if (nodes.isNotEmpty) {
+        path.moveTo(nodes[0].position.dx, nodes[0].position.dy);
       }
-    }
+      for (int i = 0; i < nodes.length; i++) {
+        List<Offset> controlPoints = getNextPathControlPointsAt(i);
+        if (controlPoints.length == 4) {
+          path
+            ..cubicTo(
+                controlPoints[1].dx,
+                controlPoints[1].dy,
+                controlPoints[2].dx,
+                controlPoints[2].dy,
+                controlPoints[3].dx,
+                controlPoints[3].dy);
+        } else {
+          path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
+        }
+      }
 
-    final Matrix4 matrix4 = Matrix4.identity();
-    matrix4.scale(newSize.width / size.width, newSize.height / size.height);
-    return path.transform(matrix4.storage);
+      _path = path;
+      return path;
+      //final Matrix4 matrix4 = Matrix4.identity();
+      //matrix4.scale(newSize.width / size.width, newSize.height / size.height);
+      //return path.transform(matrix4.storage);
+    }
   }
 
   ///convert this to a list of Paths
   ///possible for multiple border color and width?
-  List<Path> getPaths(Size newSize) {
-    List<Path> rst = [];
-    for (int i = 0; i < nodes.length; i++) {
-      Path path = Path();
-      path.moveTo(nodes[i].position.dx, nodes[i].position.dy);
-      List<Offset> controlPoints = getNextPathControlPointsAt(i);
-      if (controlPoints.length == 4) {
-        path
-          ..cubicTo(
-              controlPoints[1].dx,
-              controlPoints[1].dy,
-              controlPoints[2].dx,
-              controlPoints[2].dy,
-              controlPoints[3].dx,
-              controlPoints[3].dy);
-      } else {
-        path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
+  List<Path> getPaths(Size newSize, List<BorderSide> sides) {
+    int pathLength = nodes.length;
+    if (sides.length < pathLength) {
+      int diff = pathLength - sides.length;
+      for (int i = 0; i < diff; i++) {
+        sides.add(BorderSide.none);
       }
-      rst.add(path);
+    } else if (sides.length > pathLength) {
+      int diff = pathLength - sides.length;
+      for (int i = 0; i < diff; i++) {
+        sides.removeLast();
+      }
+    }
+
+    /*
+    assert(sides.length == pathLength);
+
+    List<Path> rst = [];
+    for (int i = 0; i < pathLength; i++) {
+      DynamicNode nextNode = nodes[(i + 1) % pathLength];
+      DynamicPath borderPath = DynamicPath(size: size, nodes: []);
+      borderPath.nodes
+          .add(DynamicNode(position: nodes[i].position, next: nodes[i].next));
+      borderPath.nodes
+          .add(DynamicNode(position: nextNode.position, prev: nextNode.prev));
+      borderPath.nodes.add(getInsetNodeAt(
+          (i + 1) % pathLength, false, sides[i], sides[(i + 1) % pathLength]));
+      borderPath.nodes
+          .add(getInsetNodeAt(i, true, sides[(i - 1) % pathLength], sides[i]));
+
+      rst.add(borderPath.getPath(size));
+    }
+
+     */
+
+    List<Path> rst = [];
+
+    DynamicPath newPath = DynamicPath(size: size, nodes: []);
+    nodes.forEach((element) {
+      newPath.nodes.add(DynamicNode(
+          position: element.position, prev: element.prev, next: element.next));
+    });
+    newPath.resize(Size(newSize.width*0.8, newSize.height*0.8));
+    Offset diff=this.getCenterOfMass()-newPath.getCenterOfMass();
+    newPath.shift(diff+Offset(-10,-10));
+
+    for (int i = 0; i < pathLength; i++) {
+      DynamicNode nextNode = nodes[(i + 1) % pathLength];
+      DynamicPath borderPath = DynamicPath(size: size, nodes: []);
+      borderPath.nodes
+          .add(DynamicNode(position: nodes[i].position, next: nodes[i].next));
+      borderPath.nodes
+          .add(DynamicNode(position: nextNode.position, prev: nextNode.prev));
+      DynamicNode nextInnerNode = newPath.nodes[(i + 1) % pathLength];
+      borderPath.nodes.add(DynamicNode(
+          position: nextInnerNode.position, next: nextInnerNode.prev));
+      borderPath.nodes.add(DynamicNode(
+          position: newPath.nodes[i].position, prev: newPath.nodes[i].next));
+      rst.add(borderPath.getPath(size));
     }
 
     final Matrix4 matrix4 = Matrix4.identity();
     matrix4.scale(newSize.width / size.width, newSize.height / size.height);
     return rst.map((e) => e.transform(matrix4.storage)).toList();
+  }
+
+  double getInnerDirection(Offset start, double direction) {
+    if (!this
+        .getPath(size)
+        .contains((start + Offset.fromDirection(direction, 0.1)))) {
+      return direction + pi;
+    }
+    return direction;
+  }
+
+  DynamicNode getInsetNodeAt(
+      int index, bool isPrev, BorderSide prevSide, BorderSide nextSide) {
+    DynamicNode node = getNodeWithControlPoints(index);
+    double middleDirection = ((node.prev! - node.position).direction +
+            (node.next! - node.position).direction) /
+        2;
+    /*
+    print("prev" +
+        node.prev!.toString() +
+        " next: " +
+        node.next!.toString() +
+        " middle " +
+        node.position.toString());
+    print("prev" +
+        (node.prev! - node.position).direction.toString() +
+        " next: " +
+        (node.next! - node.position).direction.toString() +
+        " middle " +
+        middleDirection.toString());
+
+     */
+/*
+    double a1 = Offset.fromDirection(node.prev!.direction).dx;
+    double a2 = Offset.fromDirection(node.prev!.direction).dy;
+    double b1 = Offset.fromDirection(
+            getInnerDirection(node.prev!, node.prev!.direction+pi/2),
+            prevSide.width)
+        .dx;
+    double b2 = Offset.fromDirection(
+            getInnerDirection(node.prev!, node.prev!.direction+pi/2),
+            prevSide.width)
+        .dy;
+    double c1 = Offset.fromDirection(node.next!.direction).dx;
+    double c2 = Offset.fromDirection(node.next!.direction).dy;
+    double d1 = Offset.fromDirection(
+            getInnerDirection(node.next!, node.next!.direction+pi/2),
+            nextSide.width)
+        .dx;
+    double d2 = Offset.fromDirection(
+            getInnerDirection(node.next!, node.next!.direction+pi/2),
+            nextSide.width)
+        .dy;
+
+    double x1 = ((d2 - b2) * c1 - (d1 - b1) * c2) / (a2 * c1 - a1 * c2);
+
+    print("x1: "+x1.toString());
+
+    Offset newPos = node.position +
+        Offset.fromDirection(node.prev!.direction) * x1 +
+        Offset.fromDirection(
+            getInnerDirection(node.position, node.prev!.direction),
+            prevSide.width);
+
+ */
+
+    if (!this
+        .getPath(size)
+        .contains((node.position + Offset.fromDirection(middleDirection, 1)))) {
+      middleDirection = middleDirection + pi;
+    }
+
+    Offset prevDistance = node.prev! - node.position;
+    Offset nextDistance = node.next! - node.position;
+
+    double inset = (prevSide.width + nextSide.width) / 2;
+
+    if (prevSide.width > nextSide.width) {
+      inset = prevSide.width -
+          (prevDistance.distance) /
+              (prevDistance.distance + nextDistance.distance) *
+              (prevSide.width - nextSide.width);
+    } else {
+      inset = nextSide.width -
+          (nextDistance.distance) /
+              (prevDistance.distance + nextDistance.distance) *
+              (nextSide.width - prevSide.width);
+    }
+
+    Offset newPos =
+        node.position + Offset.fromDirection(middleDirection, inset);
+
+    if (isPrev) {
+      return DynamicNode(
+        position: newPos,
+        //prev: (node.next! - node.position) * 0.8 +
+        //    node.position +
+        //    Offset.fromDirection(middleDirection, nextSide.width)
+      );
+    } else {
+      return DynamicNode(
+        position: newPos,
+        //next: (node.prev! - node.position) * 0.8 +
+        //    node.position +
+        //    Offset.fromDirection(middleDirection, prevSide.width)
+      );
+    }
   }
 
   static double estimateCubicLength(List<Offset> controlPoints) {

@@ -102,7 +102,7 @@ MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
     shape: parseShape(map["shape"]) ??
         RectangleShape(
             borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
-    borderWidth: map["borderWidth"] ?? 0.0,
-    borderColor: parseColor(map["borderColor"]) ?? Colors.black,
+    //borderWidth: map["borderWidth"] ?? 0.0,
+    //borderColor: parseColor(map["borderColor"]) ?? Colors.black,
   );
 }

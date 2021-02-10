@@ -73,8 +73,23 @@ class EditShapePageState extends State<EditShapePage>
 
       MorphableShapeBorder shapeBorder;
 
-      shapeBorder = MorphableShapeBorder(
-          shape: currentShape, borderColor: Colors.redAccent, borderWidth: 1);
+      shapeBorder = MorphableShapeBorder(shape: currentShape, sides: [
+        BorderSide(width: 20, color: Colors.redAccent),
+        BorderSide(width: 20, color: Colors.green),
+        BorderSide(width: 20, color: Colors.blue),
+        BorderSide(width: 20, color: Colors.yellow),
+        BorderSide(width: 20, color: Colors.yellow),
+        BorderSide(width: 10, color: Colors.yellow),
+        BorderSide(width: 10, color: Colors.yellow),
+        BorderSide(width: 10, color: Colors.yellow),
+        BorderSide(width: 10, color: Colors.yellow),
+        BorderSide(width: 10, color: Colors.yellow),
+        BorderSide(width: 10, color: Colors.yellow),
+        BorderSide(width: 20, color: Colors.yellow),
+
+      ]
+          //borderColor: Colors.redAccent, borderWidth: 1
+          );
 
       List<Widget> stackedComponents = [
         Container(

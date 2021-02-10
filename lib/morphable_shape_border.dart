@@ -31,6 +31,7 @@ export 'borderShapes/path.dart';
 ///should be serializable/deserializable
 ///generate a DynamicPath instance with all the control points, then convert to a Path
 abstract class Shape {
+
   const Shape();
 
   Map<String, dynamic> toJson();
@@ -43,6 +44,7 @@ abstract class Shape {
     return generateDynamicPath(rect).getPath(rect.size);
   }
 
+  /*
   void drawBorder(
       Canvas canvas, Rect rect, Color borderColor, double borderWidth) {
     if (borderWidth > 0) {
@@ -68,25 +70,52 @@ abstract class Shape {
       canvas.drawPath(generatePath(rect: rect), borderPaint);
     }
   }
+  */
+
+  void drawBorder(
+      Canvas canvas, Rect rect, List<BorderSide>? sides) {
+    if (sides!=null) {
+      Paint borderPaint = Paint();
+      borderPaint.isAntiAlias = true;
+      borderPaint.style = PaintingStyle.fill;
+
+      ///Possible different borderColor and style in the future?
+
+      List<Path> paths=generateDynamicPath(rect).getPaths(rect.size, sides);
+      for(int i=0; i<paths.length; i++) {
+        //print(i.toString()+", "+sides[i].toString());
+        //print(paths[i].toString());
+        borderPaint.color=sides[i].color;
+        borderPaint.strokeWidth=1;
+        canvas.drawPath(paths[i], borderPaint);
+      }
+
+      //canvas.drawPath(generatePath(rect: rect), borderPaint);
+    }
+  }
+
 }
 
 ///ShapeBorder with various customizable shapes
 ///can tween smoothly between arbitrary two instances of this class
 class MorphableShapeBorder extends ShapeBorder {
   final Shape shape;
-  final Color borderColor;
-  final double borderWidth;
+  final List<BorderSide>? sides;
+  //final Color borderColor;
+  //final double borderWidth;
 
   const MorphableShapeBorder(
       {required this.shape,
-      this.borderColor = Colors.black,
-      this.borderWidth = 1});
+        this.sides,
+      //this.borderColor = Colors.black,
+      //this.borderWidth = 1
+      });
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
     rst["shape"] = shape.toJson();
-    rst["borderColor"] = borderColor.toJson();
-    rst["borderWidth"] = borderWidth;
+    //rst["borderColor"] = borderColor.toJson();
+    //rst["borderWidth"] = borderWidth;
     return rst;
   }
 
@@ -114,7 +143,8 @@ class MorphableShapeBorder extends ShapeBorder {
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    shape.drawBorder(canvas, rect, borderColor, borderWidth);
+    //shape.drawBorder(canvas, rect, borderColor, borderWidth);
+    shape.drawBorder(canvas, rect, sides);
   }
 
   @override
@@ -123,16 +153,19 @@ class MorphableShapeBorder extends ShapeBorder {
     final MorphableShapeBorder typedOther = other;
 
     return shape == typedOther.shape &&
-        borderWidth == typedOther.borderWidth &&
-        borderColor == typedOther.borderColor;
+        sides==typedOther.sides;
+        //borderWidth == typedOther.borderWidth &&
+        //borderColor == typedOther.borderColor;
   }
 
   @override
-  int get hashCode => hashValues(shape, borderColor, borderWidth);
+  //int get hashCode => hashValues(shape, borderColor, borderWidth);
+  int get hashCode => hashValues(shape, sides);
 
   @override
   String toString() {
-    return '$runtimeType(shape: $shape, borderColor: $borderColor, borderWidth: $borderWidth)';
+    return '$runtimeType(shape: $shape)';
+    //return '$runtimeType(shape: $shape, borderColor: $borderColor, borderWidth: $borderWidth)';
   }
 }
 
@@ -164,9 +197,10 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       }
       return MorphableShapeBorder(
           shape: MorphShape(t: t, data: data!),
-          borderColor: ColorTween(end: end!.borderColor).transform(t) ??
-              Colors.transparent,
-          borderWidth: Tween(begin: 0.0, end: end!.borderWidth).transform(t));
+          //borderColor: ColorTween(end: end!.borderColor).transform(t) ??
+          //    Colors.transparent,
+          //borderWidth: Tween(begin: 0.0, end: end!.borderWidth).transform(t)
+          );
     }
     if (end == null) {
       if (data == null) {
@@ -179,9 +213,10 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       }
       return MorphableShapeBorder(
           shape: MorphShape(t: t, data: data!),
-          borderColor: ColorTween(begin: begin!.borderColor).transform(t) ??
-              Colors.transparent,
-          borderWidth: Tween(begin: begin!.borderWidth, end: 0.0).transform(t));
+          //borderColor: ColorTween(begin: begin!.borderColor).transform(t) ??
+          //    Colors.transparent,
+          //borderWidth: Tween(begin: begin!.borderWidth, end: 0.0).transform(t)
+          );
     }
     if (data == null ||
         begin!.shape != data!.begin ||
@@ -195,11 +230,12 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
     }
     return MorphableShapeBorder(
         shape: MorphShape(t: t, data: data!),
-        borderColor:
-            ColorTween(begin: begin!.borderColor, end: end!.borderColor)
-                    .transform(t) ??
-                Colors.transparent,
-        borderWidth: Tween(begin: begin!.borderWidth, end: end!.borderWidth)
-            .transform(t));
+        //borderColor:
+        //    ColorTween(begin: begin!.borderColor, end: end!.borderColor)
+        //            .transform(t) ??
+        //        Colors.transparent,
+        //borderWidth: Tween(begin: begin!.borderWidth, end: end!.borderWidth)
+        //    .transform(t)
+        );
   }
 }

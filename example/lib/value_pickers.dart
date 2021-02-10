@@ -417,8 +417,9 @@ class BlockShapePicker extends StatefulWidget {
       type: MaterialType.canvas,
       shape: MorphableShapeBorder(
           shape: presetShapeMap[shape]??RectangleShape(borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
-          borderWidth: isCurrentShape ? 4 : 2,
-          borderColor: isCurrentShape ? Colors.black87 : Colors.grey),
+          //borderWidth: isCurrentShape ? 4 : 2,
+          //borderColor: isCurrentShape ? Colors.black87 : Colors.grey
+      ),
       child: Container(
         color:
         isCurrentShape ? Colors.grey.withOpacity(0.25) : Colors.transparent,

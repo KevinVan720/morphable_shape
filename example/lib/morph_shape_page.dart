@@ -72,9 +72,9 @@ class _MorphShapePageState extends State<MorphShapePage>
     MorphableShapeBorder endBorder;
 
     startBorder = MorphableShapeBorder(
-        shape: startShape, borderColor: Colors.redAccent, borderWidth: 1);
+        shape: startShape);
     endBorder = MorphableShapeBorder(
-        shape: endShape, borderColor: Colors.redAccent, borderWidth: 1);
+        shape: endShape);
 
     MorphableShapeBorderTween shapeBorderTween = MorphableShapeBorderTween(
         begin: startBorder, end: endBorder, method: method);
