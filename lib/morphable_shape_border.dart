@@ -3,6 +3,7 @@ import 'package:morphable_shape/borderShapes/rectangle.dart';
 import 'package:morphable_shape/borderShapes/morph.dart';
 
 import 'package:flutter_class_parser/flutter_class_parser.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 import 'dynamic_path.dart';
 import 'dynamic_path_morph.dart';
 
@@ -44,6 +45,10 @@ abstract class Shape {
     return generateDynamicPath(rect).getPath(rect.size);
   }
 
+  int get sides => 4;
+
+  List<int> get sidesColorIndexList => [0,1,2,3,4,5,6,7,8,9,10,11,12];
+
   /*
   void drawBorder(
       Canvas canvas, Rect rect, Color borderColor, double borderWidth) {
@@ -73,23 +78,29 @@ abstract class Shape {
   */
 
   void drawBorder(
-      Canvas canvas, Rect rect, List<BorderSide>? sides) {
-    if (sides!=null) {
-      Paint borderPaint = Paint();
-      borderPaint.isAntiAlias = true;
-      borderPaint.style = PaintingStyle.fill;
+      Canvas canvas, Rect rect, List<Color>? borderColors, DynamicEdgeInsets? borderInsets) {
+    if (borderColors!=null && borderInsets!=null) {
 
+      Paint borderPaint = Paint();
       ///Possible different borderColor and style in the future?
 
-      List<Path> paths=generateDynamicPath(rect).getPaths(rect.size, sides);
+      List<Path> paths=generateDynamicPath(rect).getPaths(rect.size, borderColors, borderInsets);
+      print(paths.length);
       for(int i=0; i<paths.length; i++) {
-        //print(i.toString()+", "+sides[i].toString());
-        //print(paths[i].toString());
-        borderPaint.color=sides[i].color;
+
+        borderPaint.isAntiAlias = true;
+        borderPaint.style = PaintingStyle.fill;
+        borderPaint.color=borderColors[i];
         borderPaint.strokeWidth=1;
         canvas.drawPath(paths[i], borderPaint);
+        //borderPaint.isAntiAlias = true;
+        //borderPaint.style = PaintingStyle.stroke;
+        //borderPaint.color=Colors.black;
+        //borderPaint.strokeWidth=1;
+        //canvas.drawPath(paths[i], borderPaint);
       }
 
+      //borderPaint.strokeWidth=2;
       //canvas.drawPath(generatePath(rect: rect), borderPaint);
     }
   }
@@ -100,13 +111,16 @@ abstract class Shape {
 ///can tween smoothly between arbitrary two instances of this class
 class MorphableShapeBorder extends ShapeBorder {
   final Shape shape;
-  final List<BorderSide>? sides;
+  final List<Color>? borderColors;
+  final DynamicEdgeInsets? borderInsets;
+
   //final Color borderColor;
   //final double borderWidth;
 
   const MorphableShapeBorder(
       {required this.shape,
-        this.sides,
+        this.borderColors,
+        this.borderInsets,
       //this.borderColor = Colors.black,
       //this.borderWidth = 1
       });
@@ -144,7 +158,7 @@ class MorphableShapeBorder extends ShapeBorder {
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
     //shape.drawBorder(canvas, rect, borderColor, borderWidth);
-    shape.drawBorder(canvas, rect, sides);
+    shape.drawBorder(canvas, rect, borderColors, borderInsets);
   }
 
   @override
@@ -153,14 +167,14 @@ class MorphableShapeBorder extends ShapeBorder {
     final MorphableShapeBorder typedOther = other;
 
     return shape == typedOther.shape &&
-        sides==typedOther.sides;
+        borderColors==typedOther.borderColors;
         //borderWidth == typedOther.borderWidth &&
         //borderColor == typedOther.borderColor;
   }
 
   @override
   //int get hashCode => hashValues(shape, borderColor, borderWidth);
-  int get hashCode => hashValues(shape, sides);
+  int get hashCode => hashValues(shape, borderColors);
 
   @override
   String toString() {
@@ -230,6 +244,8 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
     }
     return MorphableShapeBorder(
         shape: MorphShape(t: t, data: data!),
+      //borderColor: Colors.redAccent, borderWidth: 1
+
         //borderColor:
         //    ColorTween(begin: begin!.borderColor, end: end!.borderColor)
         //            .transform(t) ??

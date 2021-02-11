@@ -49,6 +49,48 @@ class RectangleShape extends Shape {
     return rst;
   }
 
+  int get sides => 4;
+
+  List<int> get sidesColorIndexList {
+    BorderRadius borderRadius = this.borderRadius.toBorderRadius(size: Size(100,100));
+
+    double topLeftRadius = borderRadius.topLeft.x;
+    double topRightRadius = borderRadius.topRight.x;
+
+    double bottomLeftRadius = borderRadius.bottomLeft.x;
+    double bottomRightRadius = borderRadius.bottomRight.x;
+
+    double leftTopRadius = borderRadius.topLeft.y;
+    double leftBottomRadius = borderRadius.bottomLeft.y;
+
+    double rightTopRadius = borderRadius.topRight.y;
+    double rightBottomRadius = borderRadius.bottomRight.y;
+
+    List<int> rst=[];
+    if(topRightRadius>0 && rightTopRadius >0) {
+      rst.add(0);
+      rst.add(1);
+    }
+    rst.add(1);
+
+    if(bottomRightRadius>0 && rightBottomRadius>0) {
+      rst.add(1);
+      rst.add(2);
+    }
+    rst.add(2);
+    if(bottomLeftRadius>0 && leftBottomRadius>0) {
+      rst.add(2);
+      rst.add(3);
+    }
+    rst.add(3);
+    if(topLeftRadius>0 && leftTopRadius>0) {
+      rst.add(3);
+      rst.add(0);
+    }
+    rst.add(0);
+    return rst;
+  }
+
   DynamicPath generateDynamicPath(Rect rect) {
     Size size = rect.size;
     List<DynamicNode> nodes = [];
@@ -97,132 +139,153 @@ class RectangleShape extends Shape {
       rightBottomRadius = size.height * (1 - ratio);
     }
 
-    nodes.add(DynamicNode(position: Offset(right - topRightRadius, top)));
 
-    switch (topRight) {
-      case CornerStyle.rounded:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center: Offset(right - topRightRadius, top + rightTopRadius),
-                width: 2 * topRightRadius,
-                height: 2 * rightTopRadius),
-            -pi / 2,
-            pi / 2);
-        break;
-      case CornerStyle.straight:
-        nodes.add(DynamicNode(position: Offset(right, top + rightTopRadius)));
-        break;
-      case CornerStyle.concave:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center: Offset(right, top),
-                width: 2 * topRightRadius,
-                height: 2 * rightTopRadius),
-            pi,
-            -pi / 2);
-        break;
-      case CornerStyle.cutout:
-        nodes.add(DynamicNode(
-            position: Offset(right - topRightRadius, top + rightTopRadius)));
-        nodes.add(DynamicNode(position: Offset(right, top + rightTopRadius)));
+    if(rightTopRadius>0 && topRightRadius>0) {
+      nodes.add(DynamicNode(position: Offset(right - topRightRadius, top)));
+      switch (topRight) {
+        case CornerStyle.rounded:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center: Offset(right - topRightRadius, top + rightTopRadius),
+                  width: 2 * topRightRadius,
+                  height: 2 * rightTopRadius),
+              -pi / 2,
+              pi / 2);
+          break;
+        case CornerStyle.straight:
+          nodes.add(DynamicNode(position: Offset(right, top + rightTopRadius)));
+          break;
+        case CornerStyle.concave:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center: Offset(right, top),
+                  width: 2 * topRightRadius,
+                  height: 2 * rightTopRadius),
+              pi,
+              -pi / 2);
+          break;
+        case CornerStyle.cutout:
+          nodes.add(DynamicNode(
+              position: Offset(right - topRightRadius, top + rightTopRadius)));
+          nodes.add(DynamicNode(position: Offset(right, top + rightTopRadius)));
+      }
+    }
+    else{
+      nodes.add(DynamicNode(position: Offset(right, top)));
     }
 
-    nodes.add(DynamicNode(position: Offset(right, bottom - rightBottomRadius)));
 
-    switch (bottomRight) {
-      case CornerStyle.rounded:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center: Offset(
-                    right - bottomRightRadius, bottom - rightBottomRadius),
-                width: 2 * bottomRightRadius,
-                height: 2 * rightBottomRadius),
-            0,
-            pi / 2);
-        break;
-      case CornerStyle.straight:
-        nodes.add(
-            DynamicNode(position: Offset(right - bottomRightRadius, bottom)));
-        break;
-      case CornerStyle.concave:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center: Offset(right, bottom),
-                width: 2 * bottomRightRadius,
-                height: 2 * rightBottomRadius),
-            -pi / 2,
-            -pi / 2);
-        break;
-      case CornerStyle.cutout:
-        nodes.add(DynamicNode(
-            position:
-                Offset(right - bottomRightRadius, bottom - rightBottomRadius)));
-        nodes.add(
-            DynamicNode(position: Offset(right - bottomRightRadius, bottom)));
+
+    if(bottomRightRadius>0 && rightBottomRadius>0) {
+      nodes.add(DynamicNode(position: Offset(right, bottom - rightBottomRadius)));
+      switch (bottomRight) {
+        case CornerStyle.rounded:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center: Offset(
+                      right - bottomRightRadius, bottom - rightBottomRadius),
+                  width: 2 * bottomRightRadius,
+                  height: 2 * rightBottomRadius),
+              0,
+              pi / 2);
+          break;
+        case CornerStyle.straight:
+          nodes.add(
+              DynamicNode(position: Offset(right - bottomRightRadius, bottom)));
+          break;
+        case CornerStyle.concave:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center: Offset(right, bottom),
+                  width: 2 * bottomRightRadius,
+                  height: 2 * rightBottomRadius),
+              -pi / 2,
+              -pi / 2);
+          break;
+        case CornerStyle.cutout:
+          nodes.add(DynamicNode(
+              position:
+              Offset(right - bottomRightRadius, bottom - rightBottomRadius)));
+          nodes.add(
+              DynamicNode(position: Offset(right - bottomRightRadius, bottom)));
+      }
+    }else{
+      nodes.add(DynamicNode(position: Offset(right, bottom)));
     }
 
-    nodes.add(DynamicNode(position: Offset(left + bottomLeftRadius, bottom)));
 
-    switch (bottomLeft) {
-      case CornerStyle.rounded:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center:
-                    Offset(left + bottomLeftRadius, bottom - leftBottomRadius),
-                width: 2 * bottomLeftRadius,
-                height: 2 * leftBottomRadius),
-            pi / 2,
-            pi / 2);
-        break;
-      case CornerStyle.straight:
-        nodes.add(
-            DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
-        break;
-      case CornerStyle.concave:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center: Offset(left, bottom),
-                width: 2 * bottomLeftRadius,
-                height: 2 * leftBottomRadius),
-            0,
-            -pi / 2);
-        break;
-      case CornerStyle.cutout:
-        nodes.add(DynamicNode(
-            position:
-                Offset(left + bottomLeftRadius, bottom - leftBottomRadius)));
-        nodes.add(
-            DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
+
+    if(bottomLeftRadius>0 && leftBottomRadius >0) {
+      nodes.add(DynamicNode(position: Offset(left + bottomLeftRadius, bottom)));
+      switch (bottomLeft) {
+        case CornerStyle.rounded:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center:
+                  Offset(left + bottomLeftRadius, bottom - leftBottomRadius),
+                  width: 2 * bottomLeftRadius,
+                  height: 2 * leftBottomRadius),
+              pi / 2,
+              pi / 2);
+          break;
+        case CornerStyle.straight:
+          nodes.add(
+              DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
+          break;
+        case CornerStyle.concave:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center: Offset(left, bottom),
+                  width: 2 * bottomLeftRadius,
+                  height: 2 * leftBottomRadius),
+              0,
+              -pi / 2);
+          break;
+        case CornerStyle.cutout:
+          nodes.add(DynamicNode(
+              position:
+              Offset(left + bottomLeftRadius, bottom - leftBottomRadius)));
+          nodes.add(
+              DynamicNode(position: Offset(left, bottom - leftBottomRadius)));
+      }
+    }else{
+      nodes.add(DynamicNode(position: Offset(left, bottom)));
     }
 
-    nodes.add(DynamicNode(position: Offset(left, top + leftTopRadius)));
 
-    switch (topLeft) {
-      case CornerStyle.rounded:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center: Offset(left + topLeftRadius, top + leftTopRadius),
-                width: 2 * topLeftRadius,
-                height: 2 * leftTopRadius),
-            pi,
-            pi / 2);
-        break;
-      case CornerStyle.straight:
-        nodes.add(DynamicNode(position: Offset(left + topLeftRadius, top)));
-        break;
-      case CornerStyle.concave:
-        nodes.arcTo(
-            Rect.fromCenter(
-                center: Offset(left, top),
-                width: 2 * topLeftRadius,
-                height: 2 * leftTopRadius),
-            pi / 2,
-            -pi / 2);
-        break;
-      case CornerStyle.cutout:
-        nodes.add(DynamicNode(
-            position: Offset(left + topLeftRadius, top + leftTopRadius)));
-        nodes.add(DynamicNode(position: Offset(left + topLeftRadius, top)));
+
+
+    if(topLeftRadius>0 && leftTopRadius >0) {
+      nodes.add(DynamicNode(position: Offset(left, top + leftTopRadius)));
+      switch (topLeft) {
+        case CornerStyle.rounded:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center: Offset(left + topLeftRadius, top + leftTopRadius),
+                  width: 2 * topLeftRadius,
+                  height: 2 * leftTopRadius),
+              pi,
+              pi / 2);
+          break;
+        case CornerStyle.straight:
+          nodes.add(DynamicNode(position: Offset(left + topLeftRadius, top)));
+          break;
+        case CornerStyle.concave:
+          nodes.arcTo(
+              Rect.fromCenter(
+                  center: Offset(left, top),
+                  width: 2 * topLeftRadius,
+                  height: 2 * leftTopRadius),
+              pi / 2,
+              -pi / 2);
+          break;
+        case CornerStyle.cutout:
+          nodes.add(DynamicNode(
+              position: Offset(left + topLeftRadius, top + leftTopRadius)));
+          nodes.add(DynamicNode(position: Offset(left + topLeftRadius, top)));
+      }
+    }else{
+      nodes.add(DynamicNode(position: Offset(left, top)));
     }
 
     return DynamicPath(size: rect.size, nodes: nodes);

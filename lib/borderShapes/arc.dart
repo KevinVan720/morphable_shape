@@ -40,6 +40,7 @@ class ArcShape extends Shape {
     );
   }
 
+
   DynamicPath generateDynamicPath(Rect rect) {
     final size = rect.size;
 

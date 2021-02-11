@@ -129,19 +129,35 @@ class DynamicPath {
   }
 
   Offset getCenterOfMass() {
-    Offset center=Offset.zero;
-    nodes.forEach((element) {center+=element.position;});
-    return center/nodes.length.toDouble();
+    Offset center = Offset.zero;
+    nodes.forEach((element) {
+      center += element.position;
+    });
+    return center / nodes.length.toDouble();
+  }
+
+  void rotate(double angle) {
+    Offset center = getCenterOfMass();
+    nodes.forEach((element) {
+      element.position =
+          element.position.rotateAround(pivot: center, angle: angle);
+      if (element.prev != null) {
+        element.prev = element.prev!.rotateAround(pivot: center, angle: angle);
+      }
+      if (element.next != null) {
+        element.next = element.next!.rotateAround(pivot: center, angle: angle);
+      }
+    });
   }
 
   void shift(Offset shift) {
     nodes.forEach((element) {
-      element.position = element.position+shift;
-      if(element.prev!=null) {
-        element.prev = element.prev!+shift;
+      element.position = element.position + shift;
+      if (element.prev != null) {
+        element.prev = element.prev! + shift;
       }
-      if(element.next!=null) {
-        element.next = element.next!+shift;
+      if (element.next != null) {
+        element.next = element.next! + shift;
       }
     });
   }
@@ -387,40 +403,51 @@ class DynamicPath {
 
   ///convert this to a list of Paths
   ///possible for multiple border color and width?
-  List<Path> getPaths(Size newSize, List<BorderSide> sides) {
+  List<Path> getPaths(
+      Size newSize, List<Color> borderColors, DynamicEdgeInsets? borderInsets) {
     int pathLength = nodes.length;
-    if (sides.length < pathLength) {
-      int diff = pathLength - sides.length;
+    if (borderColors.length < pathLength) {
+      int diff = pathLength - borderColors.length;
       for (int i = 0; i < diff; i++) {
-        sides.add(BorderSide.none);
+        borderColors.add(Colors.black);
       }
-    } else if (sides.length > pathLength) {
-      int diff = pathLength - sides.length;
+    } else if (borderColors.length > pathLength) {
+      int diff = pathLength - borderColors.length;
       for (int i = 0; i < diff; i++) {
-        sides.removeLast();
+        borderColors.removeLast();
       }
     }
 
-    /*
-    assert(sides.length == pathLength);
-
-    List<Path> rst = [];
-    for (int i = 0; i < pathLength; i++) {
-      DynamicNode nextNode = nodes[(i + 1) % pathLength];
-      DynamicPath borderPath = DynamicPath(size: size, nodes: []);
-      borderPath.nodes
-          .add(DynamicNode(position: nodes[i].position, next: nodes[i].next));
-      borderPath.nodes
-          .add(DynamicNode(position: nextNode.position, prev: nextNode.prev));
-      borderPath.nodes.add(getInsetNodeAt(
-          (i + 1) % pathLength, false, sides[i], sides[(i + 1) % pathLength]));
-      borderPath.nodes
-          .add(getInsetNodeAt(i, true, sides[(i - 1) % pathLength], sides[i]));
-
-      rst.add(borderPath.getPath(size));
+    Rect originalRect=getPath(newSize).getBounds();
+    double top = 0, bottom = 0, left = 0, right = 0;
+    if (borderInsets != null) {
+      top = borderInsets.top
+              ?.toPX(constraintSize: originalRect.height)
+              .clamp(0, originalRect.height) ??
+          0;
+      bottom = borderInsets.bottom
+              ?.toPX(constraintSize: originalRect.height)
+              .clamp(0, originalRect.height) ??
+          0;
+      left = borderInsets.left
+              ?.toPX(constraintSize: originalRect.width)
+              .clamp(0, originalRect.width) ??
+          0;
+      right = borderInsets.right
+              ?.toPX(constraintSize: originalRect.width)
+              .clamp(0, originalRect.width) ??
+          0;
+      if (top + bottom > originalRect.height) {
+        double ratio = top / (top + bottom);
+        top =  ratio * originalRect.height;
+        bottom = (1 - ratio) * originalRect.height;
+      }
+      if (left + right > originalRect.width) {
+        double ratio = left / (left + right);
+        left = ratio * originalRect.width;
+        right = (1 - ratio) * originalRect.width;
+      }
     }
-
-     */
 
     List<Path> rst = [];
 
@@ -429,9 +456,11 @@ class DynamicPath {
       newPath.nodes.add(DynamicNode(
           position: element.position, prev: element.prev, next: element.next));
     });
-    newPath.resize(Size(newSize.width*0.8, newSize.height*0.8));
-    Offset diff=this.getCenterOfMass()-newPath.getCenterOfMass();
-    newPath.shift(diff+Offset(-10,-10));
+    newPath.resize(
+        Size(originalRect.width - left - right, originalRect.height - top - bottom));
+    //Offset diff=getCenterOfMass()-newPath.getCenterOfMass();
+    newPath.shift(Offset(originalRect.left+left, originalRect.top+top));
+    //newPath.shift(Offset(left, top));
 
     for (int i = 0; i < pathLength; i++) {
       DynamicNode nextNode = nodes[(i + 1) % pathLength];
@@ -453,6 +482,7 @@ class DynamicPath {
     return rst.map((e) => e.transform(matrix4.storage)).toList();
   }
 
+  /*
   double getInnerDirection(Offset start, double direction) {
     if (!this
         .getPath(size)
@@ -468,21 +498,6 @@ class DynamicPath {
     double middleDirection = ((node.prev! - node.position).direction +
             (node.next! - node.position).direction) /
         2;
-    /*
-    print("prev" +
-        node.prev!.toString() +
-        " next: " +
-        node.next!.toString() +
-        " middle " +
-        node.position.toString());
-    print("prev" +
-        (node.prev! - node.position).direction.toString() +
-        " next: " +
-        (node.next! - node.position).direction.toString() +
-        " middle " +
-        middleDirection.toString());
-
-     */
 /*
     double a1 = Offset.fromDirection(node.prev!.direction).dx;
     double a2 = Offset.fromDirection(node.prev!.direction).dy;
@@ -559,6 +574,7 @@ class DynamicPath {
       );
     }
   }
+  */
 
   static double estimateCubicLength(List<Offset> controlPoints) {
     Offset x0 = controlPoints[0];

@@ -38,6 +38,7 @@ class ArrowShape extends Shape {
     return rst;
   }
 
+
   DynamicPath generateDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 

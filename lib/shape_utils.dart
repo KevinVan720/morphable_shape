@@ -97,6 +97,12 @@ extension OffsetExtension on Offset {
         this.dx.clamp(lower.dx, upper.dx), this.dy.clamp(lower.dy, upper.dy));
   }
 
+  Offset rotateAround({Offset pivot=Offset.zero, double angle=0.0}) {
+    double distance=(this-pivot).distance;
+    double direction=(this-pivot).direction;
+    return pivot+Offset.fromDirection(direction+angle, distance);
+  }
+
   Offset roundWithPrecision(int N) {
     return Offset(this.dx.roundWithPrecision(N), this.dy.roundWithPrecision(N));
   }

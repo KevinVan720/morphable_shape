@@ -11,9 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-
-  flutter_class_parser: ^0.0.2
-  length_unit: ^0.0.4
+  flutter_class_parser: ^0.0.3
+  length_unit: ^0.0.5
 
 dev_dependencies:
   flutter_test:
