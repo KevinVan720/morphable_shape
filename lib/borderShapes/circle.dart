@@ -7,12 +7,14 @@ import 'dart:math';
 class CircleShape extends Shape {
   final double startAngle;
   final double sweepAngle;
+  final DynamicBorderSide borderSide;
 
-  const CircleShape({this.startAngle = 0, this.sweepAngle = 2 * pi});
+  const CircleShape({this.startAngle = 0, this.sweepAngle = 2 * pi, this.borderSide=const DynamicBorderSide(width: Length(10), color: Colors.white70)});
 
   CircleShape.fromJson(Map<String, dynamic> map)
       : startAngle = map["startAngle"] ?? 0.0,
-        sweepAngle = map["sweepAngle"] ?? (2 * pi);
+        sweepAngle = map["sweepAngle"] ?? (2 * pi),
+        this.borderSide=const DynamicBorderSide(width: Length(10), color: Colors.white70);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "CircleShape"};
@@ -31,7 +33,36 @@ class CircleShape extends Shape {
     );
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateInnerDynamicPath(Rect rect) {
+    final size = rect.size;
+
+    List<DynamicNode> nodes = [];
+
+    double startAngle = this.startAngle.clamp(0.0, 2 * pi);
+    double sweepAngle = this.sweepAngle.clamp(0, 2 * pi);
+
+    double borderWidth=borderSide.width.toPX(constraintSize: size.shortestSide);
+
+    double alpha=sweepAngle/2;
+    double l=borderWidth;
+
+
+    nodes.arcTo(
+        Rect.fromCenter(
+          center: Offset(rect.width / 2.0, rect.height / 2.0),
+          width: rect.width,
+          height: rect.height,
+        ),
+        startAngle,
+        sweepAngle);
+    if (sweepAngle < 2 * pi) {
+      nodes.add(DynamicNode(position: Offset(size.width / 2, size.height / 2)));
+    }
+
+    return DynamicPath(nodes: nodes, size: size);
+  }
+
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
     List<DynamicNode> nodes = [];

@@ -51,7 +51,7 @@ class TriangleShape extends Shape {
     return rst;
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
     Size size = rect.size;

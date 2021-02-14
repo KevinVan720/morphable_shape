@@ -4,6 +4,7 @@ import '../morphable_shape_border.dart';
 
 ///A trapezoid shape, can be achieved from a rectangle
 ///may remove in the future
+/*
 class TrapezoidShape extends Shape {
   final ShapeSide side;
   final Length inset;
@@ -93,3 +94,4 @@ class TrapezoidShape extends Shape {
     return DynamicPath(size: size, nodes: nodes);
   }
 }
+*/

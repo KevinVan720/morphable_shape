@@ -64,7 +64,7 @@ class BubbleShape extends Shape {
     return rst;
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
     double borderRadius;

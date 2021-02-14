@@ -11,7 +11,7 @@ class MorphShape extends Shape {
 
   MorphShape({required this.t, required this.data});
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     if (rect.width != data.boundingBox.width ||
         rect.height != data.boundingBox.height) {
       data.boundingBox = rect;

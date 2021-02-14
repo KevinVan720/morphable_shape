@@ -10,30 +10,30 @@ const Map<String, Shape> presetShapeMap = {
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "DiagonalBottomRight": const RectangleShape(
-      bottomRight: CornerStyle.straight,
+      bottomRightStyle: CornerStyle.straight,
       borderRadius: DynamicBorderRadius.only(
           bottomRight: const DynamicRadius.elliptical(
               Length(100, unit: LengthUnit.percent),
               Length(15, unit: LengthUnit.percent)))),
   "CutCornerAll10": const RectangleShape(
-      topLeft: CornerStyle.straight,
-      topRight: CornerStyle.straight,
-      bottomLeft: CornerStyle.straight,
-      bottomRight: CornerStyle.straight,
+      topLeftStyle: CornerStyle.straight,
+      topRightStyle: CornerStyle.straight,
+      bottomLeftStyle: CornerStyle.straight,
+      bottomRightStyle: CornerStyle.straight,
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "CutoutCornerAll10": const RectangleShape(
-      topLeft: CornerStyle.cutout,
-      topRight: CornerStyle.cutout,
-      bottomLeft: CornerStyle.cutout,
-      bottomRight: CornerStyle.cutout,
+      topLeftStyle: CornerStyle.cutout,
+      topRightStyle: CornerStyle.cutout,
+      bottomLeftStyle: CornerStyle.cutout,
+      bottomRightStyle: CornerStyle.cutout,
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "ConcaveCornerAll10": const RectangleShape(
-      topLeft: CornerStyle.concave,
-      topRight: CornerStyle.concave,
-      bottomLeft: CornerStyle.concave,
-      bottomRight: CornerStyle.concave,
+      topLeftStyle: CornerStyle.concave,
+      topRightStyle: CornerStyle.concave,
+      bottomLeftStyle: CornerStyle.concave,
+      bottomRightStyle: CornerStyle.concave,
       borderRadius: DynamicBorderRadius.all(
           const DynamicRadius.circular(const Length(10, unit: LengthUnit.percent)))),
   "BubbleTopLeft": const BubbleShape(corner: ShapeCorner.topLeft),
@@ -44,10 +44,10 @@ const Map<String, Shape> presetShapeMap = {
       side: ShapeSide.top, arcHeight: Length(20, unit: LengthUnit.percent)),
   "ArcBottom": const ArcShape(
       side: ShapeSide.bottom, arcHeight: Length(20, unit: LengthUnit.percent)),
-  "ArrowRight": const ArrowShape(),
-  "ArrowLeft": const ArrowShape(side: ShapeSide.left),
-  "Trapezoid": const TrapezoidShape(),
-  "TrapezoidBottom": const TrapezoidShape(side: ShapeSide.top),
+  //"ArrowRight": const ArrowShape(),
+  //"ArrowLeft": const ArrowShape(side: ShapeSide.left),
+  //"Trapezoid": const TrapezoidShape(),
+  //"TrapezoidBottom": const TrapezoidShape(side: ShapeSide.top),
   "Polygon3": const PolygonShape(sides: 3),
   "Polygon5": const PolygonShape(sides: 5),
   "Polygon6": const PolygonShape(sides: 6),

@@ -25,7 +25,7 @@ class PathShape extends Shape {
     return PathShape(path: path ?? this.path);
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     return path;
   }
 }

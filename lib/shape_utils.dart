@@ -2,6 +2,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'morphable_shape_border.dart';
 
+import 'package:bezier/bezier.dart';
+import 'package:vector_math/vector_math.dart';
+
 ///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
 
@@ -28,6 +31,10 @@ enum CornerStyle {
 extension CornerStyleExtension on CornerStyle {
   String toJson() {
     return this.toString().stripFirstDot();
+  }
+
+  bool get isConcave {
+    return this==CornerStyle.concave || this==CornerStyle.cutout;
   }
 }
 
@@ -196,6 +203,27 @@ extension addDynamicNodeExtension on List<DynamicNode> {
     for (int i = 0; i < points.length; i += 4) {
       this.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
     }
+  }
+
+  List<CubicBezier> arcToCubicBezierCurve(Rect rect, double startAngle, double sweepAngle) {
+    List<Offset> points = arcToCubicBezier(rect, startAngle, sweepAngle);
+    List<CubicBezier> rst=[];
+    for (int i = 0; i < points.length; i += 4) {
+      rst.add(CubicBezier([points[i].toVector2(), points[i + 1].toVector2(), points[i + 2].toVector2(), points[i + 3].toVector2()]));
+    }
+    return rst;
+  }
+}
+
+extension OffsetToVector2 on Offset{
+  Vector2 toVector2() {
+    return Vector2(this.dx, this.dy);
+  }
+}
+
+extension Vector2ToOffset on Vector2{
+  Offset toOffset() {
+    return Offset(this.x, this.y);
   }
 }
 

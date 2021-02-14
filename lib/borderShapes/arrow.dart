@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 
 ///An arrow shape with a head and a tail
+/*
 class ArrowShape extends Shape {
   final ShapeSide side;
   final Length arrowHeight;
@@ -137,3 +138,4 @@ class ArrowShape extends Shape {
     return DynamicPath(size: rect.size, nodes: nodes);
   }
 }
+ */

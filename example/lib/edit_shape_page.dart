@@ -65,7 +65,7 @@ class EditShapePageState extends State<EditShapePage>
           shapeSize.width > screenSize.width * 0.8 ||
           shapeSize.height > screenSize.height * 0.8) {
         double length = (min(screenSize.width, screenSize.height) * 0.8)
-            .clamp(200.0, 600.0);
+            .clamp(200.0, 400.0);
         shapeSize = Size(length, length);
       }
 
@@ -176,7 +176,7 @@ class EditShapePageState extends State<EditShapePage>
             Colors.pink,
           ],
           borderInsets: DynamicEdgeInsets.only(
-              top: Length(0), left: 0.toPXLength, right: 0.toPXLength, bottom: 50.toPXLength)
+              top: Length(10), left: 10.toPXLength, right: 20.toPXLength, bottom: 50.toPXLength)
           //borderColor: Colors.redAccent, borderWidth: 1
           );
 
@@ -407,9 +407,9 @@ class EditShapePageState extends State<EditShapePage>
     if (currentShape is ArcShape) {
       stackedComponents.addAll(buildArcEditingWidgets(currentShape));
     }
-    if (currentShape is ArrowShape) {
-      stackedComponents.addAll(buildArrowEditingWidgets(currentShape));
-    }
+    //if (currentShape is ArrowShape) {
+    //  stackedComponents.addAll(buildArrowEditingWidgets(currentShape));
+    //}
     if (currentShape is BubbleShape) {
       stackedComponents.addAll(buildBubbleEditingWidgets(currentShape));
     }
@@ -432,9 +432,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildStarEditingWidgets(currentShape));
     }
 
-    if (currentShape is TrapezoidShape) {
-      stackedComponents.addAll(buildTrapezoidEditingWidgets(currentShape));
-    }
+    //if (currentShape is TrapezoidShape) {
+    //  stackedComponents.addAll(buildTrapezoidEditingWidgets(currentShape));
+    //}
 
     if (currentShape is TriangleShape) {
       stackedComponents.addAll(buildTriangleEditingWidgets(currentShape));
@@ -450,9 +450,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildArcEditingPanelWidget(currentShape));
     }
 
-    if (currentShape is ArrowShape) {
-      stackedComponents.addAll(buildArrowEditingPanelWidget(currentShape));
-    }
+    //if (currentShape is ArrowShape) {
+    //  stackedComponents.addAll(buildArrowEditingPanelWidget(currentShape));
+    //}
 
     if (currentShape is BubbleShape) {
       stackedComponents.addAll(buildBubbleEditingPanelWidget(currentShape));
@@ -478,9 +478,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildStarEditingPanelWidget(currentShape));
     }
 
-    if (currentShape is TrapezoidShape) {
-      stackedComponents.addAll(buildTrapezoidEditingPanelWidget(currentShape));
-    }
+    //if (currentShape is TrapezoidShape) {
+    //  stackedComponents.addAll(buildTrapezoidEditingPanelWidget(currentShape));
+    //}
 
     if (currentShape is TriangleShape) {
       stackedComponents.addAll(buildTriangleEditingPanelWidget(currentShape));
@@ -514,7 +514,7 @@ class EditShapePageState extends State<EditShapePage>
                 onPressed: () {
                   setState(() {
                     updateCurrentShape(PathShape(
-                        path: currentShape.generateDynamicPath(Rect.fromLTRB(
+                        path: currentShape.generateOuterDynamicPath(Rect.fromLTRB(
                             0, 0, shapeSize.width, shapeSize.height))));
                   });
                 }),
@@ -895,6 +895,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
+  /*
   List<Widget> buildArrowEditingWidgets(ArrowShape shape) {
     List<Widget> nodeControls = [];
 
@@ -986,6 +987,8 @@ class EditShapePageState extends State<EditShapePage>
 
     return nodeControls;
   }
+
+   */
 
   List<Widget> buildCircleEditingWidgets(CircleShape shape) {
     List<Widget> nodeControls = [];
@@ -1670,6 +1673,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
+  /*
   List<Widget> buildTrapezoidEditingWidgets(TrapezoidShape shape) {
     List<Widget> nodeControls = [];
 
@@ -1728,7 +1732,7 @@ class EditShapePageState extends State<EditShapePage>
 
     return nodeControls;
   }
-
+ */
   List<Widget> buildTriangleEditingWidgets(TriangleShape shape) {
     List<Widget> nodeControls = [];
 
@@ -1806,6 +1810,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
+
   Widget buildRowWithHeaderText({String headerText, Widget actionWidget}) {
     return Container(
       height: 50,
@@ -1842,7 +1847,7 @@ class EditShapePageState extends State<EditShapePage>
             position: path.nodes[selectedNodeIndex].position,
             onPositionChanged: (Offset newPos) {
               setState(() {
-                print("new pos: " + newPos.toString());
+                //print("new pos: " + newPos.toString());
                 path.moveNodeTo(selectedNodeIndex, newPos);
                 updateCurrentShape(shape.copyWith(path: path));
               });
@@ -2003,6 +2008,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
+  /*
   List<Widget> buildArrowEditingPanelWidget(ArrowShape shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
@@ -2054,6 +2060,8 @@ class EditShapePageState extends State<EditShapePage>
 
     return rst;
   }
+
+   */
 
   List<Widget> buildBubbleEditingPanelWidget(BubbleShape shape) {
     Size size = shapeSize;
@@ -2262,7 +2270,7 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
-                value: shape.topLeft,
+                value: shape.topLeftStyle,
                 onChanged: (CornerStyle newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(topLeft: newSide));
@@ -2323,7 +2331,7 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
-                value: shape.topRight,
+                value: shape.topRightStyle,
                 onChanged: (CornerStyle newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(topRight: newSide));
@@ -2386,7 +2394,7 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
-                value: shape.bottomLeft,
+                value: shape.bottomLeftStyle,
                 onChanged: (CornerStyle newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(bottomLeft: newSide));
@@ -2449,7 +2457,7 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
-                value: shape.bottomRight,
+                value: shape.bottomRightStyle,
                 onChanged: (CornerStyle newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(bottomRight: newSide));
@@ -2606,6 +2614,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
+  /*
   List<Widget> buildTrapezoidEditingPanelWidget(TrapezoidShape shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
@@ -2641,6 +2650,8 @@ class EditShapePageState extends State<EditShapePage>
 
     return rst;
   }
+
+   */
 
   List<Widget> buildTriangleEditingPanelWidget(TriangleShape shape) {
     Size size = shapeSize;

@@ -75,8 +75,8 @@ Shape? parseShape(Map<String, dynamic>? map) {
   switch (shapeName) {
     case "ArcShape":
       return ArcShape.fromJson(map);
-    case "ArrowShape":
-      return ArrowShape.fromJson(map);
+    //case "ArrowShape":
+    //  return ArrowShape.fromJson(map);
     case "BubbleShape":
       return BubbleShape.fromJson(map);
     case "CircleShape":
@@ -87,8 +87,8 @@ Shape? parseShape(Map<String, dynamic>? map) {
       return RectangleShape.fromJson(map);
     case "StarShape":
       return StarShape.fromJson(map);
-    case "TrapezoidShape":
-      return TrapezoidShape.fromJson(map);
+    //case "TrapezoidShape":
+    //  return TrapezoidShape.fromJson(map);
     case "TriangleShape":
       return TriangleShape.fromJson(map);
     default:

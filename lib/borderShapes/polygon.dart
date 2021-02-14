@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:morphable_shape/dynamic_path_morph.dart';
 
 import '../morphable_shape_border.dart';
 
@@ -8,18 +9,21 @@ class PolygonShape extends Shape {
   final int sides;
   final Length cornerRadius;
   final CornerStyle cornerStyle;
+  final DynamicBorderSide borderSide;
 
   const PolygonShape(
       {this.sides = 5,
       this.cornerStyle = CornerStyle.rounded,
-      this.cornerRadius = const Length(0)})
+      this.cornerRadius = const Length(0),
+        this.borderSide=const DynamicBorderSide(width: Length(100), color: Colors.white70)})
       : assert(sides >= 3);
 
   PolygonShape.fromJson(Map<String, dynamic> map)
       : cornerStyle =
             parseCornerStyle(map["cornerStyle"]) ?? CornerStyle.rounded,
         cornerRadius = Length.fromJson(map["cornerRadius"]) ?? Length(0),
-        sides = map["sides"] ?? 5;
+        sides = map["sides"] ?? 5,
+        this.borderSide=const DynamicBorderSide(width: Length(10), color: Colors.white70);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "PolygonShape"};
@@ -41,7 +45,94 @@ class PolygonShape extends Shape {
     );
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  List<int> get sidesColorIndexList {
+    int totalLength=generateOuterDynamicPath(Rect.fromLTRB(0,0,100,100)).nodes.length;
+    int eachSide=(totalLength/sides).round();
+    return rotateList(List.generate(totalLength, (index) => (index/eachSide).floor()), (eachSide/2).round()).cast<int>();
+  }
+
+
+  DynamicPath generateInnerDynamicPath(Rect rect) {
+    double scale = min(rect.width, rect.height);
+    double borderWidth=borderSide.width.toPX(constraintSize: scale);
+    List<DynamicNode> nodes = [];
+
+    double cornerRadius = this.cornerRadius.toPX(constraintSize: scale)-borderWidth;
+
+    final height = scale;
+    final width = scale;
+
+    final double section = (2.0 * pi / sides);
+    final double polygonSize = min(width, height);
+    final double radius = polygonSize / 2-borderWidth/sin(section/2);
+    final double centerX = width / 2;
+    final double centerY = height / 2;
+
+    radius.clamp(0, polygonSize/2);
+    cornerRadius = cornerRadius.clamp(0, radius * cos(section / 2));
+
+    double arcCenterRadius = radius - cornerRadius / sin(pi / 2 - section / 2);
+
+    double startAngle = -pi / 2;
+
+    for (int i = 0; i < sides; i++) {
+      double cornerAngle = startAngle + section * i;
+      //if (cornerRadius == 0) {
+     //  nodes.add(DynamicNode(
+      //      position: Offset((centerX + radius * cos(cornerAngle)),
+      //          (centerY + radius * sin(cornerAngle)))));
+      //} else {
+        double arcCenterX = (centerX + arcCenterRadius * cos(cornerAngle));
+        double arcCenterY = (centerY + arcCenterRadius * sin(cornerAngle));
+        Offset start = arcToCubicBezier(
+            Rect.fromCircle(
+                center: Offset(arcCenterX, arcCenterY),
+                radius: cornerRadius),
+            cornerAngle - section / 2,
+            section)
+            .first;
+        Offset end = arcToCubicBezier(
+            Rect.fromCircle(
+                center: Offset(arcCenterX, arcCenterY),
+                radius: cornerRadius),
+            cornerAngle - section / 2,
+            section)
+            .last;
+        nodes.add(DynamicNode(position: start));
+        //}
+        switch (cornerStyle) {
+          case CornerStyle.rounded:
+            nodes.arcTo(
+                Rect.fromCircle(
+                    center: Offset(arcCenterX, arcCenterY),
+                    radius: cornerRadius),
+                cornerAngle - section / 2,
+                section);
+            break;
+          case CornerStyle.concave:
+            nodes.arcTo(
+                Rect.fromCircle(
+                    center: Offset(arcCenterX, arcCenterY),
+                    radius: cornerRadius),
+                cornerAngle - section / 2,
+                -(2 * pi - section));
+            break;
+          case CornerStyle.straight:
+            nodes.add(DynamicNode(position: end));
+            break;
+          case CornerStyle.cutout:
+            nodes.add(DynamicNode(position: Offset(arcCenterX, arcCenterY)));
+            nodes.add(DynamicNode(position: end));
+            break;
+        }
+      }
+    //}
+
+    return DynamicPath(size: Size(width, height), nodes: nodes)
+      ..resize(rect.size);
+  }
+
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
     double scale = min(rect.width, rect.height);
@@ -64,11 +155,11 @@ class PolygonShape extends Shape {
 
     for (int i = 0; i < sides; i++) {
       double cornerAngle = startAngle + section * i;
-      if (cornerRadius == 0) {
-        nodes.add(DynamicNode(
-            position: Offset((centerX + radius * cos(cornerAngle)),
-                (centerY + radius * sin(cornerAngle)))));
-      } else {
+      //if (cornerRadius == 0) {
+     //   nodes.add(DynamicNode(
+       //     position: Offset((centerX + radius * cos(cornerAngle)),
+      //          (centerY + radius * sin(cornerAngle)))));
+     // } else {
         double arcCenterX = (centerX + arcCenterRadius * cos(cornerAngle));
         double arcCenterY = (centerY + arcCenterRadius * sin(cornerAngle));
         Offset start = arcToCubicBezier(
@@ -112,7 +203,7 @@ class PolygonShape extends Shape {
             nodes.add(DynamicNode(position: end));
             break;
         }
-      }
+     // }
     }
 
     return DynamicPath(size: Size(width, height), nodes: nodes)

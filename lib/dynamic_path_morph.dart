@@ -65,8 +65,8 @@ class DynamicPathMorph {
     int minControlPoints = 16,
     int maxControlPoints = 120,
   }) {
-    DynamicPath path1 = data.begin.generateDynamicPath(data.boundingBox);
-    DynamicPath path2 = data.end.generateDynamicPath(data.boundingBox);
+    DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
+    DynamicPath path2 = data.end.generateOuterDynamicPath(data.boundingBox);
 
     sampleDynamicPaths(data, path1, path2,
         maxTrial: maxTrial,

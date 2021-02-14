@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/borderShapes/rectangle.dart';
 import 'package:morphable_shape/borderShapes/morph.dart';
 
-import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'dynamic_path.dart';
 import 'dynamic_path_morph.dart';
@@ -32,22 +31,30 @@ export 'borderShapes/path.dart';
 ///should be serializable/deserializable
 ///generate a DynamicPath instance with all the control points, then convert to a Path
 abstract class Shape {
-
   const Shape();
 
   Map<String, dynamic> toJson();
 
   Shape copyWith();
 
-  DynamicPath generateDynamicPath(Rect rect);
+  DynamicPath generateOuterDynamicPath(Rect rect);
 
-  Path generatePath({required Rect rect}) {
-    return generateDynamicPath(rect).getPath(rect.size);
+  DynamicPath generateInnerDynamicPath(Rect rect) {
+    return generateOuterDynamicPath(rect);
+  }
+
+  Path generateOuterPath({required Rect rect}) {
+    return generateOuterDynamicPath(rect).getPath(rect.size);
+  }
+
+  Path generateInnerPath({required Rect rect}) {
+    return generateInnerDynamicPath(rect).getPath(rect.size);
   }
 
   int get sides => 4;
 
-  List<int> get sidesColorIndexList => [0,1,2,3,4,5,6,7,8,9,10,11,12];
+  List<int> get sidesColorIndexList =>
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
   /*
   void drawBorder(
@@ -77,53 +84,83 @@ abstract class Shape {
   }
   */
 
-  void drawBorder(
-      Canvas canvas, Rect rect, List<Color>? borderColors, DynamicEdgeInsets? borderInsets) {
-    if (borderColors!=null && borderInsets!=null) {
+  List<Path> generateBorder(Rect rect) {
+    DynamicPath outer = generateOuterDynamicPath(rect);
+    DynamicPath inner = generateInnerDynamicPath(rect);
+    int pathLength = outer.nodes.length;
+    int pathLength2 = inner.nodes.length;
 
-      Paint borderPaint = Paint();
-      ///Possible different borderColor and style in the future?
+    //print(outer.nodes.length);
+    //print(inner.nodes.length);
 
-      List<Path> paths=generateDynamicPath(rect).getPaths(rect.size, borderColors, borderInsets);
-      print(paths.length);
-      for(int i=0; i<paths.length; i++) {
+    assert(outer.nodes.length == inner.nodes.length);
 
-        borderPaint.isAntiAlias = true;
-        borderPaint.style = PaintingStyle.fill;
-        borderPaint.color=borderColors[i];
-        borderPaint.strokeWidth=1;
-        canvas.drawPath(paths[i], borderPaint);
-        //borderPaint.isAntiAlias = true;
-        //borderPaint.style = PaintingStyle.stroke;
-        //borderPaint.color=Colors.black;
-        //borderPaint.strokeWidth=1;
-        //canvas.drawPath(paths[i], borderPaint);
-      }
+    List<Path> rst = [];
 
-      //borderPaint.strokeWidth=2;
-      //canvas.drawPath(generatePath(rect: rect), borderPaint);
+    for (int i = 0; i < pathLength; i++) {
+      DynamicNode nextNode = outer.nodes[(i + 1) % pathLength];
+      DynamicPath borderPath = DynamicPath(size: rect.size, nodes: []);
+      borderPath.nodes.add(DynamicNode(
+          position: outer.nodes[i].position, next: outer.nodes[i].next));
+      borderPath.nodes
+          .add(DynamicNode(position: nextNode.position, prev: nextNode.prev));
+      DynamicNode nextInnerNode = inner.nodes[(i + 1) % pathLength2];
+      borderPath.nodes.add(DynamicNode(
+          position: nextInnerNode.position, next: nextInnerNode.prev));
+      borderPath.nodes.add(DynamicNode(
+          position: inner.nodes[i % pathLength2].position,
+          prev: inner.nodes[i % pathLength2].next));
+      rst.add(borderPath.getPath(rect.size));
     }
+
+    return rst;
   }
 
+  void drawBorder(Canvas canvas, Rect rect) {
+    Paint borderPaint = Paint();
+    /*
+    if (borderColors != null) {
+
+      List<Path> paths = generateBorder(rect);
+      int shift = 0;
+      for (int i = shift; i < paths.length + shift; i++) {
+        borderPaint.isAntiAlias = true;
+        borderPaint.style = PaintingStyle.fill;
+        borderPaint.color = borderColors[sidesColorIndexList[i]];
+        borderPaint.strokeWidth = 1;
+        canvas.drawPath(paths[i], borderPaint);
+        /*
+        borderPaint.isAntiAlias = true;
+        borderPaint.style = PaintingStyle.stroke;
+        borderPaint.color = Colors.black;
+        borderPaint.strokeWidth = 3;
+        canvas.drawPath(paths[i], borderPaint);
+        */
+      }
+    }
+
+     */
+    borderPaint.isAntiAlias = true;
+    borderPaint.style = PaintingStyle.stroke;
+    borderPaint.color = Colors.black;
+    borderPaint.strokeWidth = 50;
+    canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
+  }
 }
 
 ///ShapeBorder with various customizable shapes
 ///can tween smoothly between arbitrary two instances of this class
 class MorphableShapeBorder extends ShapeBorder {
   final Shape shape;
-  final List<Color>? borderColors;
-  final DynamicEdgeInsets? borderInsets;
 
   //final Color borderColor;
   //final double borderWidth;
 
-  const MorphableShapeBorder(
-      {required this.shape,
-        this.borderColors,
-        this.borderInsets,
-      //this.borderColor = Colors.black,
-      //this.borderWidth = 1
-      });
+  const MorphableShapeBorder({
+    required this.shape,
+    //this.borderColor = Colors.black,
+    //this.borderWidth = 1
+  });
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
@@ -147,18 +184,18 @@ class MorphableShapeBorder extends ShapeBorder {
   ///Inner path is currently regarded the same as the outer path
   @override
   Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
-    return shape.generatePath(rect: rect);
+    return shape.generateOuterPath(rect: rect);
   }
 
   @override
   Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
-    return shape.generatePath(rect: rect);
+    return shape.generateOuterPath(rect: rect);
   }
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
     //shape.drawBorder(canvas, rect, borderColor, borderWidth);
-    shape.drawBorder(canvas, rect, borderColors, borderInsets);
+    shape.drawBorder(canvas, rect);
   }
 
   @override
@@ -166,15 +203,14 @@ class MorphableShapeBorder extends ShapeBorder {
     if (runtimeType != other.runtimeType) return false;
     final MorphableShapeBorder typedOther = other;
 
-    return shape == typedOther.shape &&
-        borderColors==typedOther.borderColors;
-        //borderWidth == typedOther.borderWidth &&
-        //borderColor == typedOther.borderColor;
+    return shape == typedOther.shape;
+    //borderWidth == typedOther.borderWidth &&
+    //borderColor == typedOther.borderColor;
   }
 
   @override
   //int get hashCode => hashValues(shape, borderColor, borderWidth);
-  int get hashCode => hashValues(shape, borderColors);
+  int get hashCode => shape.hashCode;
 
   @override
   String toString() {
@@ -210,11 +246,11 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
         DynamicPathMorph.samplePathsFromShape(data!);
       }
       return MorphableShapeBorder(
-          shape: MorphShape(t: t, data: data!),
-          //borderColor: ColorTween(end: end!.borderColor).transform(t) ??
-          //    Colors.transparent,
-          //borderWidth: Tween(begin: 0.0, end: end!.borderWidth).transform(t)
-          );
+        shape: MorphShape(t: t, data: data!),
+        //borderColor: ColorTween(end: end!.borderColor).transform(t) ??
+        //    Colors.transparent,
+        //borderWidth: Tween(begin: 0.0, end: end!.borderWidth).transform(t)
+      );
     }
     if (end == null) {
       if (data == null) {
@@ -226,11 +262,11 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
         DynamicPathMorph.samplePathsFromShape(data!);
       }
       return MorphableShapeBorder(
-          shape: MorphShape(t: t, data: data!),
-          //borderColor: ColorTween(begin: begin!.borderColor).transform(t) ??
-          //    Colors.transparent,
-          //borderWidth: Tween(begin: begin!.borderWidth, end: 0.0).transform(t)
-          );
+        shape: MorphShape(t: t, data: data!),
+        //borderColor: ColorTween(begin: begin!.borderColor).transform(t) ??
+        //    Colors.transparent,
+        //borderWidth: Tween(begin: begin!.borderWidth, end: 0.0).transform(t)
+      );
     }
     if (data == null ||
         begin!.shape != data!.begin ||
@@ -243,15 +279,15 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       DynamicPathMorph.samplePathsFromShape(data!);
     }
     return MorphableShapeBorder(
-        shape: MorphShape(t: t, data: data!),
+      shape: MorphShape(t: t, data: data!),
       //borderColor: Colors.redAccent, borderWidth: 1
 
-        //borderColor:
-        //    ColorTween(begin: begin!.borderColor, end: end!.borderColor)
-        //            .transform(t) ??
-        //        Colors.transparent,
-        //borderWidth: Tween(begin: begin!.borderWidth, end: end!.borderWidth)
-        //    .transform(t)
-        );
+      //borderColor:
+      //    ColorTween(begin: begin!.borderColor, end: end!.borderColor)
+      //            .transform(t) ??
+      //        Colors.transparent,
+      //borderWidth: Tween(begin: begin!.borderWidth, end: end!.borderWidth)
+      //    .transform(t)
+    );
   }
 }

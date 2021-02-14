@@ -41,7 +41,7 @@ class ArcShape extends Shape {
   }
 
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
     double maximumSize = min(size.height, size.height) / 2;

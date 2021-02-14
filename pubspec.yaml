@@ -11,8 +11,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_class_parser: ^0.0.3
-  length_unit: ^0.0.5
+  flutter_class_parser: ^0.0.4
+  length_unit: ^0.0.6
+  bezier: 1.1.5
+  vector_math: ^2.0.0
 
 dev_dependencies:
   flutter_test:
