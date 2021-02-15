@@ -4,10 +4,12 @@ import '../morphable_shape_border.dart';
 
 ///A Shape made from a path with straight or cubic Bezier lines
 ///possible for future implementation of freeform lines or import shapes from SVG
-class PathShape extends Shape {
+class PathShape extends OutlinedShape {
   final DynamicPath path;
 
-  const PathShape({required this.path});
+  const PathShape(
+      {DynamicBorderSide border = DynamicBorderSide.none, required this.path})
+      : super(border: border);
 
   PathShape.fromJson(Map<String, dynamic> map)
       : path = parseDynamicPath(map["path"]) ??
@@ -21,8 +23,9 @@ class PathShape extends Shape {
 
   PathShape copyWith({
     DynamicPath? path,
+    DynamicBorderSide? border,
   }) {
-    return PathShape(path: path ?? this.path);
+    return PathShape(path: path ?? this.path, border: border ?? this.border);
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

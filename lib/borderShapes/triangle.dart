@@ -4,7 +4,7 @@ import '../morphable_shape_border.dart';
 
 ///triangle shape defined by the three vertices
 ///vertices should only use the percent length unit
-class TriangleShape extends Shape {
+class TriangleShape extends FilledBorderShape {
   final DynamicOffset point1;
   final DynamicOffset point2;
   final DynamicOffset point3;
@@ -20,7 +20,7 @@ class TriangleShape extends Shape {
           const Length(50, unit: LengthUnit.percent),
           const Length(100, unit: LengthUnit.percent))});
 
-  Shape copyWith({
+  TriangleShape copyWith({
     DynamicOffset? point1,
     DynamicOffset? point2,
     DynamicOffset? point3,
@@ -30,6 +30,27 @@ class TriangleShape extends Shape {
       point2: point2 ?? this.point2,
       point3: point3 ?? this.point3,
     );
+  }
+
+  List<Color> borderFillColors() {
+    return [
+      Colors.green,
+      Colors.blue,
+      Colors.red,
+      Colors.yellow,
+      Colors.green,
+      Colors.blue,
+      Colors.red,
+      Colors.yellow,
+      Colors.green,
+      Colors.blue,
+      Colors.red,
+      Colors.yellow,
+      Colors.green,
+      Colors.blue,
+      Colors.red,
+      Colors.yellow
+    ];
   }
 
   TriangleShape.fromJson(Map<String, dynamic> map)
@@ -49,6 +70,10 @@ class TriangleShape extends Shape {
     rst["point2"] = point2.toJson();
     rst["point3"] = point3.toJson();
     return rst;
+  }
+
+  DynamicPath generateInnerDynamicPath(Rect rect) {
+    return generateOuterDynamicPath(rect);
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

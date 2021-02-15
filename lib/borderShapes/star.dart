@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
 import '../morphable_shape_border.dart';
 
-class StarShape extends Shape {
+class StarShape extends FilledBorderShape {
   final int corners;
   final Length inset;
   final Length cornerRadius;
@@ -63,10 +63,29 @@ class StarShape extends Shape {
     return rst;
   }
 
-  List<int> get sidesColorIndexList {
-    int totalLength=generateOuterDynamicPath(Rect.fromLTRB(0,0,100,100)).nodes.length;
-    int eachSide=(totalLength/2/corners).round();
-    return rotateList(List.generate(totalLength, (index) => (index/eachSide).floor()), -(eachSide/2).round()).cast<int>();
+  @override
+  List<Color> borderFillColors() {
+      return [
+        Colors.green,
+        Colors.blue,
+        Colors.red,
+        Colors.yellow,
+        Colors.green,
+        Colors.blue,
+        Colors.red,
+        Colors.yellow,
+        Colors.green,
+        Colors.blue,
+        Colors.red,
+        Colors.yellow,
+        Colors.green,
+        Colors.blue,
+        Colors.red,
+        Colors.yellow
+      ];
+    //int totalLength=generateOuterDynamicPath(Rect.fromLTRB(0,0,100,100)).nodes.length;
+    //int eachSide=(totalLength/2/corners).round();
+    //return rotateList(List.generate(totalLength, (index) => (index/eachSide).floor()), -(eachSide/2).round()).cast<int>();
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
@@ -398,4 +417,6 @@ class StarShape extends Shape {
     return DynamicPath(size: Size(width, height), nodes: nodes)
       ..resize(rect.size);
   }
+
+
 }

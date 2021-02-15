@@ -232,3 +232,18 @@ extension doubleExtension on double {
     return (this * number).round() / number;
   }
 }
+
+extension extendColorListExtension on List<Color> {
+  List<Color> extendColors(int length) {
+    if (this.length>=length) {
+      return this.sublist(0, length);
+    }else{
+      List<Color> rst=[];
+      for(int i=0; i<length; i++) {
+        rst.add(this[i%this.length]);
+      }
+      return rst;
+    }
+
+  }
+}

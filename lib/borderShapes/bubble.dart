@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 
 ///Bubble shape, with a triangular tip and equal radius rounded corner
-class BubbleShape extends Shape {
+class BubbleShape extends OutlinedShape {
   final ShapeCorner corner;
 
   final Length borderRadius;
@@ -16,13 +16,14 @@ class BubbleShape extends Shape {
   final Length arrowHeadPosition;
 
   const BubbleShape({
+    DynamicBorderSide border=DynamicBorderSide.none,
     this.corner = ShapeCorner.bottomRight,
     this.borderRadius = const Length(6),
     this.arrowHeight = const Length(20, unit: LengthUnit.percent),
     this.arrowWidth = const Length(30, unit: LengthUnit.percent),
     this.arrowCenterPosition = const Length(50, unit: LengthUnit.percent),
     this.arrowHeadPosition = const Length(50, unit: LengthUnit.percent),
-  });
+  }) : super(border: border);
 
   BubbleShape copyWith({
     ShapeCorner? corner,

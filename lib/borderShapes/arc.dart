@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import '../morphable_shape_border.dart';
 
 ///A rectangle with one side replaced by an arc with a certain height
-class ArcShape extends Shape {
+class ArcShape extends OutlinedShape {
   final ShapeSide side;
   final Length arcHeight;
   final bool isOutward;
 
   const ArcShape({
+    DynamicBorderSide border=DynamicBorderSide.none,
     this.side = ShapeSide.bottom,
     this.isOutward = true,
     this.arcHeight = const Length(20),
-  });
+  }) : super(border: border);
 
   ArcShape.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
@@ -32,11 +33,13 @@ class ArcShape extends Shape {
     ShapeSide? side,
     bool? isOutward,
     Length? arcHeight,
+    DynamicBorderSide? border,
   }) {
     return ArcShape(
       side: side ?? this.side,
       isOutward: isOutward ?? this.isOutward,
       arcHeight: arcHeight ?? this.arcHeight,
+      border: border?? this.border,
     );
   }
 

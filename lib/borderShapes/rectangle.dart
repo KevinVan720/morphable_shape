@@ -7,17 +7,18 @@ import 'package:morphable_shape/linear_bezier.dart';
 import '../morphable_shape_border.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 import 'package:bezier/bezier.dart';
+import 'package:morphable_shape/dynamic_path_morph.dart';
 
 ///Rectangle shape with various corner style and radius for each corner
-class RectangleShape extends Shape {
+class RectangleShape extends FilledBorderShape {
   final CornerStyle topLeftStyle;
   final CornerStyle topRightStyle;
   final CornerStyle bottomLeftStyle;
   final CornerStyle bottomRightStyle;
-  final DynamicBorderSide leftSide;
-  final DynamicBorderSide rightSide;
-  final DynamicBorderSide topSide;
-  final DynamicBorderSide bottomSide;
+  final DynamicBorderSides leftSide;
+  final DynamicBorderSides rightSide;
+  final DynamicBorderSides topSide;
+  final DynamicBorderSides bottomSide;
   final DynamicBorderRadius borderRadius;
 
   const RectangleShape({
@@ -28,13 +29,13 @@ class RectangleShape extends Shape {
     this.bottomLeftStyle = CornerStyle.rounded,
     this.bottomRightStyle = CornerStyle.rounded,
     this.topSide =
-        const DynamicBorderSide(color: Colors.red, width: Length(50)),
+        const DynamicBorderSides(colors: [Colors.red], width: Length(10, unit: LengthUnit.percent)),
     this.bottomSide =
-        const DynamicBorderSide(color: Colors.red, width: Length(10)),
+        const DynamicBorderSides(colors: [Colors.red,], width: Length(10, unit: LengthUnit.percent)),
     this.leftSide =
-        const DynamicBorderSide(color: Colors.red, width: Length(100)),
+        const DynamicBorderSides(colors: [Colors.red,], width: Length(5, unit: LengthUnit.percent)),
     this.rightSide =
-        const DynamicBorderSide(color: Colors.red, width: Length(10)),
+        const DynamicBorderSides(colors: [Colors.red,], width: Length(5, unit: LengthUnit.percent)),
   });
 
   RectangleShape copyWith(
@@ -59,13 +60,13 @@ class RectangleShape extends Shape {
         this.bottomLeftStyle = CornerStyle.rounded,
         this.bottomRightStyle = CornerStyle.rounded,
         this.topSide =
-            const DynamicBorderSide(color: Colors.red, width: Length(50)),
+            const DynamicBorderSides(colors: [Colors.red], width: Length(20)),
         this.bottomSide =
-            const DynamicBorderSide(color: Colors.red, width: Length(0)),
-        this.leftSide =
-            const DynamicBorderSide(color: Colors.red, width: Length(50)),
-        this.rightSide =
-            const DynamicBorderSide(color: Colors.red, width: Length(10));
+            const DynamicBorderSides(colors: [Colors.blue], width: Length(10)),
+        this.leftSide = const DynamicBorderSides(
+            colors: [Colors.green], width: Length(100)),
+        this.rightSide = const DynamicBorderSides(
+            colors: [Colors.yellow], width: Length(30));
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "RectangleShape"};
@@ -73,10 +74,13 @@ class RectangleShape extends Shape {
     return rst;
   }
 
-  int get sides => 4;
-
-  List<int> get sidesColorIndexList {
-    return [0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0];
+  List<Color> borderFillColors() {
+    List<Color> rst=[];
+    rst.addAll(topSide.colors.extendColors(3));
+    rst.addAll(rightSide.colors.extendColors(3));
+    rst.addAll(bottomSide.colors.extendColors(3));
+    rst.addAll(leftSide.colors.extendColors(3));
+    return rotateList(rst, 2).cast<Color>();
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
@@ -117,32 +121,20 @@ class RectangleShape extends Shape {
 
     double topTotal = topLeftRadius +
         topRightRadius +
-        (topLeftStyle != CornerStyle.rounded ? leftSideWidth : 0) +
-        (topRightStyle != CornerStyle.rounded ? rightSideWidth : 0);
+        (topLeftStyle != CornerStyle.rounded ? leftSideWidth : max(0, leftSideWidth-topLeftRadius)) +
+        (topRightStyle != CornerStyle.rounded ? rightSideWidth : max(0, rightSideWidth-topRightRadius));
     double bottomTotal = bottomLeftRadius +
         bottomRightRadius +
-        (bottomLeftStyle != CornerStyle.rounded ? leftSideWidth : 0) +
-        (bottomRightStyle != CornerStyle.rounded ? rightSideWidth : 0);
+        (bottomLeftStyle != CornerStyle.rounded ? leftSideWidth : max(0, leftSideWidth-bottomLeftRadius)) +
+        (bottomRightStyle != CornerStyle.rounded ? rightSideWidth : max(0, rightSideWidth-bottomRightRadius));
     double leftTotal = leftTopRadius +
         leftBottomRadius +
-        (topLeftStyle != CornerStyle.rounded ? topSideWidth : 0) +
-        (bottomLeftStyle != CornerStyle.rounded ? bottomSideWidth : 0);
+        (topLeftStyle != CornerStyle.rounded ? topSideWidth :  max(0, topSideWidth-leftTopRadius)) +
+        (bottomLeftStyle != CornerStyle.rounded ? bottomSideWidth : max(0, bottomSideWidth-leftBottomRadius));
     double rightTotal = rightTopRadius +
         rightBottomRadius +
-        (topRightStyle != CornerStyle.rounded ? topSideWidth : 0) +
-        (bottomRightStyle != CornerStyle.rounded ? bottomSideWidth : 0);
-
-    /*
-    double topTotal = max(leftSideWidth, topLeftRadius) +
-        max( rightSideWidth,topRightRadius);
-    double bottomTotal = max(leftSideWidth,bottomLeftRadius) +
-        max( rightSideWidth,bottomRightRadius);
-    double leftTotal =max( topSideWidth, leftTopRadius) +
-        max( bottomSideWidth,leftBottomRadius);
-    double rightTotal = max( topSideWidth, rightTopRadius) +
-        max( bottomSideWidth, rightBottomRadius);
-
-     */
+        (topRightStyle != CornerStyle.rounded ? topSideWidth : max(0, topSideWidth-rightTopRadius)) +
+        (bottomRightStyle != CornerStyle.rounded ? bottomSideWidth : max(0, bottomSideWidth-rightBottomRadius));
 
     if (topTotal > size.width || bottomTotal > size.width) {
       double total = max(topTotal, bottomTotal);
@@ -173,15 +165,17 @@ class RectangleShape extends Shape {
 
     switch (topRightStyle) {
       case CornerStyle.rounded:
-          nodes.add(DynamicNode(
-              position: Offset(right - max(topRightRadius, rightSideWidth), top + topSideWidth)));
-          nodes.arcTo(
-              Rect.fromCenter(
-                  center: Offset(right - max(topRightRadius, rightSideWidth), top + max(rightTopRadius, topSideWidth)),
-                  width: max(0, 2 * topRightRadius - 2 * rightSideWidth),
-                  height: max(0, 2 * rightTopRadius - 2 * topSideWidth)),
-              -pi / 2,
-              pi / 2);
+        nodes.add(DynamicNode(
+            position: Offset(right - max(topRightRadius, rightSideWidth),
+                top + topSideWidth)));
+        nodes.arcTo(
+            Rect.fromCenter(
+                center: Offset(right - max(topRightRadius, rightSideWidth),
+                    top + max(rightTopRadius, topSideWidth)),
+                width: max(0, 2 * topRightRadius - 2 * rightSideWidth),
+                height: max(0, 2 * rightTopRadius - 2 * topSideWidth)),
+            -pi / 2,
+            pi / 2);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -195,7 +189,7 @@ class RectangleShape extends Shape {
                 right - rightSideWidth, top + rightTopRadius + topSideWidth)));
         break;
       case CornerStyle.straight:
-        double angle = atan(rightTopRadius / max(topRightRadius,0.00000001));
+        double angle = atan(rightTopRadius / max(topRightRadius, 0.00000001));
         Offset start = Offset(
             right -
                 max(rightSideWidth,
@@ -296,17 +290,17 @@ class RectangleShape extends Shape {
 
     switch (bottomRightStyle) {
       case CornerStyle.rounded:
-          nodes.add(DynamicNode(
-              position:
-                  Offset(right - rightSideWidth, bottom - max(bottomSideWidth,rightBottomRadius))));
-          nodes.arcTo(
-              Rect.fromCenter(
-                  center: Offset(
-                      right - max(bottomRightRadius, rightSideWidth), bottom - max(rightBottomRadius, bottomSideWidth)),
-                  width: max(0, 2 * bottomRightRadius - 2 * rightSideWidth),
-                  height: max(0, 2 * rightBottomRadius - 2 * bottomSideWidth)),
-              0,
-              pi / 2);
+        nodes.add(DynamicNode(
+            position: Offset(right - rightSideWidth,
+                bottom - max(bottomSideWidth, rightBottomRadius))));
+        nodes.arcTo(
+            Rect.fromCenter(
+                center: Offset(right - max(bottomRightRadius, rightSideWidth),
+                    bottom - max(rightBottomRadius, bottomSideWidth)),
+                width: max(0, 2 * bottomRightRadius - 2 * rightSideWidth),
+                height: max(0, 2 * rightBottomRadius - 2 * bottomSideWidth)),
+            0,
+            pi / 2);
 
         break;
       case CornerStyle.cutout:
@@ -321,7 +315,8 @@ class RectangleShape extends Shape {
                 bottom - bottomSideWidth)));
         break;
       case CornerStyle.straight:
-        double angle = atan(rightBottomRadius / max(bottomRightRadius,0.00000001));
+        double angle =
+            atan(rightBottomRadius / max(bottomRightRadius, 0.00000001));
         Offset start = Offset(
             right - rightSideWidth,
             bottom -
@@ -427,17 +422,17 @@ class RectangleShape extends Shape {
 
     switch (bottomLeftStyle) {
       case CornerStyle.rounded:
-          nodes.add(DynamicNode(
-              position:
-                  Offset(left + max(leftSideWidth,bottomLeftRadius), bottom - bottomSideWidth)));
-          nodes.arcTo(
-              Rect.fromCenter(
-                  center: Offset(
-                      left + max(leftSideWidth,bottomLeftRadius), bottom - max(bottomSideWidth,leftBottomRadius)),
-                  width: max(0, 2 * bottomLeftRadius - 2 * leftSideWidth),
-                  height: max(0, 2 * leftBottomRadius - 2 * bottomSideWidth)),
-              pi / 2,
-              pi / 2);
+        nodes.add(DynamicNode(
+            position: Offset(left + max(leftSideWidth, bottomLeftRadius),
+                bottom - bottomSideWidth)));
+        nodes.arcTo(
+            Rect.fromCenter(
+                center: Offset(left + max(leftSideWidth, bottomLeftRadius),
+                    bottom - max(bottomSideWidth, leftBottomRadius)),
+                width: max(0, 2 * bottomLeftRadius - 2 * leftSideWidth),
+                height: max(0, 2 * leftBottomRadius - 2 * bottomSideWidth)),
+            pi / 2,
+            pi / 2);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -452,7 +447,7 @@ class RectangleShape extends Shape {
 
         break;
       case CornerStyle.straight:
-        double angle = atan(leftBottomRadius / max(bottomLeftRadius,0.000001));
+        double angle = atan(leftBottomRadius / max(bottomLeftRadius, 0.000001));
         Offset start = Offset(
             left +
                 max(leftSideWidth,
@@ -559,15 +554,17 @@ class RectangleShape extends Shape {
 
     switch (topLeftStyle) {
       case CornerStyle.rounded:
-          nodes.add(DynamicNode(
-              position: Offset(left + leftSideWidth, top + max(topSideWidth,leftTopRadius))));
-          nodes.arcTo(
-              Rect.fromCenter(
-                  center: Offset(left + max(leftSideWidth,topLeftRadius), top + max(topSideWidth,leftTopRadius)),
-                  width: max(0, 2 * topLeftRadius - 2 * leftSideWidth),
-                  height: max(0, 2 * leftTopRadius - 2 * topSideWidth)),
-              pi,
-              pi / 2);
+        nodes.add(DynamicNode(
+            position: Offset(
+                left + leftSideWidth, top + max(topSideWidth, leftTopRadius))));
+        nodes.arcTo(
+            Rect.fromCenter(
+                center: Offset(left + max(leftSideWidth, topLeftRadius),
+                    top + max(topSideWidth, leftTopRadius)),
+                width: max(0, 2 * topLeftRadius - 2 * leftSideWidth),
+                height: max(0, 2 * leftTopRadius - 2 * topSideWidth)),
+            pi,
+            pi / 2);
 
         break;
       case CornerStyle.cutout:
@@ -583,7 +580,7 @@ class RectangleShape extends Shape {
 
         break;
       case CornerStyle.straight:
-        double angle = atan(leftTopRadius / max(topLeftRadius,0.0000001));
+        double angle = atan(leftTopRadius / max(topLeftRadius, 0.0000001));
         Offset start = Offset(
             left + leftSideWidth,
             top +
@@ -715,20 +712,20 @@ class RectangleShape extends Shape {
 
     double topTotal = topLeftRadius +
         topRightRadius +
-        (topLeftStyle != CornerStyle.rounded ? leftSideWidth : 0) +
-        (topRightStyle != CornerStyle.rounded ? rightSideWidth : 0);
+        (topLeftStyle != CornerStyle.rounded ? leftSideWidth : max(0, leftSideWidth-topLeftRadius)) +
+        (topRightStyle != CornerStyle.rounded ? rightSideWidth : max(0, rightSideWidth-topRightRadius));
     double bottomTotal = bottomLeftRadius +
         bottomRightRadius +
-        (bottomLeftStyle != CornerStyle.rounded ? leftSideWidth : 0) +
-        (bottomRightStyle != CornerStyle.rounded ? rightSideWidth : 0);
+        (bottomLeftStyle != CornerStyle.rounded ? leftSideWidth : max(0, leftSideWidth-bottomLeftRadius)) +
+        (bottomRightStyle != CornerStyle.rounded ? rightSideWidth : max(0, rightSideWidth-bottomRightRadius));
     double leftTotal = leftTopRadius +
         leftBottomRadius +
-        (topLeftStyle != CornerStyle.rounded ? topSideWidth : 0) +
-        (bottomLeftStyle != CornerStyle.rounded ? bottomSideWidth : 0);
+        (topLeftStyle != CornerStyle.rounded ? topSideWidth :  max(0, topSideWidth-leftTopRadius)) +
+        (bottomLeftStyle != CornerStyle.rounded ? bottomSideWidth : max(0, bottomSideWidth-leftBottomRadius));
     double rightTotal = rightTopRadius +
         rightBottomRadius +
-        (topRightStyle != CornerStyle.rounded ? topSideWidth : 0) +
-        (bottomRightStyle != CornerStyle.rounded ? bottomSideWidth : 0);
+        (topRightStyle != CornerStyle.rounded ? topSideWidth : max(0, topSideWidth-rightTopRadius)) +
+        (bottomRightStyle != CornerStyle.rounded ? bottomSideWidth : max(0, bottomSideWidth-rightBottomRadius));
 
     if (topTotal > size.width || bottomTotal > size.width) {
       double total = max(topTotal, bottomTotal);

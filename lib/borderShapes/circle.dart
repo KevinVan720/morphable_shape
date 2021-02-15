@@ -4,17 +4,24 @@ import '../morphable_shape_border.dart';
 import 'dart:math';
 
 ///Circle shape with a start and sweep angle
-class CircleShape extends Shape {
+class CircleShape extends OutlinedShape {
   final double startAngle;
   final double sweepAngle;
   final DynamicBorderSide borderSide;
 
-  const CircleShape({this.startAngle = 0, this.sweepAngle = 2 * pi, this.borderSide=const DynamicBorderSide(width: Length(10), color: Colors.white70)});
+  const CircleShape(
+      {DynamicBorderSide border = DynamicBorderSide.none,
+      this.startAngle = 0,
+      this.sweepAngle = 2 * pi,
+      this.borderSide =
+          const DynamicBorderSide(width: Length(10), color: Colors.white70)})
+      : super(border: border);
 
   CircleShape.fromJson(Map<String, dynamic> map)
       : startAngle = map["startAngle"] ?? 0.0,
         sweepAngle = map["sweepAngle"] ?? (2 * pi),
-        this.borderSide=const DynamicBorderSide(width: Length(10), color: Colors.white70);
+        this.borderSide =
+            const DynamicBorderSide(width: Length(10), color: Colors.white70);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "CircleShape"};
@@ -41,11 +48,11 @@ class CircleShape extends Shape {
     double startAngle = this.startAngle.clamp(0.0, 2 * pi);
     double sweepAngle = this.sweepAngle.clamp(0, 2 * pi);
 
-    double borderWidth=borderSide.width.toPX(constraintSize: size.shortestSide);
+    double borderWidth =
+        borderSide.width.toPX(constraintSize: size.shortestSide);
 
-    double alpha=sweepAngle/2;
-    double l=borderWidth;
-
+    double alpha = sweepAngle / 2;
+    double l = borderWidth;
 
     nodes.arcTo(
         Rect.fromCenter(
