@@ -35,13 +35,7 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     startShape = widget.shape;
 
-    endShape = RectangleShape(
-      borderRadius: DynamicBorderRadius.only(
-          topRight: DynamicRadius.circular(100.toPercentLength),
-          bottomLeft: DynamicRadius.circular(50.toPercentLength)),
-      topRightStyle: CornerStyle.rounded,
-      //bottomLeftStyle: CornerStyle.cutout
-    );
+    endShape = CircleShape();
 
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: durationInSec));
@@ -155,8 +149,12 @@ class _MorphShapePageState extends State<MorphShapePage>
                           showControl
                               ? CustomPaint(
                                   painter: MorphControlPointsPainter(
-                                      DynamicPathMorph.lerpOuterPath(
-                                              t, shapeBorderTween.data)
+                                      DynamicPathMorph.lerpPaths(
+                                              t,
+                                              shapeBorderTween
+                                                  .data.beginOuterPath,
+                                              shapeBorderTween
+                                                  .data.endOuterPath)
                                           .nodes
                                           .map((e) => e.position)
                                           .toList()),
@@ -293,18 +291,24 @@ class _MorphShapePageState extends State<MorphShapePage>
 
 class MorphControlPointsPainter extends CustomPainter {
   List<Offset> controlPoints;
-  var myPaint;
 
-  MorphControlPointsPainter(this.controlPoints) {
-    myPaint = Paint();
-    myPaint.color = Color.fromRGBO(255, 0, 0, 1.0);
-    myPaint.style = PaintingStyle.fill;
-    myPaint.strokeWidth = 2.0;
-  }
+  MorphControlPointsPainter(this.controlPoints);
 
   @override
   void paint(Canvas canvas, Size size) {
+    var myPaint = Paint();
+    myPaint.color = Colors.red;
+    myPaint.style = PaintingStyle.fill;
+    myPaint.strokeWidth = 2.0;
     Path path = Path();
+    controlPoints.forEach((element) {
+      path.addOval(Rect.fromCircle(
+          center: element, radius: min(4, 300 / controlPoints.length)));
+    });
+    canvas.drawPath(path, myPaint);
+    myPaint.color = Colors.black;
+    myPaint.style = PaintingStyle.stroke;
+    myPaint.strokeWidth = 2.0;
     controlPoints.forEach((element) {
       path.addOval(Rect.fromCircle(
           center: element, radius: min(4, 300 / controlPoints.length)));

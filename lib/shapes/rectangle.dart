@@ -2,9 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:length_unit/dynamic_border_side.dart';
-import 'package:morphable_shape/linear_bezier.dart';
 
-import '../morphable_shape_border.dart';
+import '../morphable_shape.dart';
 import 'package:vector_math/vector_math.dart' hide Colors;
 import 'package:bezier/bezier.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
@@ -15,10 +14,12 @@ class RectangleShape extends FilledBorderShape {
   final CornerStyle topRightStyle;
   final CornerStyle bottomLeftStyle;
   final CornerStyle bottomRightStyle;
-  final DynamicBorderSides leftSide;
-  final DynamicBorderSides rightSide;
-  final DynamicBorderSides topSide;
-  final DynamicBorderSides bottomSide;
+
+  final DynamicBorderSide leftBorder;
+  final DynamicBorderSide rightBorder;
+  final DynamicBorderSide topBorder;
+  final DynamicBorderSide bottomBorder;
+
   final DynamicBorderRadius borderRadius;
 
   const RectangleShape({
@@ -28,29 +29,11 @@ class RectangleShape extends FilledBorderShape {
     this.topRightStyle = CornerStyle.rounded,
     this.bottomLeftStyle = CornerStyle.rounded,
     this.bottomRightStyle = CornerStyle.rounded,
-    this.topSide =
-        const DynamicBorderSides(colors: [Colors.red], width: Length(10, unit: LengthUnit.percent)),
-    this.bottomSide =
-        const DynamicBorderSides(colors: [Colors.red,], width: Length(10, unit: LengthUnit.percent)),
-    this.leftSide =
-        const DynamicBorderSides(colors: [Colors.red,], width: Length(5, unit: LengthUnit.percent)),
-    this.rightSide =
-        const DynamicBorderSides(colors: [Colors.red,], width: Length(5, unit: LengthUnit.percent)),
+    this.topBorder = defaultBorder,
+    this.bottomBorder = defaultBorder,
+    this.leftBorder = defaultBorder,
+    this.rightBorder = defaultBorder,
   });
-
-  RectangleShape copyWith(
-      {CornerStyle? topLeft,
-      CornerStyle? topRight,
-      CornerStyle? bottomLeft,
-      CornerStyle? bottomRight,
-      DynamicBorderRadius? borderRadius}) {
-    return RectangleShape(
-        topLeftStyle: topLeft ?? this.topLeftStyle,
-        topRightStyle: topRight ?? this.topRightStyle,
-        bottomLeftStyle: bottomLeft ?? this.bottomLeftStyle,
-        bottomRightStyle: bottomRight ?? this.bottomRightStyle,
-        borderRadius: borderRadius ?? this.borderRadius);
-  }
 
   RectangleShape.fromJson(Map<String, dynamic> map)
       : borderRadius = parseDynamicBorderRadius(map["borderRadius"]) ??
@@ -59,39 +42,71 @@ class RectangleShape extends FilledBorderShape {
         this.topRightStyle = CornerStyle.rounded,
         this.bottomLeftStyle = CornerStyle.rounded,
         this.bottomRightStyle = CornerStyle.rounded,
-        this.topSide =
-            const DynamicBorderSides(colors: [Colors.red], width: Length(20)),
-        this.bottomSide =
-            const DynamicBorderSides(colors: [Colors.blue], width: Length(10)),
-        this.leftSide = const DynamicBorderSides(
-            colors: [Colors.green], width: Length(100)),
-        this.rightSide = const DynamicBorderSides(
-            colors: [Colors.yellow], width: Length(30));
+        this.topBorder =
+            parseDynamicBorderSide(map["topBorder"]) ?? defaultBorder,
+        this.bottomBorder =
+            parseDynamicBorderSide(map["bottomBorder"]) ?? defaultBorder,
+        this.leftBorder =
+            parseDynamicBorderSide(map["leftBorder"]) ?? defaultBorder,
+        this.rightBorder =
+            parseDynamicBorderSide(map["rightBorder"]) ?? defaultBorder;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "RectangleShape"};
     rst["borderRadius"] = borderRadius.toJson();
+    rst["topLeftStyle"] = topLeftStyle.toJson();
+    rst["topRightStyle"] = topRightStyle.toJson();
+    rst["bottomLeftStyle"] = bottomLeftStyle.toJson();
+    rst["bottomRightStyle"] = bottomRightStyle.toJson();
+    rst["leftBorder"] = leftBorder.toJson();
+    rst["rightBorder"] = rightBorder.toJson();
+    rst["topBorder"] = topBorder.toJson();
+    rst["bottomBorder"] = bottomBorder.toJson();
     return rst;
   }
 
+  RectangleShape copyWith(
+      {CornerStyle? topLeft,
+      CornerStyle? topRight,
+      CornerStyle? bottomLeft,
+      CornerStyle? bottomRight,
+      DynamicBorderSide? topBorder,
+      DynamicBorderSide? bottomBorder,
+      DynamicBorderSide? leftBorder,
+      DynamicBorderSide? rightBorder,
+      DynamicBorderRadius? borderRadius}) {
+    return RectangleShape(
+        topBorder: topBorder ?? this.topBorder,
+        bottomBorder: bottomBorder ?? this.bottomBorder,
+        leftBorder: leftBorder ?? this.leftBorder,
+        rightBorder: rightBorder ?? this.rightBorder,
+        topLeftStyle: topLeft ?? this.topLeftStyle,
+        topRightStyle: topRight ?? this.topRightStyle,
+        bottomLeftStyle: bottomLeft ?? this.bottomLeftStyle,
+        bottomRightStyle: bottomRight ?? this.bottomRightStyle,
+        borderRadius: borderRadius ?? this.borderRadius);
+  }
+
   List<Color> borderFillColors() {
-    List<Color> rst=[];
-    rst.addAll(topSide.colors.extendColors(3));
-    rst.addAll(rightSide.colors.extendColors(3));
-    rst.addAll(bottomSide.colors.extendColors(3));
-    rst.addAll(leftSide.colors.extendColors(3));
+    List<Color> rst = [];
+    rst.addAll(List.generate(3, (index) => topBorder.color));
+    rst.addAll(List.generate(3, (index) => rightBorder.color));
+    rst.addAll(List.generate(3, (index) => bottomBorder.color));
+    rst.addAll(List.generate(3, (index) => leftBorder.color));
     return rotateList(rst, 2).cast<Color>();
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
     Size size = rect.size;
 
-    double leftSideWidth = this.leftSide.width.toPX(constraintSize: size.width);
+    double leftSideWidth =
+        this.leftBorder.width.toPX(constraintSize: size.width);
     double rightSideWidth =
-        this.rightSide.width.toPX(constraintSize: size.width);
-    double topSideWidth = this.topSide.width.toPX(constraintSize: size.height);
+        this.rightBorder.width.toPX(constraintSize: size.width);
+    double topSideWidth =
+        this.topBorder.width.toPX(constraintSize: size.height);
     double bottomSideWidth =
-        this.bottomSide.width.toPX(constraintSize: size.height);
+        this.bottomBorder.width.toPX(constraintSize: size.height);
 
     if (leftSideWidth + rightSideWidth > size.width) {
       double ratio = leftSideWidth / (leftSideWidth + rightSideWidth);
@@ -689,12 +704,14 @@ class RectangleShape extends FilledBorderShape {
     final double bottom = rect.bottom;
     final double right = rect.right;
 
-    double leftSideWidth = this.leftSide.width.toPX(constraintSize: size.width);
+    double leftSideWidth =
+        this.leftBorder.width.toPX(constraintSize: size.width);
     double rightSideWidth =
-        this.rightSide.width.toPX(constraintSize: size.width);
-    double topSideWidth = this.topSide.width.toPX(constraintSize: size.height);
+        this.rightBorder.width.toPX(constraintSize: size.width);
+    double topSideWidth =
+        this.topBorder.width.toPX(constraintSize: size.height);
     double bottomSideWidth =
-        this.bottomSide.width.toPX(constraintSize: size.height);
+        this.bottomBorder.width.toPX(constraintSize: size.height);
 
     BorderRadius borderRadius = this.borderRadius.toBorderRadius(size: size);
 
@@ -709,6 +726,7 @@ class RectangleShape extends FilledBorderShape {
 
     double rightTopRadius = borderRadius.topRight.y;
     double rightBottomRadius = borderRadius.bottomRight.y;
+
 
     double topTotal = topLeftRadius +
         topRightRadius +
@@ -726,6 +744,8 @@ class RectangleShape extends FilledBorderShape {
         rightBottomRadius +
         (topRightStyle != CornerStyle.rounded ? topSideWidth : max(0, topSideWidth-rightTopRadius)) +
         (bottomRightStyle != CornerStyle.rounded ? bottomSideWidth : max(0, bottomSideWidth-rightBottomRadius));
+
+
 
     if (topTotal > size.width || bottomTotal > size.width) {
       double total = max(topTotal, bottomTotal);

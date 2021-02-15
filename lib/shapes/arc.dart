@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../morphable_shape_border.dart';
+import '../morphable_shape.dart';
 
 ///A rectangle with one side replaced by an arc with a certain height
 class ArcShape extends OutlinedShape {
@@ -10,7 +10,7 @@ class ArcShape extends OutlinedShape {
   final bool isOutward;
 
   const ArcShape({
-    DynamicBorderSide border=DynamicBorderSide.none,
+    DynamicBorderSide border=defaultBorder,
     this.side = ShapeSide.bottom,
     this.isOutward = true,
     this.arcHeight = const Length(20),
@@ -19,13 +19,16 @@ class ArcShape extends OutlinedShape {
   ArcShape.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
         isOutward = map["isOutward"],
-        arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20);
+        arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20),
+  super(border: parseDynamicBorderSide(map["side"])??defaultBorder);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "ArcShape"};
+    rst.addAll(super.toJson());
     rst["arcHeight"] = arcHeight.toJson();
     rst["isOutward"] = isOutward;
     rst["side"] = side.toJson();
+
     return rst;
   }
 

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../morphable_shape_border.dart';
+import '../morphable_shape.dart';
 
 ///Bubble shape, with a triangular tip and equal radius rounded corner
 class BubbleShape extends OutlinedShape {
@@ -16,7 +16,7 @@ class BubbleShape extends OutlinedShape {
   final Length arrowHeadPosition;
 
   const BubbleShape({
-    DynamicBorderSide border=DynamicBorderSide.none,
+    DynamicBorderSide border=defaultBorder,
     this.corner = ShapeCorner.bottomRight,
     this.borderRadius = const Length(6),
     this.arrowHeight = const Length(20, unit: LengthUnit.percent),
@@ -24,6 +24,31 @@ class BubbleShape extends OutlinedShape {
     this.arrowCenterPosition = const Length(50, unit: LengthUnit.percent),
     this.arrowHeadPosition = const Length(50, unit: LengthUnit.percent),
   }) : super(border: border);
+
+  BubbleShape.fromJson(Map<String, dynamic> map)
+      : corner = parseShapeCorner(map["corner"]) ?? ShapeCorner.bottomRight,
+        borderRadius = Length.fromJson(map["borderRadius"]) ?? Length(6),
+        arrowHeight =
+            Length.fromJson(map["arrowHeight"]) ?? 20.0.toPercentLength,
+        arrowWidth = Length.fromJson(map["arrowWidth"]) ?? 30.0.toPercentLength,
+        arrowCenterPosition =
+            Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
+        arrowHeadPosition =
+            Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength,
+        super(border: parseDynamicBorderSide(map["side"])??defaultBorder);
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> rst = {"type": "BubbleShape"};
+    rst.addAll(super.toJson());
+    rst["corner"] = corner.toJson();
+    rst["borderRadius"] = borderRadius.toJson();
+    rst["arrowHeight"] = arrowHeight.toJson();
+    rst["arrowWidth"] = arrowWidth.toJson();
+    rst["arrowCenterPosition"] = arrowCenterPosition.toJson();
+    rst["arrowHeadPosition"] = arrowHeadPosition.toJson();
+
+    return rst;
+  }
 
   BubbleShape copyWith({
     ShapeCorner? corner,
@@ -43,27 +68,7 @@ class BubbleShape extends OutlinedShape {
     );
   }
 
-  BubbleShape.fromJson(Map<String, dynamic> map)
-      : corner = parseShapeCorner(map["corner"]) ?? ShapeCorner.bottomRight,
-        borderRadius = Length.fromJson(map["borderRadius"]) ?? Length(6),
-        arrowHeight =
-            Length.fromJson(map["arrowHeight"]) ?? 20.0.toPercentLength,
-        arrowWidth = Length.fromJson(map["arrowWidth"]) ?? 30.0.toPercentLength,
-        arrowCenterPosition =
-            Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
-        arrowHeadPosition =
-            Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength;
 
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "BubbleShape"};
-    rst["corner"] = corner.toJson();
-    rst["borderRadius"] = borderRadius.toJson();
-    rst["arrowHeight"] = arrowHeight.toJson();
-    rst["arrowWidth"] = arrowWidth.toJson();
-    rst["arrowCenterPosition"] = arrowCenterPosition.toJson();
-    rst["arrowHeadPosition"] = arrowHeadPosition.toJson();
-    return rst;
-  }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;

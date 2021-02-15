@@ -1,6 +1,5 @@
-import 'package:bezier/bezier.dart';
 import 'package:flutter/material.dart';
-import 'morphable_shape_border.dart';
+import 'morphable_shape.dart';
 import 'dart:math';
 
 ///Maybe used in the future to help editing DynamicPath
@@ -38,6 +37,7 @@ class DynamicPath {
   Size size;
   List<DynamicNode> nodes;
 
+  ///if the bounding box does not change, return the stored path in getPath();
   Path? _path;
 
   DynamicPath({required this.size, required this.nodes}) {
@@ -75,7 +75,8 @@ class DynamicPath {
       iteration++;
     }
 
-    ///Effectively force the points and control points within the bounding rect
+    ///Effectively force the points and control points to all lie within the bounding rect
+    ///also round the offsets by a fixed precision
     for (int index = 0; index < nodes.length; index++) {
       moveNodeBy(index, Offset.zero);
       nodes[index].position =
@@ -87,6 +88,7 @@ class DynamicPath {
     }
 
     /// combine points that lie very close
+    /// not done here because FilledBorderShape needs to access the overlapping point information
     //removeOverlappingNodes();
   }
 
@@ -129,6 +131,9 @@ class DynamicPath {
     return rst;
   }
 
+  ///used to try implement multi colored borders
+  ///does not work great with concave shapes
+  /*
   Offset getCenterOfMass() {
     Offset center = Offset.zero;
     nodes.forEach((element) {
@@ -162,6 +167,7 @@ class DynamicPath {
       }
     });
   }
+  */
 
   void resize(Size newSize) {
     nodes.forEach((element) {
@@ -396,9 +402,6 @@ class DynamicPath {
 
       _path = path;
       return path;
-      //final Matrix4 matrix4 = Matrix4.identity();
-      //matrix4.scale(newSize.width / size.width, newSize.height / size.height);
-      //return path.transform(matrix4.storage);
     }
   }
 
@@ -487,9 +490,6 @@ class DynamicPath {
     matrix4.scale(newSize.width / size.width, newSize.height / size.height);
     return rst.map((e) => e.transform(matrix4.storage)).toList();
   }
-
-
-   */
 
   double getInnerDirection(Offset start, double direction) {
     if (!this
@@ -691,12 +691,15 @@ class DynamicPath {
     }
   }
 
+   */
+
+  ///give a rough estimation of the length of a cubic Bezier path
   static double estimateCubicLength(List<Offset> controlPoints) {
     Offset x0 = controlPoints[0];
     Offset x1 = controlPoints[1];
     Offset x2 = controlPoints[2];
     Offset x3 = controlPoints[3];
-    if((x0-x3).distance<0.0001) return (x0-x3).distance;
+    if ((x0 - x3).distance < 0.0001) return (x0 - x3).distance;
     return ((x3 - x0).distance +
             (x1 - x0).distance +
             (x2 - x1).distance +

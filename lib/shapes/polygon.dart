@@ -1,34 +1,34 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/dynamic_path_morph.dart';
 
-import '../morphable_shape_border.dart';
+import '../morphable_shape.dart';
 
-class PolygonShape extends FilledBorderShape {
+class PolygonShape extends OutlinedShape {
   final int sides;
   final Length cornerRadius;
   final CornerStyle cornerStyle;
-  final DynamicBorderSides borderSides;
 
   const PolygonShape(
       {this.sides = 5,
       this.cornerStyle = CornerStyle.rounded,
       this.cornerRadius = const Length(0),
-      this.borderSides =
-          const DynamicBorderSides(width: Length(10), colors: [Colors.black])})
-      : assert(sides >= 3);
+      border = defaultBorder})
+      : assert(sides >= 3),
+        super(border: border);
 
   PolygonShape.fromJson(Map<String, dynamic> map)
       : cornerStyle =
             parseCornerStyle(map["cornerStyle"]) ?? CornerStyle.rounded,
         cornerRadius = Length.fromJson(map["cornerRadius"]) ?? Length(0),
         sides = map["sides"] ?? 5,
-        this.borderSides =
-            const DynamicBorderSides(width: Length(10), colors: [Colors.black]);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                defaultBorder);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "PolygonShape"};
+    rst.addAll(super.toJson());
     rst["sides"] = sides;
     rst["cornerRadius"] = cornerRadius.toJson();
     rst["cornerStyle"] = cornerStyle.toJson();
@@ -39,59 +39,57 @@ class PolygonShape extends FilledBorderShape {
     CornerStyle? cornerStyle,
     Length? cornerRadius,
     int? sides,
+    DynamicBorderSide? border,
   }) {
     return PolygonShape(
+      border: border ?? this.border,
       cornerStyle: cornerStyle ?? this.cornerStyle,
       sides: sides ?? this.sides,
       cornerRadius: cornerRadius ?? this.cornerRadius,
     );
   }
 
-  @override
+  /*
   List<Color> borderFillColors() {
-    int totalLength =
-        generateOuterDynamicPath(Rect.fromLTRB(0, 0, 100, 100)).nodes.length;
-    int eachSide = (totalLength / sides).round();
-    return [
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-      Colors.red,
-    ];
-    //return rotateList(List.generate(totalLength, (index) => (index/eachSide).floor()), (eachSide/2).round()).cast<int>();
+    //int totalLength =
+    //    generateOuterDynamicPath(Rect.fromLTRB(0, 0, 100, 100)).nodes.length;
+    int eachSide=3;
+    List<Color> colors = borderSides.colors.extendColors(sides);
+    List<Color> rst = [];
+    colors.forEach((element) {
+      rst.addAll(List.generate(eachSide, (index) => element));
+    });
+    return rotateList(rst, -((eachSide - 1) / 2).round()).cast<Color>();
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
     double scale = min(rect.width, rect.height);
-    double borderWidth = borderSides.width.toPX(constraintSize: scale);
-    List<DynamicNode> nodes = [];
-
-    double cornerRadius =
-        this.cornerRadius.toPX(constraintSize: scale) - borderWidth;
-
     final height = scale;
     final width = scale;
-
     final double section = (2.0 * pi / sides);
-    final double polygonSize = min(width, height);
-    final double radius = polygonSize / 2 - borderWidth / sin(section / 2);
+    final double alpha=pi/2-section/2;
+
+    double borderWidth = borderSides.width.toPX(constraintSize: scale).clamp(0.0, scale/2 * cos(section / 2));
+    double radius = scale / 2 - borderWidth / sin(alpha);
     final double centerX = width / 2;
     final double centerY = height / 2;
 
-    radius.clamp(0.0, polygonSize / 2);
+    List<DynamicNode> nodes = [];
+
+    double cornerRadius=this.cornerRadius.toPX(constraintSize: scale);
+    if(cornerStyle==CornerStyle.rounded) {
+      cornerRadius=cornerRadius - borderWidth;
+    }else if(cornerStyle==CornerStyle.cutout){
+      cornerRadius=cornerRadius + borderWidth/tan(section);
+    }else{
+      cornerRadius=cornerRadius*(scale/2-cornerRadius/tan(alpha)*cos(alpha)-borderWidth)/(scale/2-cornerRadius/tan(alpha)*cos(alpha));
+    }
+
+
+    radius = radius.clamp(0.0, scale / 2);
     cornerRadius = cornerRadius.clamp(0.0, radius * cos(section / 2));
 
-    double arcCenterRadius = radius - cornerRadius / sin(pi / 2 - section / 2);
+    double arcCenterRadius = radius - cornerRadius / sin(alpha);
 
     double startAngle = -pi / 2;
 
@@ -134,6 +132,7 @@ class PolygonShape extends FilledBorderShape {
               -(2 * pi - section));
           break;
         case CornerStyle.straight:
+          nodes.add(DynamicNode(position: (start+end)/2));
           nodes.add(DynamicNode(position: end));
           break;
         case CornerStyle.cutout:
@@ -147,6 +146,8 @@ class PolygonShape extends FilledBorderShape {
     return DynamicPath(size: Size(width, height), nodes: nodes)
       ..resize(rect.size);
   }
+
+   */
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
@@ -208,6 +209,7 @@ class PolygonShape extends FilledBorderShape {
               -(2 * pi - section));
           break;
         case CornerStyle.straight:
+          nodes.add(DynamicNode(position: (start + end) / 2));
           nodes.add(DynamicNode(position: end));
           break;
         case CornerStyle.cutout:

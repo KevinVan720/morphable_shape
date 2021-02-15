@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/parse_json.dart';
-
-import 'morphable_shape_border.dart';
+import 'morphable_shape.dart';
 
 CornerStyle? parseCornerStyle(String? string) {
   if (string == null) return null;
@@ -75,8 +74,8 @@ Shape? parseShape(Map<String, dynamic>? map) {
   switch (shapeName) {
     case "ArcShape":
       return ArcShape.fromJson(map);
-    //case "ArrowShape":
-    //  return ArrowShape.fromJson(map);
+    case "ArrowShape":
+      return ArrowShape.fromJson(map);
     case "BubbleShape":
       return BubbleShape.fromJson(map);
     case "CircleShape":
@@ -87,8 +86,8 @@ Shape? parseShape(Map<String, dynamic>? map) {
       return RectangleShape.fromJson(map);
     case "StarShape":
       return StarShape.fromJson(map);
-    //case "TrapezoidShape":
-    //  return TrapezoidShape.fromJson(map);
+    case "TrapezoidShape":
+      return TrapezoidShape.fromJson(map);
     case "TriangleShape":
       return TriangleShape.fromJson(map);
     default:
@@ -102,7 +101,5 @@ MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
     shape: parseShape(map["shape"]) ??
         RectangleShape(
             borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
-    //borderWidth: map["borderWidth"] ?? 0.0,
-    //borderColor: parseColor(map["borderColor"]) ?? Colors.black,
   );
 }

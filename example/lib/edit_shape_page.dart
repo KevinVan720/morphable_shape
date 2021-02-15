@@ -4,8 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/borderShapes/bubble.dart';
-import 'package:morphable_shape/borderShapes/circle.dart';
+
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/morphable_shape_border.dart';
 
@@ -72,8 +71,8 @@ class EditShapePageState extends State<EditShapePage>
       MorphableShapeBorder shapeBorder;
 
       shapeBorder = MorphableShapeBorder(
-          shape: currentShape,
-          );
+        shape: currentShape,
+      );
 
       List<Widget> stackedComponents = [
         Container(
@@ -302,9 +301,9 @@ class EditShapePageState extends State<EditShapePage>
     if (currentShape is ArcShape) {
       stackedComponents.addAll(buildArcEditingWidgets(currentShape));
     }
-    //if (currentShape is ArrowShape) {
-    //  stackedComponents.addAll(buildArrowEditingWidgets(currentShape));
-    //}
+    if (currentShape is ArrowShape) {
+      stackedComponents.addAll(buildArrowEditingWidgets(currentShape));
+    }
     if (currentShape is BubbleShape) {
       stackedComponents.addAll(buildBubbleEditingWidgets(currentShape));
     }
@@ -327,9 +326,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildStarEditingWidgets(currentShape));
     }
 
-    //if (currentShape is TrapezoidShape) {
-    //  stackedComponents.addAll(buildTrapezoidEditingWidgets(currentShape));
-    //}
+    if (currentShape is TrapezoidShape) {
+      stackedComponents.addAll(buildTrapezoidEditingWidgets(currentShape));
+    }
 
     if (currentShape is TriangleShape) {
       stackedComponents.addAll(buildTriangleEditingWidgets(currentShape));
@@ -345,9 +344,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildArcEditingPanelWidget(currentShape));
     }
 
-    //if (currentShape is ArrowShape) {
-    //  stackedComponents.addAll(buildArrowEditingPanelWidget(currentShape));
-    //}
+    if (currentShape is ArrowShape) {
+      stackedComponents.addAll(buildArrowEditingPanelWidget(currentShape));
+    }
 
     if (currentShape is BubbleShape) {
       stackedComponents.addAll(buildBubbleEditingPanelWidget(currentShape));
@@ -373,9 +372,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildStarEditingPanelWidget(currentShape));
     }
 
-    //if (currentShape is TrapezoidShape) {
-    //  stackedComponents.addAll(buildTrapezoidEditingPanelWidget(currentShape));
-    //}
+    if (currentShape is TrapezoidShape) {
+      stackedComponents.addAll(buildTrapezoidEditingPanelWidget(currentShape));
+    }
 
     if (currentShape is TriangleShape) {
       stackedComponents.addAll(buildTriangleEditingPanelWidget(currentShape));
@@ -409,8 +408,9 @@ class EditShapePageState extends State<EditShapePage>
                 onPressed: () {
                   setState(() {
                     updateCurrentShape(PathShape(
-                        path: currentShape.generateOuterDynamicPath(Rect.fromLTRB(
-                            0, 0, shapeSize.width, shapeSize.height))));
+                        path: currentShape.generateOuterDynamicPath(
+                            Rect.fromLTRB(
+                                0, 0, shapeSize.width, shapeSize.height))));
                   });
                 }),
           )));
@@ -790,7 +790,6 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  /*
   List<Widget> buildArrowEditingWidgets(ArrowShape shape) {
     List<Widget> nodeControls = [];
 
@@ -882,8 +881,6 @@ class EditShapePageState extends State<EditShapePage>
 
     return nodeControls;
   }
-
-   */
 
   List<Widget> buildCircleEditingWidgets(CircleShape shape) {
     List<Widget> nodeControls = [];
@@ -1568,7 +1565,6 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  /*
   List<Widget> buildTrapezoidEditingWidgets(TrapezoidShape shape) {
     List<Widget> nodeControls = [];
 
@@ -1627,7 +1623,7 @@ class EditShapePageState extends State<EditShapePage>
 
     return nodeControls;
   }
- */
+
   List<Widget> buildTriangleEditingWidgets(TriangleShape shape) {
     List<Widget> nodeControls = [];
 
@@ -1704,7 +1700,6 @@ class EditShapePageState extends State<EditShapePage>
 
     return nodeControls;
   }
-
 
   Widget buildRowWithHeaderText({String headerText, Widget actionWidget}) {
     return Container(
@@ -1900,10 +1895,40 @@ class EditShapePageState extends State<EditShapePage>
       ),
     ));
 
+    rst.add(buildRowWithHeaderText(
+        headerText: "Border Width",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            sliderValue: shape.border.width,
+            valueChanged: (value) {
+              setState(() {
+                updateCurrentShape(shape.copyWith(
+                    border: shape.border.copyWith(width: value)));
+              });
+            },
+            constraintSize: min(size.width, size.height),
+            min: 0,
+            max: 20,
+            divisions: 20,
+            allowedUnits: ["px", "%"],
+          ),
+        )));
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Border Color",
+        actionWidget: BottomSheetColorPicker(
+          currentColor: shape.border.color,
+          valueChanged: (value) {
+            setState(() {
+              updateCurrentShape(
+                  shape.copyWith(border: shape.border.copyWith(color: value)));
+            });
+          },
+        )));
+
     return rst;
   }
 
-  /*
   List<Widget> buildArrowEditingPanelWidget(ArrowShape shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
@@ -1955,8 +1980,6 @@ class EditShapePageState extends State<EditShapePage>
 
     return rst;
   }
-
-   */
 
   List<Widget> buildBubbleEditingPanelWidget(BubbleShape shape) {
     Size size = shapeSize;
@@ -2403,6 +2426,170 @@ class EditShapePageState extends State<EditShapePage>
       ],
     ));
 
+    rst.add(Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Top Border:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+        buildRowWithHeaderText(
+            headerText: "Width",
+            actionWidget: Expanded(
+              child: LengthSlider(
+                sliderValue: shape.topBorder.width,
+                valueChanged: (value) {
+                  setState(() {
+                    updateCurrentShape(shape.copyWith(
+                        topBorder: shape.topBorder.copyWith(width: value)));
+                  });
+                },
+                constraintSize: size.height,
+                min: 0,
+                max: 20,
+                divisions: 20,
+                allowedUnits: ["px", "%"],
+              ),
+            )),
+        buildRowWithHeaderText(
+            headerText: "Color",
+            actionWidget: BottomSheetColorPicker(
+              currentColor: shape.topBorder.color,
+              valueChanged: (value) {
+                setState(() {
+                  updateCurrentShape(
+                      shape.copyWith(topBorder: shape.topBorder.copyWith(color: value)));
+                });
+              },
+            ))
+      ],
+    ));
+
+    rst.add(Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Right Border:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+        buildRowWithHeaderText(
+            headerText: "Width",
+            actionWidget: Expanded(
+              child: LengthSlider(
+                sliderValue: shape.rightBorder.width,
+                valueChanged: (value) {
+                  setState(() {
+                    updateCurrentShape(shape.copyWith(
+                        rightBorder: shape.rightBorder.copyWith(width: value)));
+                  });
+                },
+                constraintSize: size.width,
+                min: 0,
+                max: 20,
+                divisions: 20,
+                allowedUnits: ["px", "%"],
+              ),
+            )),
+        buildRowWithHeaderText(
+            headerText: "Color",
+            actionWidget: BottomSheetColorPicker(
+              currentColor: shape.rightBorder.color,
+              valueChanged: (value) {
+                setState(() {
+                  updateCurrentShape(
+                      shape.copyWith(rightBorder: shape.rightBorder.copyWith(color: value)));
+                });
+              },
+            ))
+      ],
+    ));
+
+    rst.add(Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Bottom Border:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+        buildRowWithHeaderText(
+            headerText: "Width",
+            actionWidget: Expanded(
+              child: LengthSlider(
+                sliderValue: shape.bottomBorder.width,
+                valueChanged: (value) {
+                  setState(() {
+                    updateCurrentShape(shape.copyWith(
+                        bottomBorder: shape.bottomBorder.copyWith(width: value)));
+                  });
+                },
+                constraintSize: size.height,
+                min: 0,
+                max: 20,
+                divisions: 20,
+                allowedUnits: ["px", "%"],
+              ),
+            )),
+        buildRowWithHeaderText(
+            headerText: "Color",
+            actionWidget: BottomSheetColorPicker(
+              currentColor: shape.bottomBorder.color,
+              valueChanged: (value) {
+                setState(() {
+                  updateCurrentShape(
+                      shape.copyWith(bottomBorder: shape.bottomBorder.copyWith(color: value)));
+                });
+              },
+            ))
+      ],
+    ));
+
+    rst.add(Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Left Border:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+        buildRowWithHeaderText(
+            headerText: "Width",
+            actionWidget: Expanded(
+              child: LengthSlider(
+                sliderValue: shape.leftBorder.width,
+                valueChanged: (value) {
+                  setState(() {
+                    updateCurrentShape(shape.copyWith(
+                        leftBorder: shape.leftBorder.copyWith(width: value)));
+                  });
+                },
+                constraintSize: size.height,
+                min: 0,
+                max: 20,
+                divisions: 20,
+                allowedUnits: ["px", "%"],
+              ),
+            )),
+        buildRowWithHeaderText(
+            headerText: "Color",
+            actionWidget: BottomSheetColorPicker(
+              currentColor: shape.leftBorder.color,
+              valueChanged: (value) {
+                setState(() {
+                  updateCurrentShape(
+                      shape.copyWith(leftBorder: shape.leftBorder.copyWith(color: value)));
+                });
+              },
+            ))
+      ],
+    ));
+
     return rst;
   }
 
@@ -2509,7 +2696,6 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  /*
   List<Widget> buildTrapezoidEditingPanelWidget(TrapezoidShape shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
@@ -2545,8 +2731,6 @@ class EditShapePageState extends State<EditShapePage>
 
     return rst;
   }
-
-   */
 
   List<Widget> buildTriangleEditingPanelWidget(TriangleShape shape) {
     Size size = shapeSize;

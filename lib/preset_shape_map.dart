@@ -1,6 +1,6 @@
 import 'package:length_unit/length_unit.dart';
 
-import 'morphable_shape_border.dart';
+import 'morphable_shape.dart';
 
 const Map<String, Shape> presetShapeMap = {
   "Circle": const CircleShape(),
@@ -44,10 +44,10 @@ const Map<String, Shape> presetShapeMap = {
       side: ShapeSide.top, arcHeight: Length(20, unit: LengthUnit.percent)),
   "ArcBottom": const ArcShape(
       side: ShapeSide.bottom, arcHeight: Length(20, unit: LengthUnit.percent)),
-  //"ArrowRight": const ArrowShape(),
-  //"ArrowLeft": const ArrowShape(side: ShapeSide.left),
-  //"Trapezoid": const TrapezoidShape(),
-  //"TrapezoidBottom": const TrapezoidShape(side: ShapeSide.top),
+  "ArrowRight": const ArrowShape(),
+  "ArrowLeft": const ArrowShape(side: ShapeSide.left),
+  "Trapezoid": const TrapezoidShape(),
+  "TrapezoidBottom": const TrapezoidShape(side: ShapeSide.top),
   "Polygon3": const PolygonShape(sides: 3),
   "Polygon5": const PolygonShape(sides: 5),
   "Polygon6": const PolygonShape(sides: 6),

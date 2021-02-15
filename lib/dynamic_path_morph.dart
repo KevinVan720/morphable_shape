@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/painting.dart';
 import 'dart:math';
-import 'morphable_shape_border.dart';
+import 'morphable_shape.dart';
 
 enum MorphMethod {
   auto,
@@ -16,28 +16,31 @@ enum MorphMethod {
 ///supplyCounts are used to make two dynamic paths becoming equal length, they are
 ///initialized when the morphing first starts and does not change afterwards
 ///even if the bounding box changes size.
-class SampledDynamicPathData {
+class MorphShapeData {
   Shape begin;
   Shape end;
 
-  late DynamicPath outerPath1;
-  late DynamicPath outerPath2;
+  ///outer path of the shapes, used to calculate the morphing
+  late DynamicPath beginOuterPath;
+  late DynamicPath endOuterPath;
 
-  late DynamicPath innerPath1;
-  late DynamicPath innerPath2;
+  ///used to morph FilledBorderShape
+  BorderPaths? beginPaths;
+  BorderPaths? endPaths;
+
   Rect boundingBox;
 
-  MorphMethod method;
   List<int>? supplyCounts1;
   List<int>? supplyCounts2;
   int? minimumShift;
 
-  SampledDynamicPathData(
+  MorphMethod method;
+
+  MorphShapeData(
       {required this.begin,
       required this.end,
       required this.boundingBox,
       this.method = MorphMethod.auto});
-
 }
 
 ///Class for controlling the morphing of two shapes
@@ -61,81 +64,51 @@ class SampledDynamicPathData {
 /// rectangle into a 30 corner star without some weird shape in between).
 
 class DynamicPathMorph {
-  static void sampleOuterPathsFromShape(
-    SampledDynamicPathData data, {
+  static void sampleBorderPathsFromShape(
+    MorphShapeData data, {
     int maxTrial = 100,
     int minControlPoints = 16,
     int maxControlPoints = 120,
   }) {
     DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
-    if(data.begin is FilledBorderShape) {
-      DynamicPath outer=path1;
+    if (data.begin is FilledBorderShape) {
+      DynamicPath outer = path1;
       DynamicPath inner = data.begin.generateInnerDynamicPath(data.boundingBox);
-      List<Color> borderColors = (data.begin as FilledBorderShape).borderFillColors();
+      List<Color> borderColors =
+          (data.begin as FilledBorderShape).borderFillColors();
 
-      BorderPaths borderPaths=BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
+      BorderPaths borderPaths =
+          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
 
       borderPaths.removeOverlappingPaths();
-      path1=borderPaths.outer;
+      path1 = borderPaths.outer;
+    } else {
+      path1.removeOverlappingNodes();
     }
     DynamicPath path2 = data.end.generateOuterDynamicPath(data.boundingBox);
-    if(data.end is FilledBorderShape) {
-      DynamicPath outer=path2;
+    if (data.end is FilledBorderShape) {
+      DynamicPath outer = path2;
       DynamicPath inner = data.end.generateInnerDynamicPath(data.boundingBox);
-      List<Color> borderColors = (data.end as FilledBorderShape).borderFillColors();
+      List<Color> borderColors =
+          (data.end as FilledBorderShape).borderFillColors();
 
-      BorderPaths borderPaths=BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
+      BorderPaths borderPaths =
+          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
 
       borderPaths.removeOverlappingPaths();
-      path2=borderPaths.outer;
+      path2 = borderPaths.outer;
+    } else {
+      path2.removeOverlappingNodes();
     }
-    //path2.removeOverlappingNodes();
 
-    sampleDynamicOuterPaths(data, path1, path2,
+    sampleDynamicPaths(data, path1, path2,
         maxTrial: maxTrial,
         minControlPoints: minControlPoints,
         maxControlPoints: maxControlPoints);
   }
 
-  static void sampleInnerPathsFromShape(
-      SampledDynamicPathData data, {
-        int maxTrial = 100,
-        int minControlPoints = 16,
-        int maxControlPoints = 120,
-      }) {
-    DynamicPath path1 = data.begin.generateInnerDynamicPath(data.boundingBox);
-    if(data.begin is FilledBorderShape) {
-      DynamicPath inner=path1;
-      DynamicPath outer = data.begin.generateOuterDynamicPath(data.boundingBox);
-      List<Color> borderColors = (data.begin as FilledBorderShape).borderFillColors();
-
-      BorderPaths borderPaths=BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
-
-      borderPaths.removeOverlappingPaths();
-      path1=borderPaths.inner;
-    }
-    //path1.removeOverlappingNodes();
-    DynamicPath path2 = data.end.generateInnerDynamicPath(data.boundingBox);
-    if(data.end is FilledBorderShape) {
-      DynamicPath inner=path2;
-      DynamicPath outer = data.end.generateOuterDynamicPath(data.boundingBox);
-      List<Color> borderColors = (data.end as FilledBorderShape).borderFillColors();
-
-      BorderPaths borderPaths=BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
-
-      borderPaths.removeOverlappingPaths();
-      path2=borderPaths.inner;
-    }
-    //path2.removeOverlappingNodes();
-
-    sampleDynamicInnerPaths(data, path1, path2,
-        maxTrial: maxTrial,
-        minControlPoints: minControlPoints,
-        maxControlPoints: maxControlPoints);
-  }
-
-  static void sampleDynamicOuterPaths(
-    SampledDynamicPathData data,
+  static void sampleDynamicPaths(
+    MorphShapeData data,
     DynamicPath path1,
     DynamicPath path2, {
     required int maxTrial,
@@ -147,10 +120,11 @@ class DynamicPathMorph {
         data.supplyCounts2 != null &&
         path1.nodes.length == data.supplyCounts1!.length &&
         path2.nodes.length == data.supplyCounts2!.length) {
-      data.outerPath1 = supplyPoints(path1, data.supplyCounts1!);
-      data.outerPath2 = supplyPoints(path2, data.supplyCounts2!);
-      data.outerPath1.nodes =
-          rotateList(data.outerPath1.nodes, data.minimumShift!) as List<DynamicNode>;
+      data.beginOuterPath = supplyPoints(path1, data.supplyCounts1!);
+      data.endOuterPath = supplyPoints(path2, data.supplyCounts2!);
+      data.beginOuterPath.nodes =
+          rotateList(data.beginOuterPath.nodes, data.minimumShift!)
+              as List<DynamicNode>;
     } else {
       List rst = [];
       if (data.method == MorphMethod.weighted) {
@@ -159,17 +133,14 @@ class DynamicPathMorph {
         ///this is a Monte Carlo method. Because the total points is small, it should be fine to try
         ///multiple times (maxTrial) here
 
-
         rst = weightedSampling(path1, path2,
             maxTrial: maxTrial, minControlPoints: minControlPoints);
       } else if (data.method == MorphMethod.unweighted) {
-
         ///use the unweighted method, spread the extra points needed evenly on each curve
         rst = unweightedSampling(path1, path2,
             minControlPoints: minControlPoints,
             maxControlPoints: maxControlPoints);
       } else {
-
         List rst1 = weightedSampling(path1, path2,
             maxTrial: maxTrial, minControlPoints: minControlPoints);
         List rst2 = unweightedSampling(path1, path2,
@@ -177,62 +148,51 @@ class DynamicPathMorph {
             maxControlPoints: maxControlPoints);
         rst = rst1[5] > rst2[5] ? rst2 : rst1;
       }
-      data.outerPath1 = rst[2];
-      data.outerPath2 = rst[3];
+      data.beginOuterPath = rst[2];
+      data.endOuterPath = rst[3];
       data.supplyCounts1 = rst[0];
       data.supplyCounts2 = rst[1];
       data.minimumShift = rst[4];
     }
-  }
 
-  static void sampleDynamicInnerPaths(
-      SampledDynamicPathData data,
-      DynamicPath path1,
-      DynamicPath path2, {
-        required int maxTrial,
-        required int minControlPoints,
-        required int maxControlPoints,
-      }) {
-    ///the supply points have been calculated
-    if (data.supplyCounts1 != null &&
-        data.supplyCounts2 != null &&
-        path1.nodes.length == data.supplyCounts1!.length &&
-        path2.nodes.length == data.supplyCounts2!.length) {
-      data.innerPath1 = supplyPoints(path1, data.supplyCounts1!);
-      data.innerPath2 = supplyPoints(path2, data.supplyCounts2!);
-      data.innerPath1.nodes =
-      rotateList(data.innerPath1.nodes, data.minimumShift!) as List<DynamicNode>;
-    } else {
-      List rst = [];
-      if (data.method == MorphMethod.weighted) {
-        ///we try adding points multiple times and choose the one that need the least offset to morph
-        ///from one shape to another. Because the function to choose the least weighted edge is random,
-        ///this is a Monte Carlo method. Because the total points is small, it should be fine to try
-        ///multiple times (maxTrial) here
+    if (data.begin is FilledBorderShape) {
+      DynamicPath outer = data.begin.generateOuterDynamicPath(data.boundingBox);
+      DynamicPath inner = data.begin.generateInnerDynamicPath(data.boundingBox);
+      List<Color> borderColors =
+          (data.begin as FilledBorderShape).borderFillColors();
 
+      BorderPaths borderPaths =
+          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
 
-        rst = weightedSampling(path1, path2,
-            maxTrial: maxTrial, minControlPoints: minControlPoints);
-      } else if (data.method == MorphMethod.unweighted) {
+      borderPaths.removeOverlappingPaths();
 
-        ///use the unweighted method, spread the extra points needed evenly on each curve
-        rst = unweightedSampling(path1, path2,
-            minControlPoints: minControlPoints,
-            maxControlPoints: maxControlPoints);
-      } else {
+      borderPaths.outer = data.beginOuterPath;
+      borderPaths.inner = supplyPoints(borderPaths.inner, data.supplyCounts1!);
+      borderPaths.inner.nodes =
+          rotateList(borderPaths.inner.nodes, data.minimumShift!)
+              as List<DynamicNode>;
+      borderPaths.fillColors =
+          supplyColors(borderPaths.fillColors, data.supplyCounts1!);
+      borderPaths.fillColors =
+          rotateList(borderPaths.fillColors, data.minimumShift!) as List<Color>;
+      data.beginPaths = borderPaths;
+    }
+    if (data.end is FilledBorderShape) {
+      DynamicPath outer = data.end.generateOuterDynamicPath(data.boundingBox);
+      DynamicPath inner = data.end.generateInnerDynamicPath(data.boundingBox);
+      List<Color> borderColors =
+          (data.end as FilledBorderShape).borderFillColors();
 
-        List rst1 = weightedSampling(path1, path2,
-            maxTrial: maxTrial, minControlPoints: minControlPoints);
-        List rst2 = unweightedSampling(path1, path2,
-            minControlPoints: minControlPoints,
-            maxControlPoints: maxControlPoints);
-        rst = rst1[5] > rst2[5] ? rst2 : rst1;
-      }
-      data.innerPath1 = rst[2];
-      data.innerPath2 = rst[3];
-      data.supplyCounts1 = rst[0];
-      data.supplyCounts2 = rst[1];
-      data.minimumShift = rst[4];
+      BorderPaths borderPaths =
+          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
+
+      borderPaths.removeOverlappingPaths();
+
+      borderPaths.outer = data.endOuterPath;
+      borderPaths.inner = supplyPoints(borderPaths.inner, data.supplyCounts2!);
+      borderPaths.fillColors =
+          supplyColors(borderPaths.fillColors, data.supplyCounts2!);
+      data.endPaths = borderPaths;
     }
   }
 
@@ -324,7 +284,8 @@ class DynamicPathMorph {
     required int maxControlPoints,
   }) {
     int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
-    if (totalPoints < minControlPoints && path1.nodes.length!=path2.nodes.length) {
+    if (totalPoints < minControlPoints &&
+        path1.nodes.length != path2.nodes.length) {
       totalPoints = path1.nodes.length * path2.nodes.length;
     }
 
@@ -442,11 +403,13 @@ class DynamicPathMorph {
     return minimumOffset;
   }
 
-  static DynamicPath lerpOuterPath(double t, SampledDynamicPathData data) {
-    DynamicPath rst = DynamicPath(size: data.boundingBox.size, nodes: []);
-    for (var i = 0; i < data.outerPath1.nodes.length; i++) {
-      var start = data.outerPath1.getNodeWithControlPoints(i);
-      var end = data.outerPath2.getNodeWithControlPoints(i);
+  static DynamicPath lerpPaths(
+      double t, DynamicPath beginPath, DynamicPath endPath) {
+    DynamicPath rst = DynamicPath(size: beginPath.size, nodes: []);
+
+    for (var i = 0; i < beginPath.nodes.length; i++) {
+      var start = beginPath.getNodeWithControlPoints(i);
+      var end = endPath.getNodeWithControlPoints(i);
       var tween1 = Tween<Offset>(begin: start.position, end: end.position);
       Offset offset1 = tween1.transform(t);
       var tween2 = Tween<Offset>(begin: start.prev, end: end.prev);
@@ -458,62 +421,6 @@ class DynamicPathMorph {
     }
     return rst;
   }
-
-  static DynamicPath lerpInnerPath(double t, SampledDynamicPathData data) {
-    DynamicPath rst = DynamicPath(size: data.boundingBox.size, nodes: []);
-    for (var i = 0; i < data.innerPath1.nodes.length; i++) {
-      var start = data.innerPath1.getNodeWithControlPoints(i);
-      var end = data.innerPath2.getNodeWithControlPoints(i);
-      var tween1 = Tween<Offset>(begin: start.position, end: end.position);
-      Offset offset1 = tween1.transform(t);
-      var tween2 = Tween<Offset>(begin: start.prev, end: end.prev);
-      Offset offset2 = tween2.transform(t);
-      var tween3 = Tween<Offset>(begin: start.next, end: end.next);
-      Offset offset3 = tween3.transform(t);
-      rst.nodes
-          .add(DynamicNode(position: offset1, prev: offset2, next: offset3));
-    }
-    return rst;
-  }
-}
-
-num total(List<num> list) {
-  num total = 0;
-  list.forEach((element) {
-    total += element;
-  });
-  return total;
-}
-
-List<Object> rotateList(List<Object> list, int v) {
-  if (list.isEmpty) return list;
-  var i = v % list.length;
-  return list.sublist(i)..addAll(list.sublist(0, i));
-}
-
-bool haveEqualLength(DynamicPath path) {
-  int length = path.nodes.length;
-  List<double> weights = [];
-  for (int i = 0; i < length; i++) {
-    weights.add(path.getPathLengthAt(i));
-  }
-  if (weights.toSet().length != length) {
-    return true;
-  }
-  return false;
-}
-
-int randomChoose(List<num> list) {
-  int index = 0;
-  num totalWeight = total(list);
-  var rng = new Random();
-  double randomDraw = rng.nextDouble() * totalWeight;
-  double currentSum = 0;
-  for (int i = 0; i < list.length; i++) {
-    currentSum += list[i];
-    if (randomDraw <= currentSum) return i;
-  }
-  return index;
 }
 
 List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
@@ -542,7 +449,6 @@ List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
   double scale = totalWeights / newPointsCount;
   counts = weights.map((w) => (w / scale).ceil()).toList();
 
-
   while (total(counts) > newPointsCount) {
     int minIndex = randomChoose(weights);
 
@@ -554,7 +460,7 @@ List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
   return counts;
 }
 
-DynamicPath supplyPoints(DynamicPath path, List<int> counts) {
+DynamicPath supplyPoints(DynamicPath path, List<int> supplyCounts) {
   int length = path.nodes.length;
 
   DynamicPath newPath = DynamicPath(size: path.size, nodes: []);
@@ -570,7 +476,7 @@ DynamicPath supplyPoints(DynamicPath path, List<int> counts) {
       newPath.nodes.last.prev = updatedPrev;
     }
     updatedPrev = null;
-    int count = counts[i];
+    int count = supplyCounts[i];
     if (count >= 1) {
       int nextIndex = (i + 1) % length;
       List<Offset> controlPoints = path.getNextPathControlPointsAt(i);
@@ -603,4 +509,20 @@ DynamicPath supplyPoints(DynamicPath path, List<int> counts) {
   }
 
   return newPath;
+}
+
+List<Color> supplyColors(List<Color> colors, List<int> counts) {
+  int length = colors.length;
+
+  List<Color> newColors = [];
+
+  for (int i = 0; i < length; i++) {
+    newColors.add(colors[i]);
+    int count = counts[i];
+    if (count >= 1) {
+      newColors.addAll(List.generate(count, (index) => colors[i]));
+    }
+  }
+
+  return newColors;
 }
