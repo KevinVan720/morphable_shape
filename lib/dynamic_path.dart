@@ -37,9 +37,6 @@ class DynamicPath {
   Size size;
   List<DynamicNode> nodes;
 
-  ///if the bounding box does not change, return the stored path in getPath();
-  Path? _path;
-
   DynamicPath({required this.size, required this.nodes}) {
     ///Some control points may lie outside the bounding rect, in this case,
     ///I break the involved Bezier line segment into two so that the new control points may be inside
@@ -376,33 +373,28 @@ class DynamicPath {
 
   ///convert this to a Path
   Path getPath(Size newSize) {
-    if (newSize == size && _path != null) {
-      return _path!;
-    } else {
-      resize(newSize);
-      Path path = Path();
-      if (nodes.isNotEmpty) {
-        path.moveTo(nodes[0].position.dx, nodes[0].position.dy);
-      }
-      for (int i = 0; i < nodes.length; i++) {
-        List<Offset> controlPoints = getNextPathControlPointsAt(i);
-        if (controlPoints.length == 4) {
-          path
-            ..cubicTo(
-                controlPoints[1].dx,
-                controlPoints[1].dy,
-                controlPoints[2].dx,
-                controlPoints[2].dy,
-                controlPoints[3].dx,
-                controlPoints[3].dy);
-        } else {
-          path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
-        }
-      }
-
-      _path = path;
-      return path;
+    resize(newSize);
+    Path path = Path();
+    if (nodes.isNotEmpty) {
+      path.moveTo(nodes[0].position.dx, nodes[0].position.dy);
     }
+    for (int i = 0; i < nodes.length; i++) {
+      List<Offset> controlPoints = getNextPathControlPointsAt(i);
+      if (controlPoints.length == 4) {
+        path
+          ..cubicTo(
+              controlPoints[1].dx,
+              controlPoints[1].dy,
+              controlPoints[2].dx,
+              controlPoints[2].dy,
+              controlPoints[3].dx,
+              controlPoints[3].dy);
+      } else {
+        path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
+      }
+    }
+
+    return path;
   }
 
   ///convert this to a list of Paths

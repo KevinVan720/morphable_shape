@@ -66,7 +66,7 @@ class MorphShapeData {
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
-    int maxTrial = 100,
+    int maxTrial = 500,
     int minControlPoints = 16,
     int maxControlPoints = 120,
   }) {
@@ -200,7 +200,7 @@ class DynamicPathMorph {
       {required int minControlPoints, required int maxTrial}) {
     int totalPoints = max(path1.nodes.length, path2.nodes.length);
 
-    double tempMinOffset = double.infinity;
+    double tempMinWeight = double.infinity;
     List<int> tempCounts1, tempCounts2 = [];
     DynamicPath tempPath1, tempPath2;
 
@@ -215,18 +215,53 @@ class DynamicPathMorph {
     ///for total points that are small, try add a few extra points to the Monte
     ///Carlo simulation to see if we can find a better solution
     int totalPointsVariation =
-        totalPoints > minControlPoints ? 0 : (minControlPoints / 5).round();
+        totalPoints > minControlPoints ? 0 : (minControlPoints / 2).round();
+
     for (int iter = 0; iter <= totalPointsVariation; iter++) {
       for (int trial = 0; trial < maxTrial; trial++) {
         tempCounts1 = sampleSupplyCounts(path1, totalPoints);
         tempCounts2 = sampleSupplyCounts(path2, totalPoints);
         tempPath1 = supplyPoints(path1, tempCounts1);
         tempPath2 = supplyPoints(path2, tempCounts2);
-        double tempOffset = computeMinimumOffset(
+
+        int tempShift = computeMinimumOffsetIndex(
             tempPath1.nodes.map((e) => e.position).toList(),
             tempPath2.nodes.map((e) => e.position).toList());
-        if (tempOffset < tempMinOffset) {
-          tempMinOffset = tempOffset;
+
+        tempPath1.nodes =
+            rotateList(tempPath1.nodes, tempShift) as List<DynamicNode>;
+
+        List<Offset> path1Nodes =
+                tempPath1.nodes.map((e) => e.position).toList(),
+            path2Nodes = tempPath2.nodes.map((e) => e.position).toList();
+
+        double centerShift =
+            (centerOfMass(path1Nodes) - centerOfMass(path2Nodes))
+                .distance
+                .clamp(1e-10, double.infinity);
+        double totalAngleShift = computeTotalRotation(path1Nodes, path2Nodes)
+            .abs()
+            .clamp(1e-10, double.infinity);
+        double maxAngleShift = computeMaxRotation(path1Nodes, path2Nodes)
+            .abs()
+            .clamp(1e-10, double.infinity);
+
+        double maxSingleOffset = computeSingleMaxOffset(path1Nodes, path2Nodes)
+            .abs()
+            .clamp(1e-10, double.infinity);
+        tempPath1.nodes =
+            rotateList(tempPath1.nodes, -tempShift) as List<DynamicNode>;
+        if (path1Nodes.length *
+                centerShift *
+                totalAngleShift *
+                maxAngleShift *
+                maxSingleOffset <
+            tempMinWeight) {
+          tempMinWeight = path1Nodes.length *
+              centerShift *
+              totalAngleShift *
+              maxAngleShift *
+              maxSingleOffset;
           optimalPath1 = tempPath1;
           optimalPath2 = tempPath2;
           optimalCount1 = tempCounts1;
@@ -243,26 +278,38 @@ class DynamicPathMorph {
     optimalPath1.nodes =
         rotateList(optimalPath1.nodes, shift) as List<DynamicNode>;
 
-    double centerShift = (centerOfMass(
-                optimalPath1.nodes.map((e) => e.position).toList()) -
-            centerOfMass(optimalPath2.nodes.map((e) => e.position).toList()))
+    List<Offset> path1Nodes =
+            optimalPath1.nodes.map((e) => e.position).toList(),
+        path2Nodes = optimalPath2.nodes.map((e) => e.position).toList();
+
+    double centerShift = (centerOfMass(path1Nodes) - centerOfMass(path2Nodes))
         .distance
         .clamp(1e-10, double.infinity);
-    double angleShift = computeTotalRotation(
-            optimalPath1.nodes.map((e) => e.position).toList(),
-            optimalPath2.nodes.map((e) => e.position).toList())
+    double totalAngleShift = computeTotalRotation(path1Nodes, path2Nodes)
+        .abs()
+        .clamp(1e-10, double.infinity);
+    double maxAngleShift = computeMaxRotation(path1Nodes, path2Nodes)
         .abs()
         .clamp(1e-10, double.infinity);
 
-    /*
+    double maxSingleOffset = computeSingleMaxOffset(path1Nodes, path2Nodes)
+        .abs()
+        .clamp(1e-10, double.infinity);
+
     print("weightd " +
         centerShift.toString() +
         ", " +
-        angleShift.toString() +
+        totalAngleShift.toString() +
         ", " +
-        (centerShift * optimalPath1.nodes.length * angleShift).toString());
-
-     */
+        maxAngleShift.toString() +
+        ", " +
+        maxSingleOffset.toString() +
+        ", " +
+        (centerShift *
+                optimalPath1.nodes.length *
+                totalAngleShift *
+                maxAngleShift)
+            .toString());
 
     return [
       optimalCount1,
@@ -272,8 +319,9 @@ class DynamicPathMorph {
       shift,
       centerShift *
           optimalPath1.nodes.length *
-          optimalPath2.nodes.length *
-          angleShift,
+          totalAngleShift *
+          maxAngleShift *
+          maxSingleOffset,
     ];
   }
 
@@ -308,16 +356,38 @@ class DynamicPathMorph {
     optimalPath1.nodes =
         rotateList(optimalPath1.nodes, shift) as List<DynamicNode>;
 
-    double centerShift = (centerOfMass(
-                optimalPath1.nodes.map((e) => e.position).toList()) -
-            centerOfMass(optimalPath2.nodes.map((e) => e.position).toList()))
+    List<Offset> path1Nodes =
+            optimalPath1.nodes.map((e) => e.position).toList(),
+        path2Nodes = optimalPath2.nodes.map((e) => e.position).toList();
+
+    double centerShift = (centerOfMass(path1Nodes) - centerOfMass(path2Nodes))
         .distance
         .clamp(1e-10, double.infinity);
-    double angleShift = computeTotalRotation(
-            optimalPath1.nodes.map((e) => e.position).toList(),
-            optimalPath2.nodes.map((e) => e.position).toList())
+    double totalAngleShift = computeTotalRotation(path1Nodes, path2Nodes)
         .abs()
         .clamp(1e-10, double.infinity);
+    double maxAngleShift = computeMaxRotation(path1Nodes, path2Nodes)
+        .abs()
+        .clamp(1e-10, double.infinity);
+
+    double maxSingleOffset = computeSingleMaxOffset(path1Nodes, path2Nodes)
+        .abs()
+        .clamp(1e-10, double.infinity);
+
+    print("unweightd " +
+        centerShift.toString() +
+        ", " +
+        totalAngleShift.toString() +
+        ", " +
+        maxAngleShift.toString() +
+        ", " +
+        maxSingleOffset.toString() +
+        ", " +
+        (centerShift *
+                optimalPath1.nodes.length *
+                totalAngleShift *
+                maxAngleShift)
+            .toString());
 
     return [
       optimalCount1,
@@ -327,8 +397,9 @@ class DynamicPathMorph {
       shift,
       centerShift *
           optimalPath1.nodes.length *
-          optimalPath2.nodes.length *
-          angleShift,
+          totalAngleShift *
+          maxAngleShift *
+          maxSingleOffset,
     ];
   }
 
@@ -370,6 +441,18 @@ class DynamicPathMorph {
     return currentOffset;
   }
 
+  static double computeSingleMaxOffset(
+      List<Offset> points1, List<Offset> points2) {
+    assert(points1.length == points2.length);
+    int length = points1.length;
+    double maxOffset = 0.0;
+    for (int i = 0; i < length; i += 1) {
+      if ((points1[i] - points2[i]).distance > maxOffset)
+        maxOffset = (points1[i] - points2[i]).distance;
+    }
+    return maxOffset;
+  }
+
   static double computeTotalRotation(
       List<Offset> points1, List<Offset> points2) {
     assert(points1.length == points2.length);
@@ -384,6 +467,21 @@ class DynamicPathMorph {
       currentAngle += diff;
     }
     return currentAngle;
+  }
+
+  static double computeMaxRotation(List<Offset> points1, List<Offset> points2) {
+    assert(points1.length == points2.length);
+    int length = points1.length;
+    double maxAngle = 0.0;
+    Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
+    for (int i = 0; i < length; i += 1) {
+      double diff =
+          (points1[i] - center1).direction - (points2[i] - center2).direction;
+      if (diff < -pi) diff += 2 * pi;
+      if (diff > pi) diff -= 2 * pi;
+      if (diff.abs() > maxAngle) maxAngle = diff.abs();
+    }
+    return maxAngle;
   }
 
   static double computeMinimumOffset(

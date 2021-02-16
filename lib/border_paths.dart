@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'morphable_shape.dart';
 
 class BorderPaths {
-  static double tolerance = 0.01;
+  static double tolerancePercent = 0.01;
 
   DynamicPath outer;
   DynamicPath inner;
@@ -12,6 +12,7 @@ class BorderPaths {
       {required this.outer, required this.inner, required this.fillColors});
 
   void removeOverlappingPaths() {
+
     assert(outer.nodes.length == inner.nodes.length);
     if (outer.nodes.isNotEmpty) {
       List<DynamicNode> outerNodes = [outer.nodes[0]];
@@ -19,17 +20,17 @@ class BorderPaths {
       List<Color> newColors = [fillColors[0]];
       for (int i = 0; i < outer.nodes.length; i++) {
         if ((outer.nodes[i].position - outerNodes.last.position).distance <
-            tolerance &&
+            tolerancePercent*outer.size.shortestSide &&
             (inner.nodes[i].position - innerNodes.last.position).distance <
-                tolerance) {
+                tolerancePercent*outer.size.shortestSide) {
           outerNodes.last.next = outer.nodes[i].next;
           innerNodes.last.next = inner.nodes[i].next;
           newColors.last = fillColors[i];
         } else if (i == outer.nodes.length - 1 &&
             (outer.nodes[i].position - outerNodes.first.position).distance <
-                tolerance &&
+                tolerancePercent*outer.size.shortestSide &&
             (inner.nodes[i].position - innerNodes.first.position).distance <
-                tolerance) {
+                tolerancePercent*outer.size.shortestSide) {
           outerNodes.first.prev = outer.nodes[i].prev;
           innerNodes.first.prev = inner.nodes[i].prev;
           newColors.first = fillColors[i];
@@ -41,10 +42,7 @@ class BorderPaths {
       }
       outer.nodes = outerNodes;
       inner.nodes = innerNodes;
-      print("-----------------");
-      outer.nodes.forEach((element) {print(element.position.toString());});
-      print("-----------------");
-      inner.nodes.forEach((element) {print(element.position.toString());});
+
       fillColors = newColors;
     }
   }

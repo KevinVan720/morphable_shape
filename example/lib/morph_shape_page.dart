@@ -35,7 +35,13 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     startShape = widget.shape;
 
-    endShape = CircleShape();
+    endShape = RectangleShape(
+      borderRadius: DynamicBorderRadius.all(DynamicRadius.circular(30.toPercentLength)),
+      topBorder: DynamicBorderSide(width: 5.toPercentLength, color: Colors.red),
+      leftBorder: DynamicBorderSide(width: 5.toPercentLength, color: Colors.red),
+      rightBorder: DynamicBorderSide(width: 15.toPercentLength, color: Colors.green),
+      bottomBorder: DynamicBorderSide(width: 15.toPercentLength, color: Colors.green),
+    );
 
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: durationInSec));

@@ -46,7 +46,6 @@ class EditShapePageState extends State<EditShapePage>
   void initState() {
     super.initState();
     currentShape = RectangleShape();
-    //shapeHistory.add(currentShape.toJson());
   }
 
   @override

@@ -31,6 +31,6 @@ class PathShape extends OutlinedShape {
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
-    return path;
+    return path..resize(rect.size);
   }
 }

@@ -67,6 +67,15 @@ class MorphShape extends Shape {
 
     assert(outer.nodes.length == inner.nodes.length);
 
+    if(t==0 || t==1) {
+      print(outer.nodes.length.toString()+", "+inner.nodes.length.toString());
+      print("outer-----------------");
+      outer.nodes.forEach((element) {print(element.position.toString());});
+      print("inner-----------------");
+      inner.nodes.forEach((element) {print(element.position.toString());});
+    }
+
+
     List<Path> rst = [];
 
     for (int i = 0; i < pathLength; i++) {
