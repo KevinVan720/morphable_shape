@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'morphable_shape.dart';
 
+///border paths for a FilledBorderShape
+///has an outer path, an inner path and
+///a list of fill colors.
+///Returns a list of closed paths constructed
+///from each pair of points on the outer and inner
+///path and the fill color
 class BorderPaths {
-  static double tolerancePercent = 0.01;
+  static double tolerancePercent = 0.001;
 
   DynamicPath outer;
   DynamicPath inner;
@@ -15,6 +21,7 @@ class BorderPaths {
 
     assert(outer.nodes.length == inner.nodes.length);
     if (outer.nodes.isNotEmpty) {
+      double pointGroupWeight=1;
       List<DynamicNode> outerNodes = [outer.nodes[0]];
       List<DynamicNode> innerNodes = [inner.nodes[0]];
       List<Color> newColors = [fillColors[0]];
@@ -23,18 +30,27 @@ class BorderPaths {
             tolerancePercent*outer.size.shortestSide &&
             (inner.nodes[i].position - innerNodes.last.position).distance <
                 tolerancePercent*outer.size.shortestSide) {
+
           outerNodes.last.next = outer.nodes[i].next;
+          outerNodes.last.position+=(outer.nodes[i].position - outerNodes.last.position)/(pointGroupWeight+1);
           innerNodes.last.next = inner.nodes[i].next;
+          innerNodes.last.position+=(inner.nodes[i].position - innerNodes.last.position)/(pointGroupWeight+1);
           newColors.last = fillColors[i];
+
+          pointGroupWeight++;
+
         } else if (i == outer.nodes.length - 1 &&
             (outer.nodes[i].position - outerNodes.first.position).distance <
                 tolerancePercent*outer.size.shortestSide &&
             (inner.nodes[i].position - innerNodes.first.position).distance <
                 tolerancePercent*outer.size.shortestSide) {
           outerNodes.first.prev = outer.nodes[i].prev;
+          outerNodes.first.position+=(outer.nodes[i].position - outerNodes.first.position)/(pointGroupWeight+1);
           innerNodes.first.prev = inner.nodes[i].prev;
+          innerNodes.first.position+=(inner.nodes[i].position - innerNodes.first.position)/(pointGroupWeight+1);
           newColors.first = fillColors[i];
         } else {
+          pointGroupWeight=1;
           outerNodes.add(outer.nodes[i]);
           innerNodes.add(inner.nodes[i]);
           newColors.add(fillColors[i]);
@@ -42,6 +58,8 @@ class BorderPaths {
       }
       outer.nodes = outerNodes;
       inner.nodes = innerNodes;
+
+      //outer.nodes.forEach((element) {print(element.toJson().toString());});
 
       fillColors = newColors;
     }

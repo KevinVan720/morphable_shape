@@ -28,8 +28,8 @@ class MorphableShapeBorder extends ShapeBorder {
     return EdgeInsets.all(0);
   }
 
-  ///TODO: implement this, not a top priority as there is no use case
-  ///I can think of...
+  ///TODO: implement this,
+  ///not a top priority as there is no use case I can think of...
   @override
   ShapeBorder scale(double t) {
     return this;

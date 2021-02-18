@@ -61,7 +61,8 @@ class _LengthSlider extends State<LengthSlider> {
     if (_sliderValue.unit == LengthUnit.px) {
       min = widget.min ?? 0.0;
       max = widget.max ?? widget.constraintSize.roundWithPrecision(1);
-      divisions = widget.divisions ?? ((max - min) > 10 ? (max - min) / 5 : (max - min)).round();
+      divisions = widget.divisions ??
+          ((max - min) > 10 ? (max - min) / 5 : (max - min)).round();
     } else {
       min = 0;
       max = 100.0;

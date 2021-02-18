@@ -17,9 +17,7 @@ class CircleShape extends OutlinedShape {
   CircleShape.fromJson(Map<String, dynamic> map)
       : startAngle = map["startAngle"] ?? 0.0,
         sweepAngle = map["sweepAngle"] ?? (2 * pi),
-        super(
-            border: parseDynamicBorderSide(map["border"]) ??
-                defaultBorder);
+        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "CircleShape"};
@@ -49,10 +47,10 @@ class CircleShape extends OutlinedShape {
     double startAngle = this.startAngle.clamp(0.0, 2 * pi);
     double sweepAngle = this.sweepAngle.clamp(0, 2 * pi);
 
-    nodes.add(DynamicNode(
-        position: Offset(size.width / 2 * (1 + cos(startAngle)),
-            size.height / 2 * (1 + sin(startAngle)))));
-    nodes.arcTo(
+    //nodes.add(DynamicNode(
+    //   position: Offset(size.width / 2 * (1 + cos(startAngle)),
+    //        size.height / 2 * (1 + sin(startAngle)))));
+    nodes.addArc(
         Rect.fromCenter(
           center: Offset(rect.width / 2.0, rect.height / 2.0),
           width: rect.width,

@@ -5,9 +5,14 @@ import 'morphable_shape.dart';
 ///should be serializable/deserializable
 ///generate a DynamicPath instance with all the control points, then convert to a Path
 abstract class Shape {
-  const Shape();
+  final Gradient? borderGradient;
 
-  Map<String, dynamic> toJson();
+  const Shape(
+      {this.borderGradient});
+
+  Map<String, dynamic> toJson() {
+    return {"borderGradient": borderGradient?.toJson()};
+  }
 
   Shape copyWith();
 
@@ -38,7 +43,7 @@ abstract class OutlinedShape extends Shape {
   const OutlinedShape({this.border = DynamicBorderSide.none});
 
   Map<String, dynamic> toJson() {
-    return {"border": border.toJson()};
+    return {"border": border.toJson()}..addAll(super.toJson());
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
@@ -53,6 +58,7 @@ abstract class OutlinedShape extends Shape {
     borderPaint.color = border.color;
     borderPaint.strokeWidth =
         2 * border.width.toPX(constraintSize: rect.shortestSide);
+    borderPaint.shader = borderGradient?.createShader(rect);
     canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
   }
 }
@@ -72,7 +78,7 @@ abstract class FilledBorderShape extends Shape {
     List<Color> borderColors = borderFillColors();
 
     BorderPaths borderPaths =
-    BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
+        BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
 
     borderPaths.removeOverlappingPaths();
 
@@ -83,6 +89,7 @@ abstract class FilledBorderShape extends Shape {
       borderPaint.style = PaintingStyle.fill;
       borderPaint.color = borderPaths.fillColors[i % borderColors.length];
       borderPaint.strokeWidth = 1;
+      borderPaint.shader = borderGradient?.createShader(rect);
       canvas.drawPath(paths[i], borderPaint);
     }
   }

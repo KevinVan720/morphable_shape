@@ -11,6 +11,14 @@ class MorphShape extends Shape {
 
   MorphShape({required this.t, required this.data});
 
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+
+  Shape copyWith() {
+    return this;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     if (rect.width != data.boundingBox.width ||
         rect.height != data.boundingBox.height) {
@@ -22,7 +30,6 @@ class MorphShape extends Shape {
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
-
     if (rect.width != data.boundingBox.width ||
         rect.height != data.boundingBox.height) {
       data.boundingBox = rect;
@@ -51,14 +58,6 @@ class MorphShape extends Shape {
     }
   }
 
-  Map<String, dynamic> toJson() {
-    return {};
-  }
-
-  Shape copyWith() {
-    return this;
-  }
-
   List<Path> generateBorderPaths(Rect rect) {
     DynamicPath outer = generateOuterDynamicPath(rect);
     DynamicPath inner = generateInnerDynamicPath(rect);
@@ -66,15 +65,6 @@ class MorphShape extends Shape {
     int pathLength2 = inner.nodes.length;
 
     assert(outer.nodes.length == inner.nodes.length);
-
-    if(t==0 || t==1) {
-      print(outer.nodes.length.toString()+", "+inner.nodes.length.toString());
-      print("outer-----------------");
-      outer.nodes.forEach((element) {print(element.position.toString());});
-      print("inner-----------------");
-      inner.nodes.forEach((element) {print(element.position.toString());});
-    }
-
 
     List<Path> rst = [];
 
@@ -102,15 +92,11 @@ class MorphShape extends Shape {
     Paint borderPaint = Paint();
     if (data.begin is FilledBorderShape) {
       if (data.end is FilledBorderShape) {
-
         List<Color> beginBorderColors = data.beginPaths!.fillColors;
         List<Color> endBorderColors = data.endPaths!.fillColors;
         List<Color> borderColors = beginBorderColors
             .mapIndexed((e, i) =>
-                ColorTween(
-                        begin: e,
-                        end: endBorderColors[i])
-                    .lerp(t) ??
+                ColorTween(begin: e, end: endBorderColors[i]).lerp(t) ??
                 Colors.black)
             .toList();
 
@@ -124,26 +110,26 @@ class MorphShape extends Shape {
           canvas.drawPath(paths[i], borderPaint);
         }
       } else {
-
+        assert(data.end is OutlinedShape);
         borderPaint.style = PaintingStyle.stroke;
         borderPaint.color = (data.end as OutlinedShape).border.color;
-        borderPaint.strokeWidth = 2*Tween(
-            begin: 0.0,
-            end: (data.end as OutlinedShape)
-                .border
-                .width
-                .toPX(constraintSize: rect.shortestSide))
-            .lerp(t);
+        borderPaint.strokeWidth = 2 *
+            Tween(
+                    begin: 0.0,
+                    end: (data.end as OutlinedShape)
+                        .border
+                        .width
+                        .toPX(constraintSize: rect.shortestSide))
+                .lerp(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
 
         List<Color> beginBorderColors = data.beginPaths!.fillColors;
         List<Color> borderColors = beginBorderColors
             .mapIndexed((e, i) =>
-        ColorTween(
-            begin: e,
-            end: (data.end as OutlinedShape).border.color)
-            .lerp(t) ??
-            Colors.black)
+                ColorTween(
+                        begin: e, end: (data.end as OutlinedShape).border.color)
+                    .lerp(t) ??
+                Colors.black)
             .toList();
 
         List<Path> paths = generateBorderPaths(rect);
@@ -155,21 +141,22 @@ class MorphShape extends Shape {
           borderPaint.strokeWidth = 1;
           canvas.drawPath(paths[i], borderPaint);
         }
-
-
       }
     } else {
+      assert(data.begin is OutlinedShape);
       if (data.end is FilledBorderShape) {
-
         Paint borderPaint = Paint();
 
         List<Color> endBorderColors = data.endPaths!.fillColors;
         List<Color> borderColors = endBorderColors
-            .mapIndexed((e, i) =>
-        ColorTween(
-            begin: (data.begin as OutlinedShape).border.color,
-            end: e).lerp(t) ??
-            Colors.black,)
+            .mapIndexed(
+              (e, i) =>
+                  ColorTween(
+                          begin: (data.begin as OutlinedShape).border.color,
+                          end: e)
+                      .lerp(t) ??
+                  Colors.black,
+            )
             .toList();
 
         List<Path> paths = generateBorderPaths(rect);
@@ -184,16 +171,17 @@ class MorphShape extends Shape {
 
         borderPaint.style = PaintingStyle.stroke;
         borderPaint.color = (data.begin as OutlinedShape).border.color;
-        borderPaint.strokeWidth = 2*Tween(
-            begin: (data.begin as OutlinedShape)
-                .border
-                .width
-                .toPX(constraintSize: rect.shortestSide),
-            end: 0.0)
-            .lerp(t);
+        borderPaint.strokeWidth = 2 *
+            Tween(
+                    begin: (data.begin as OutlinedShape)
+                        .border
+                        .width
+                        .toPX(constraintSize: rect.shortestSide),
+                    end: 0.0)
+                .lerp(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
-
       } else {
+        assert(data.end is OutlinedShape);
         Paint borderPaint = Paint();
         borderPaint.isAntiAlias = true;
         borderPaint.style = PaintingStyle.stroke;
@@ -202,16 +190,17 @@ class MorphShape extends Shape {
                     end: (data.end as OutlinedShape).border.color)
                 .lerp(t) ??
             Colors.black;
-        borderPaint.strokeWidth = 2*Tween(
-                begin: (data.begin as OutlinedShape)
-                    .border
-                    .width
-                    .toPX(constraintSize: rect.shortestSide),
-                end: (data.end as OutlinedShape)
-                    .border
-                    .width
-                    .toPX(constraintSize: rect.shortestSide))
-            .lerp(t);
+        borderPaint.strokeWidth = 2 *
+            Tween(
+                    begin: (data.begin as OutlinedShape)
+                        .border
+                        .width
+                        .toPX(constraintSize: rect.shortestSide),
+                    end: (data.end as OutlinedShape)
+                        .border
+                        .width
+                        .toPX(constraintSize: rect.shortestSide))
+                .lerp(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
       }
     }

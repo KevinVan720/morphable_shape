@@ -53,10 +53,10 @@ typedef PickerLayoutBuilder = Widget Function(
     BuildContext context, List<Color> colors, PickerItem child);
 typedef PickerItem = Widget Function(Color color);
 typedef PickerItemBuilder = Widget Function(
-    Color color,
-    bool isCurrentColor,
-    void Function() changeColor,
-    );
+  Color color,
+  bool isCurrentColor,
+  void Function() changeColor,
+);
 
 class BlockColorPicker extends StatefulWidget {
   const BlockColorPicker({
@@ -228,10 +228,10 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
         widget.layoutBuilder(
           context,
           widget.availableColors.map((Color f) => f).toList(),
-              (Color color) => widget.itemBuilder(
+          (Color color) => widget.itemBuilder(
               color,
               _currentColor.withOpacity(1) == color.withOpacity(1),
-                  () => changeColor(color)),
+              () => changeColor(color)),
         ),
         SizedBox(height: 50, child: opacityWidgets)
       ],
@@ -284,12 +284,11 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                         Container(
                             alignment: Alignment.centerLeft,
                             padding: EdgeInsets.only(bottom: 10),
-                            child: Text(widget.headText,
-
+                            child: Text(
+                              widget.headText,
                               style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),)),
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            )),
                         BlockColorPicker(
                           pickerColor: currentColor,
                           onColorChanged: changeColor,
@@ -298,6 +297,41 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                     ),
                   ),
                   actions: <Widget>[
+                    TextButton(
+                      child: const Text('More Colors'),
+                      onPressed: () {
+                        Navigator.of(context)?.pop();
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              content: SingleChildScrollView(
+                                child: BlockColorPicker(
+                                  pickerColor: currentColor,
+                                  onColorChanged: changeColor,
+                                  layoutBuilder:
+                                      BlockColorPicker.denseLayoutBuilder,
+                                  itemBuilder:
+                                      BlockColorPicker.denseItemBuilder,
+                                  availableColors: MaterialColorShade,
+                                ),
+                              ),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: const Text('Got it'),
+                                  onPressed: () {
+                                    setState(() {
+                                      widget.valueChanged(currentColor);
+                                    });
+                                    Navigator.of(context)?.pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
                     TextButton(
                       child: const Text('Got it'),
                       onPressed: () {

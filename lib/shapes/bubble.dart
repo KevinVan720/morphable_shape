@@ -16,7 +16,7 @@ class BubbleShape extends OutlinedShape {
   final Length arrowHeadPosition;
 
   const BubbleShape({
-    DynamicBorderSide border=defaultBorder,
+    DynamicBorderSide border = defaultBorder,
     this.corner = ShapeCorner.bottomRight,
     this.borderRadius = const Length(6),
     this.arrowHeight = const Length(20, unit: LengthUnit.percent),
@@ -35,7 +35,7 @@ class BubbleShape extends OutlinedShape {
             Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
         arrowHeadPosition =
             Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength,
-        super(border: parseDynamicBorderSide(map["side"])??defaultBorder);
+        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "BubbleShape"};
@@ -57,8 +57,10 @@ class BubbleShape extends OutlinedShape {
     Length? arrowWidth,
     Length? arrowCenterPosition,
     Length? arrowHeadPosition,
+    DynamicBorderSide? border,
   }) {
     return BubbleShape(
+      border: border??this.border,
       corner: corner ?? this.corner,
       borderRadius: borderRadius ?? this.borderRadius,
       arrowHeight: arrowHeight ?? this.arrowHeight,
@@ -67,8 +69,6 @@ class BubbleShape extends OutlinedShape {
       arrowHeadPosition: arrowHeadPosition ?? this.arrowHeadPosition,
     );
   }
-
-
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
@@ -153,8 +153,8 @@ class BubbleShape extends OutlinedShape {
           position: Offset(arrowCenterPosition + arrowWidth / 2, top)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(right - borderRadius, top)));
-      nodes.arcTo(
+      //nodes.add(DynamicNode(position: Offset(right - borderRadius, top)));
+      nodes.addArc(
           Rect.fromLTRB(
               right - 2 * borderRadius, top, right, top + 2 * borderRadius),
           3 * pi / 2,
@@ -172,8 +172,8 @@ class BubbleShape extends OutlinedShape {
           position: Offset(right, arrowCenterPosition + arrowWidth / 2)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(right, bottom - borderRadius)));
-      nodes.arcTo(
+      //nodes.add(DynamicNode(position: Offset(right, bottom - borderRadius)));
+      nodes.addArc(
           Rect.fromLTRB(right - borderRadius * 2, bottom - borderRadius * 2,
               right, bottom),
           0,
@@ -190,8 +190,8 @@ class BubbleShape extends OutlinedShape {
           position: Offset(arrowCenterPosition - arrowWidth / 2, bottom)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(left + borderRadius, bottom)));
-      nodes.arcTo(
+      //nodes.add(DynamicNode(position: Offset(left + borderRadius, bottom)));
+      nodes.addArc(
           Rect.fromLTRB(
               left, bottom - borderRadius * 2, left + borderRadius * 2, bottom),
           pi / 2,
@@ -209,8 +209,8 @@ class BubbleShape extends OutlinedShape {
           position: Offset(left, arrowCenterPosition - arrowWidth / 2)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(left, top + borderRadius)));
-      nodes.arcTo(
+      //nodes.add(DynamicNode(position: Offset(left, top + borderRadius)));
+      nodes.addArc(
           Rect.fromLTRB(
               left, top, left + borderRadius * 2, top + borderRadius * 2),
           pi,

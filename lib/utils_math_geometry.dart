@@ -5,7 +5,9 @@ import 'morphable_shape.dart';
 import 'package:bezier/bezier.dart';
 import 'package:vector_math/vector_math.dart';
 
-const defaultBorder=DynamicBorderSide(color: Color(0xFF000000), width: Length(1));
+const double arcSplitMaxSweepAngle = pi / 4;
+const defaultBorder =
+    DynamicBorderSide(color: Color(0xFF000000), width: Length(1));
 
 ///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
@@ -68,18 +70,21 @@ Offset getDerivativeOnArc(Rect rect, double t) {
 
 ///recursively split an arc into multiple cubic Bezier
 List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
-    {double limit = pi / 4}) {
+    {double limit = arcSplitMaxSweepAngle, int? splitTimes}) {
+  if(splitTimes!=null) {
+    limit=sweepAngle.abs()/pow(2,splitTimes);
+  }
   if (sweepAngle.abs() > limit) {
-    List<Offset> rst = arcToCubicBezier(rect, startAngle, sweepAngle / 2);
+    List<Offset> rst = arcToCubicBezier(rect, startAngle, sweepAngle / 2.0, limit: limit);
     rst
-      ..addAll(
-          arcToCubicBezier(rect, startAngle + sweepAngle / 2, sweepAngle / 2));
+      ..addAll(arcToCubicBezier(
+          rect, startAngle + sweepAngle / 2.0, sweepAngle / 2.0, limit: limit));
     return rst;
   }
 
   double alpha = sin(sweepAngle) *
-      (sqrt(4 + 3 * tan(sweepAngle / 2) * tan(sweepAngle / 2)) - 1) /
-      3;
+      (sqrt(4.0 + 3.0 * tan(sweepAngle / 2.0) * tan(sweepAngle / 2.0)) - 1.0) /
+      3.0;
 
   List<Offset> rst = [];
   Offset p1, p2, p3, p4;
@@ -94,6 +99,58 @@ List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
 
   return rst;
 }
+
+List<CubicBezier> arcToCubicBezierCurves(
+    Rect rect, double startAngle, double sweepAngle,
+    {int? splitTimes}) {
+  List<Offset> points =
+  arcToCubicBezier(rect, startAngle, sweepAngle, splitTimes: splitTimes);
+  List<CubicBezier> rst = [];
+  for (int i = 0; i < points.length; i += 4) {
+    rst.add(CubicBezier([
+      points[i].toVector2(),
+      points[i + 1].toVector2(),
+      points[i + 2].toVector2(),
+      points[i + 3].toVector2()
+    ]));
+  }
+  return rst;
+}
+
+List<CubicBezier> concaveToCubicBezierCurves(
+    Offset center, double radius, double startAngle, double sweepAngle,
+    {int? splitTimes}) {
+  ///configure the minSplitTimes to let some FilledColorShape have symmetric split at the rounded corners
+  List<Offset> points = arcToCubicBezier(
+      Rect.fromCircle(center: center, radius: radius), startAngle, sweepAngle,
+      splitTimes: splitTimes);
+
+  Offset newCenter = center +
+      Offset.fromDirection((startAngle + sweepAngle / 2).clampAngle(),
+          radius / cos(sweepAngle / 2));
+  double newSweep = (-(pi - sweepAngle)).clampAngle();
+  double newStart =
+  -(pi - (startAngle + sweepAngle / 2) + newSweep / 2).clampAngle();
+
+  points = arcToCubicBezier(
+      Rect.fromCircle(
+          center: newCenter, radius: radius * tan(sweepAngle / 2)),
+      newStart,
+      newSweep,
+      splitTimes: splitTimes);
+  List<CubicBezier> rst = [];
+  for (int i = 0; i < points.length; i += 4) {
+    rst.add(CubicBezier([
+      points[i].toVector2(),
+      points[i + 1].toVector2(),
+      points[i + 2].toVector2(),
+      points[i + 3].toVector2()
+    ]));
+  }
+  return rst;
+}
+
+
 
 num total(List<num> list) {
   num total = 0;
@@ -121,3 +178,4 @@ int randomChoose(List<num> list) {
   }
   return index;
 }
+

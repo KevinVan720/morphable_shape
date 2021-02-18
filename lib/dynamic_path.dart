@@ -31,8 +31,8 @@ class DynamicNode {
 
 ///A Bezier path with either straight line or cubic Bezier line
 class DynamicPath {
-  static double boxBoundingTolerance = 0.01;
-  static int defaultPointPrecision = 2;
+  static double boxBoundingTolerance = 0.001;
+  static int defaultPointPrecision = 3;
 
   Size size;
   List<DynamicNode> nodes;

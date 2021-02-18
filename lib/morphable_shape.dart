@@ -8,6 +8,10 @@ export 'utils_math_geometry.dart';
 export 'utils_extension_methods.dart';
 export 'shadowed_shape.dart';
 export 'animated_shadowd_shape.dart';
+export 'dynamic_border_side.dart';
+export 'dynamic_border_sides.dart';
+export 'dynamic_border_radius.dart';
+export 'dynamic_rectangle_styles.dart';
 
 export 'shape.dart';
 export 'morphable_shape_border.dart';

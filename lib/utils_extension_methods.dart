@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:morphable_shape/utils_math_geometry.dart';
 import 'package:vector_math/vector_math.dart';
 import 'package:bezier/bezier.dart';
 import 'morphable_shape.dart';
@@ -9,7 +12,7 @@ extension CornerStyleExtension on CornerStyle {
   }
 
   bool get isConcave {
-    return this==CornerStyle.concave || this==CornerStyle.cutout;
+    return this == CornerStyle.concave || this == CornerStyle.cutout;
   }
 }
 
@@ -79,10 +82,10 @@ extension OffsetExtension on Offset {
         this.dx.clamp(lower.dx, upper.dx), this.dy.clamp(lower.dy, upper.dy));
   }
 
-  Offset rotateAround({Offset pivot=Offset.zero, double angle=0.0}) {
-    double distance=(this-pivot).distance;
-    double direction=(this-pivot).direction;
-    return pivot+Offset.fromDirection(direction+angle, distance);
+  Offset rotateAround({Offset pivot = Offset.zero, double angle = 0.0}) {
+    double distance = (this - pivot).distance;
+    double direction = (this - pivot).direction;
+    return pivot + Offset.fromDirection(direction + angle, distance);
   }
 
   Offset roundWithPrecision(int N) {
@@ -112,47 +115,89 @@ extension addDynamicNodeExtension on List<DynamicNode> {
     this.add(newNode);
   }
 
-  void arcTo(Rect rect, double startAngle, double sweepAngle) {
-    List<Offset> points = arcToCubicBezier(rect, startAngle, sweepAngle);
+  void addArc(Rect rect, double startAngle, double sweepAngle,
+      {int? splitTimes}) {
+    ///configure the minSplitTimes to let some FilledColorShape have symmetric split at the rounded corners
+    List<Offset> points =
+        arcToCubicBezier(rect, startAngle, sweepAngle, splitTimes: splitTimes);
+    this.add(DynamicNode(position: points[0]));
     for (int i = 0; i < points.length; i += 4) {
       this.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
     }
   }
 
-  List<CubicBezier> arcToCubicBezierCurve(Rect rect, double startAngle, double sweepAngle) {
-    List<Offset> points = arcToCubicBezier(rect, startAngle, sweepAngle);
-    List<CubicBezier> rst=[];
-    for (int i = 0; i < points.length; i += 4) {
-      rst.add(CubicBezier([points[i].toVector2(), points[i + 1].toVector2(), points[i + 2].toVector2(), points[i + 3].toVector2()]));
+  ///has to assume it is a circle, not an eclipse
+  void addStyledCorner(
+      Offset center, double radius, double startAngle, double sweepAngle,
+      {CornerStyle style = CornerStyle.rounded, int? splitTimes}) {
+    ///configure the minSplitTimes to let some FilledColorShape have symmetric split at the rounded corners
+    List<Offset> points = arcToCubicBezier(
+        Rect.fromCircle(center: center, radius: radius), startAngle, sweepAngle,
+        splitTimes: splitTimes);
+    if (style == CornerStyle.rounded) {
+      for (int i = 0; i < points.length; i += 4) {
+        this.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+      }
     }
-    return rst;
+    if (style == CornerStyle.straight) {
+      this.add(DynamicNode(position: points.first));
+      this.add(DynamicNode(position: (points.first + points.last) / 2));
+      this.add(DynamicNode(position: points.last));
+    }
+    if (style == CornerStyle.concave) {
+      Offset newCenter = center +
+          Offset.fromDirection((startAngle + sweepAngle / 2).clampAngle(),
+              radius / cos(sweepAngle / 2));
+      double newSweep = (-(pi - sweepAngle)).clampAngle();
+      double newStart =
+          -(pi - (startAngle + sweepAngle / 2) + newSweep / 2).clampAngle();
+      this.addArc(
+          Rect.fromCircle(
+              center: newCenter, radius: radius * tan(sweepAngle / 2)),
+          newStart,
+          newSweep,
+          splitTimes: splitTimes);
+    }
+    if (style == CornerStyle.cutout) {
+      this.add(DynamicNode(position: points.first));
+      this.add(DynamicNode(position: center));
+      this.add(DynamicNode(position: points.last));
+    }
   }
 }
 
-
-extension Vector2ToOffset on Vector2{
+extension Vector2ToOffset on Vector2 {
   Offset toOffset() {
     return Offset(this.x, this.y);
   }
 }
 
-extension doubleExtension on double {
-  double snapWithNumber(double number) {
-    return (this * number).round() / number;
-  }
-}
-
 extension extendColorListExtension on List<Color> {
-  List<Color> extendColors(int length) {
-    if (this.length>=length) {
+  List<Color> extendColorsToLength(int length) {
+    if (this.length >= length) {
       return this.sublist(0, length);
-    }else{
-      List<Color> rst=[];
-      for(int i=0; i<length; i++) {
-        rst.add(this[i%this.length]);
+    } else {
+      List<Color> rst = [];
+      for (int i = 0; i < length; i++) {
+        rst.add(this[i % this.length]);
       }
       return rst;
     }
+  }
+}
 
+extension angleDoubleExtension on double {
+  double toRadian() {
+    return this / 180 * pi;
+  }
+
+  double toDegree() {
+    return this / pi * 180;
+  }
+
+  double clampAngle() {
+    if (this > pi) return this - 2 * pi;
+    if (this < -pi) return this + 2 * pi;
+    return this;
   }
 }

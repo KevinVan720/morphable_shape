@@ -10,7 +10,7 @@ class ArcShape extends OutlinedShape {
   final bool isOutward;
 
   const ArcShape({
-    DynamicBorderSide border=defaultBorder,
+    DynamicBorderSide border = defaultBorder,
     this.side = ShapeSide.bottom,
     this.isOutward = true,
     this.arcHeight = const Length(20),
@@ -20,7 +20,7 @@ class ArcShape extends OutlinedShape {
       : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
         isOutward = map["isOutward"],
         arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20),
-  super(border: parseDynamicBorderSide(map["side"])??defaultBorder);
+        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "ArcShape"};
@@ -42,10 +42,9 @@ class ArcShape extends OutlinedShape {
       side: side ?? this.side,
       isOutward: isOutward ?? this.isOutward,
       arcHeight: arcHeight ?? this.arcHeight,
-      border: border?? this.border,
+      border: border ?? this.border,
     );
   }
-
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
@@ -95,8 +94,8 @@ class ArcShape extends OutlinedShape {
           double startAngle = pi + theta3;
           double sweepAngle = pi - 2 * theta3;
 
-          nodes.add(DynamicNode(position: Offset(0.0, arcHeight)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          //nodes.add(DynamicNode(position: Offset(0.0, arcHeight)));
+          nodes.addArc(circleRect, startAngle, sweepAngle);
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
         } else {
@@ -106,8 +105,8 @@ class ArcShape extends OutlinedShape {
               height: 2 * radius);
           double startAngle = pi - theta3;
           double sweepAngle = pi - 2 * theta3;
-          nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+          //nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
         }
@@ -123,9 +122,9 @@ class ArcShape extends OutlinedShape {
 
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          nodes.add(DynamicNode(
-              position: Offset(size.width, size.height - arcHeight)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          //nodes.add(DynamicNode(
+          //    position: Offset(size.width, size.height - arcHeight)));
+          nodes.addArc(circleRect, startAngle, sweepAngle);
         } else {
           Rect circleRect = Rect.fromCenter(
               center: Offset(size.width / 2, size.height - arcHeight + radius),
@@ -135,8 +134,8 @@ class ArcShape extends OutlinedShape {
           double sweepAngle = pi - 2 * theta3;
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+          //nodes.add(DynamicNode(position: Offset(size.width, size.height)));
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
         }
         break;
       case ShapeSide.left:
@@ -150,8 +149,8 @@ class ArcShape extends OutlinedShape {
           nodes.add(DynamicNode(position: Offset(arcHeight, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          nodes.add(DynamicNode(position: Offset(arcHeight, size.height)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          //nodes.add(DynamicNode(position: Offset(arcHeight, size.height)));
+          nodes.addArc(circleRect, startAngle, sweepAngle);
         } else {
           Rect circleRect = Rect.fromCenter(
               center: Offset(arcHeight - radius, size.height / 2),
@@ -162,8 +161,8 @@ class ArcShape extends OutlinedShape {
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          nodes.add(DynamicNode(position: Offset(0, size.height)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+          //nodes.add(DynamicNode(position: Offset(0, size.height)));
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
         }
         break;
       case ShapeSide.right: //right
@@ -174,8 +173,8 @@ class ArcShape extends OutlinedShape {
               height: 2 * radius);
           double startAngle = -(pi / 2 - theta3);
           double sweepAngle = pi - 2 * theta3;
-          nodes.add(DynamicNode(position: Offset(size.width - arcHeight, 0.0)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          //nodes.add(DynamicNode(position: Offset(size.width - arcHeight, 0.0)));
+          nodes.addArc(circleRect, startAngle, sweepAngle);
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
         } else {
@@ -185,8 +184,8 @@ class ArcShape extends OutlinedShape {
               height: 2 * radius);
           double startAngle = -(pi / 2 + theta3);
           double sweepAngle = pi - 2 * theta3;
-          nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+          //nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
         }

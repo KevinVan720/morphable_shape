@@ -66,7 +66,7 @@ class MorphShapeData {
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
-    int maxTrial = 500,
+    int maxTrial = 100,
     int minControlPoints = 16,
     int maxControlPoints = 120,
   }) {
@@ -201,7 +201,7 @@ class DynamicPathMorph {
     int totalPoints = max(path1.nodes.length, path2.nodes.length);
 
     double tempMinWeight = double.infinity;
-    List<int> tempCounts1, tempCounts2 = [];
+    List<int>? tempCounts1, tempCounts2;
     DynamicPath tempPath1, tempPath2;
 
     DynamicPath optimalPath1 = DynamicPath(size: Size.zero, nodes: []),
@@ -214,13 +214,19 @@ class DynamicPathMorph {
 
     ///for total points that are small, try add a few extra points to the Monte
     ///Carlo simulation to see if we can find a better solution
-    int totalPointsVariation =
-        totalPoints > minControlPoints ? 0 : (minControlPoints / 2).round();
+    ///But this takes more time and tends to bend more straight lines,
+    ///Currently just disable it, I can not find something that looks better
+    ///with this setting enabled
+    //int totalPointsVariation = max(5, (minControlPoints / 5).round());
+    int totalPointsVariation = 0;
 
     for (int iter = 0; iter <= totalPointsVariation; iter++) {
       for (int trial = 0; trial < maxTrial; trial++) {
-        tempCounts1 = sampleSupplyCounts(path1, totalPoints);
-        tempCounts2 = sampleSupplyCounts(path2, totalPoints);
+        tempCounts1 =
+            sampleSupplyCounts(path1, totalPoints, oldCounts: tempCounts1);
+        tempCounts2 =
+            sampleSupplyCounts(path2, totalPoints, oldCounts: tempCounts2);
+
         tempPath1 = supplyPoints(path1, tempCounts1);
         tempPath2 = supplyPoints(path2, tempCounts2);
 
@@ -305,10 +311,7 @@ class DynamicPathMorph {
         ", " +
         maxSingleOffset.toString() +
         ", " +
-        (centerShift *
-                optimalPath1.nodes.length *
-                totalAngleShift *
-                maxAngleShift)
+        (centerShift * path1Nodes.length * totalAngleShift * maxAngleShift)
             .toString());
 
     return [
@@ -318,7 +321,7 @@ class DynamicPathMorph {
       optimalPath2,
       shift,
       centerShift *
-          optimalPath1.nodes.length *
+          path1Nodes.length *
           totalAngleShift *
           maxAngleShift *
           maxSingleOffset,
@@ -332,8 +335,8 @@ class DynamicPathMorph {
     required int maxControlPoints,
   }) {
     int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
-    if (totalPoints < minControlPoints &&
-        path1.nodes.length != path2.nodes.length) {
+    if (totalPoints < minControlPoints ||
+        path1.nodes.length == path2.nodes.length) {
       totalPoints = path1.nodes.length * path2.nodes.length;
     }
 
@@ -343,6 +346,7 @@ class DynamicPathMorph {
       totalPoints =
           max(maxControlPoints, max(path1.nodes.length, path2.nodes.length));
     }
+
     List<int> optimalCount1 =
         sampleSupplyCounts(path1, totalPoints, weightBased: false);
     List<int> optimalCount2 =
@@ -383,10 +387,7 @@ class DynamicPathMorph {
         ", " +
         maxSingleOffset.toString() +
         ", " +
-        (centerShift *
-                optimalPath1.nodes.length *
-                totalAngleShift *
-                maxAngleShift)
+        (centerShift * path1Nodes.length * totalAngleShift * maxAngleShift)
             .toString());
 
     return [
@@ -396,7 +397,7 @@ class DynamicPathMorph {
       optimalPath2,
       shift,
       centerShift *
-          optimalPath1.nodes.length *
+          path1Nodes.length *
           totalAngleShift *
           maxAngleShift *
           maxSingleOffset,
@@ -522,7 +523,7 @@ class DynamicPathMorph {
 }
 
 List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
-    {bool weightBased = true}) {
+    {bool weightBased = true, List<int>? oldCounts}) {
   int length = path.nodes.length;
 
   int newPointsCount = totalPointsCount - length;
@@ -532,7 +533,7 @@ List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
   List<double> weights = [];
   double totalWeights = 0.0;
   for (int i = 0; i < length; i++) {
-    if (weightBased) {
+    if (weightBased && oldCounts == null) {
       weights.add(path.getPathLengthAt(i));
     } else {
       weights.add(1.0);
@@ -543,15 +544,20 @@ List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
   }
 
   List<int> counts;
+  int chooseIndex;
 
-  double scale = totalWeights / newPointsCount;
-  counts = weights.map((w) => (w / scale).ceil()).toList();
+  if (oldCounts == null) {
+    double scale = totalWeights / newPointsCount;
+    counts = weights.map((w) => (w / scale).ceil()).toList();
+  } else {
+    counts = oldCounts.map((e) => (e + 1)).toList();
+  }
 
   while (total(counts) > newPointsCount) {
-    int minIndex = randomChoose(weights);
+    chooseIndex = randomChoose(weights);
 
-    if (counts[minIndex] > 0) {
-      counts[minIndex] -= 1;
+    if (counts[chooseIndex] > 0) {
+      counts[chooseIndex] -= 1;
     }
   }
 

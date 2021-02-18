@@ -55,6 +55,56 @@ ShapeCorner? parseShapeCorner(String? string) {
   return null;
 }
 
+DynamicBorderSide? parseDynamicBorderSide(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return DynamicBorderSide.fromJson(map);
+}
+
+RectangleBorders? parseRectangleBorderSide(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return RectangleBorders.only(
+    top: parseDynamicBorderSide(map["top"]) ?? defaultBorder,
+    bottom: parseDynamicBorderSide(map["bottom"]) ?? defaultBorder,
+    left: parseDynamicBorderSide(map["left"]) ?? defaultBorder,
+    right: parseDynamicBorderSide(map["right"]) ?? defaultBorder,
+  );
+}
+
+RectangleCornerStyles? parseRectangleCornerStyle(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return RectangleCornerStyles.only(
+    topLeft: parseCornerStyle(map["topLeft"]) ?? CornerStyle.rounded,
+    topRight: parseCornerStyle(map["topRight"]) ?? CornerStyle.rounded,
+    bottomLeft: parseCornerStyle(map["bottomLeft"]) ?? CornerStyle.rounded,
+    bottomRight: parseCornerStyle(map["bottomRight"]) ?? CornerStyle.rounded,
+  );
+}
+
+DynamicRadius? parseDynamicRadius(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  Length x = Length.fromJson(map['x']) ?? Length(0);
+  Length y = Length.fromJson(map['y']) ?? Length(0);
+  return DynamicRadius.elliptical(x, y);
+}
+
+DynamicBorderRadius? parseDynamicBorderRadius(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  DynamicRadius topLeft =
+      parseDynamicRadius(map["topLeft"]) ?? DynamicRadius.zero;
+  DynamicRadius topRight =
+      parseDynamicRadius(map["topRight"]) ?? DynamicRadius.zero;
+  DynamicRadius bottomLeft =
+      parseDynamicRadius(map["bottomLeft"]) ?? DynamicRadius.zero;
+  DynamicRadius bottomRight =
+      parseDynamicRadius(map["bottomRight"]) ?? DynamicRadius.zero;
+  return DynamicBorderRadius.only(
+    topLeft: topLeft,
+    topRight: topRight,
+    bottomRight: bottomRight,
+    bottomLeft: bottomLeft,
+  );
+}
+
 DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
   if (map == null) return null;
   Size? size = parseSize(map["size"]);

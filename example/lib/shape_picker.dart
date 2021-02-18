@@ -9,10 +9,10 @@ typedef PickerLayoutBuilder = Widget Function(
     BuildContext context, List<String> allShape, PickerItem child);
 typedef PickerItem = Widget Function(String shape);
 typedef PickerItemBuilder = Widget Function(
-    String shape,
-    bool isCurrentShape,
-    void Function() changeShape,
-    );
+  String shape,
+  bool isCurrentShape,
+  void Function() changeShape,
+);
 
 class BlockShapePicker extends StatefulWidget {
   const BlockShapePicker({
@@ -29,13 +29,15 @@ class BlockShapePicker extends StatefulWidget {
       clipBehavior: Clip.antiAlias,
       type: MaterialType.canvas,
       shape: MorphableShapeBorder(
-        shape: presetShapeMap[shape]??RectangleShape(borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
+        shape: presetShapeMap[shape] ??
+            RectangleShape(
+                borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
         //borderWidth: isCurrentShape ? 4 : 2,
         //borderColor: isCurrentShape ? Colors.black87 : Colors.grey
       ),
       child: Container(
         color:
-        isCurrentShape ? Colors.grey.withOpacity(0.25) : Colors.transparent,
+            isCurrentShape ? Colors.grey.withOpacity(0.25) : Colors.transparent,
         child: InkWell(
           onTap: changeShape,
           radius: 60,
@@ -77,7 +79,7 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
         padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         children: presetShapeMap.keys
             .map((String shape) => widget.itemBuilder(
-            shape, shape == _currentShape, () => changeShape(shape)))
+                shape, shape == _currentShape, () => changeShape(shape)))
             .toList(),
       ),
     );
@@ -129,12 +131,11 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
                         Container(
                             alignment: Alignment.centerLeft,
                             padding: EdgeInsets.only(bottom: 10),
-                            child: Text(widget.headText,
-
+                            child: Text(
+                              widget.headText,
                               style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold
-                              ),)),
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            )),
                         BlockShapePicker(
                           onShapeChanged: changeShape,
                         ),
