@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:bezier/bezier.dart';
 
-const double arcSplitMaxSweepAngle = pi / 2;
+const double arcSplitMaxSweepAngle = pi / 4;
 const defaultBorder =
     DynamicBorderSide(color: Color(0xFF000000), width: Length(1));
 

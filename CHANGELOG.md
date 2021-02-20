@@ -70,3 +70,7 @@ Null safety
 ## [1.0.9-nullsafety] - 02.08.2021
 
 Update the auto morph method.
+
+## [1.1.0-nullsafety] - 02.19.2021
+
+

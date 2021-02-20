@@ -69,7 +69,7 @@ class DynamicPathMorph {
     MorphShapeData data, {
     int maxTrial = 360,
     int minControlPoints = 16,
-    int maxControlPoints = 120,
+    int maxControlPoints = 360,
   }) {
     DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
     if (data.begin is FilledBorderShape) {
@@ -148,27 +148,33 @@ class DynamicPathMorph {
         ///multiple times (maxTrial) here
 
         rst = weightedSampling(path1, path2,
-            maxTrial: maxTrial, minControlPoints: minControlPoints);
+            maxTrial: maxTrial,
+            minControlPoints: minControlPoints,
+            origin: data.boundingBox.center);
       } else if (data.method == MorphMethod.unweighted) {
         ///use the unweighted method, spread the extra points needed evenly on each curve
         rst = unweightedSampling(path1, path2,
             minControlPoints: minControlPoints,
-            maxControlPoints: maxControlPoints);
+            maxControlPoints: maxControlPoints,
+            origin: data.boundingBox.center);
       } else {
         ///too many possible ways to distribute the points for the weighted algorithm
         ///just j=ignore it
 
         List weighted = weightedSampling(path1, path2,
-            maxTrial: maxTrial, minControlPoints: minControlPoints);
+            maxTrial: maxTrial,
+            minControlPoints: minControlPoints,
+            origin: data.boundingBox.center);
 
         List unweighted = unweightedSampling(path1, path2,
             minControlPoints: minControlPoints,
-            maxControlPoints: maxControlPoints);
+            maxControlPoints: maxControlPoints,
+            origin: data.boundingBox.center);
 
-        //print("weighted" +
-        //    weighted[5].toString() +
-        //    ", unweighted" +
-        //    unweighted[5].toString());
+        print("weighted" +
+            weighted[5].toString() +
+            ", unweighted" +
+            unweighted[5].toString());
 
         ///the 5th element is the weight of the sampling
         rst = weighted[5] > unweighted[5] ? unweighted : weighted;
@@ -213,7 +219,9 @@ class DynamicPathMorph {
   }
 
   static List<dynamic> weightedSampling(DynamicPath path1, DynamicPath path2,
-      {required int minControlPoints, required int maxTrial}) {
+      {required int minControlPoints,
+      required int maxTrial,
+      required Offset origin}) {
     int totalPoints = max(path1.nodes.length, path2.nodes.length);
     int minPoints = min(path1.nodes.length, path2.nodes.length);
 
@@ -240,14 +248,6 @@ class DynamicPathMorph {
         maxTrial =
             min((maxTrial * minControlPoints / totalPoints).round(), maxTrial);
       }
-
-      ///for total points that are small, try add a few extra points to the Monte
-      ///Carlo simulation to see if we can find a better solution
-      ///But this takes more time and tends to bend more straight lines,
-      ///Currently just disable it, I can not find something that looks better
-      ///with this setting enabled
-      //int totalPointsVariation = max(5, (minControlPoints / 5).round());
-      //int totalPointsVariation = 0;
 
       for (int trial = 0; trial < maxTrial; trial++) {
         if (maxPossibleWay != maxTrial) {
@@ -279,7 +279,8 @@ class DynamicPathMorph {
                 tempPath1.nodes.map((e) => e.position).toList(),
             path2Nodes = tempPath2.nodes.map((e) => e.position).toList();
 
-        double tempWeight = computeTotalMorphWeight(path1Nodes, path2Nodes);
+        double tempWeight =
+            computeTotalMorphWeight(path1Nodes, path2Nodes, origin: origin);
 
         tempPath1.nodes =
             rotateList(tempPath1.nodes, -tempShift) as List<DynamicNode>;
@@ -316,16 +317,14 @@ class DynamicPathMorph {
       optimalPath1,
       optimalPath2,
       shift,
-      computeTotalMorphWeight(path1Nodes, path2Nodes),
+      computeTotalMorphWeight(path1Nodes, path2Nodes, origin: origin),
     ];
   }
 
-  static List<dynamic> unweightedSampling(
-    DynamicPath path1,
-    DynamicPath path2, {
-    required int minControlPoints,
-    required int maxControlPoints,
-  }) {
+  static List<dynamic> unweightedSampling(DynamicPath path1, DynamicPath path2,
+      {required int minControlPoints,
+      required int maxControlPoints,
+      required Offset origin}) {
     int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
     if (totalPoints < minControlPoints ||
         path1.nodes.length == path2.nodes.length) {
@@ -363,7 +362,7 @@ class DynamicPathMorph {
       optimalPath1,
       optimalPath2,
       shift,
-      computeTotalMorphWeight(path1Nodes, path2Nodes),
+      computeTotalMorphWeight(path1Nodes, path2Nodes, origin: origin),
     ];
   }
 
@@ -446,12 +445,16 @@ class DynamicPathMorph {
   }
 
   static double computeTotalMorphWeight(
-      List<Offset> points1, List<Offset> points2) {
+      List<Offset> points1, List<Offset> points2,
+      {Offset origin = Offset.zero}) {
     assert(points1.length == points2.length);
     int length = points1.length;
     double maxAngle = 0.0;
     double totalAngle = 0.0;
+    double maxAngleFromOrigin = 0.0;
+    double totalAngleFromOrigin = 0.0;
     double maxOffset = 0.0;
+    double totalOffset = 0.0;
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
       double diff =
@@ -460,12 +463,25 @@ class DynamicPathMorph {
       if (diff > pi) diff -= 2 * pi;
       if (diff.abs() > maxAngle) maxAngle = diff.abs();
       totalAngle += diff;
+      double diffFromOrigin =
+          (points1[i] - origin).direction - (points2[i] - origin).direction;
+      if (diffFromOrigin < -pi) diffFromOrigin += 2 * pi;
+      if (diffFromOrigin > pi) diffFromOrigin -= 2 * pi;
+      if (diffFromOrigin.abs() > maxAngleFromOrigin)
+        maxAngleFromOrigin = diffFromOrigin.abs();
+      totalAngleFromOrigin += diffFromOrigin;
       if ((points1[i] - points2[i]).distance > maxOffset)
         maxOffset = (points1[i] - points2[i]).distance;
+      totalOffset+=(points1[i] - points2[i]).distance;
     }
-    return points1.length *
+
+    return
         max(1e-10, maxAngle) *
         max(1e-10, totalAngle) *
+        max(1e-10, maxAngleFromOrigin) *
+        max(1e-10, totalAngleFromOrigin) *
+        maxOffset*
+        totalOffset*
         max(1e-10, (center1 - center2).distance);
   }
 
