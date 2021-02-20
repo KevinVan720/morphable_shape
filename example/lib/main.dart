@@ -10,11 +10,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Shape Editor',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          primarySwatch: Colors.amber,
+          primaryColor: Colors.amber,
+          primaryColorBrightness: Brightness.dark,
+          sliderTheme: SliderTheme.of(context).copyWith(
+            inactiveTrackColor: Colors.black.withOpacity(0.2),
+            thumbColor: Colors.amber,
+            activeTrackColor: Colors.amber,
+            overlayColor: Colors.amber.withOpacity(0.2),
+          ),),
       home: EditShapePage(),
     );
   }
 }
-
-

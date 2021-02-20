@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
-import 'value_pickers.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
+
+import 'value_pickers.dart';
 
 class MorphShapePage extends StatefulWidget {
   Shape shape;
@@ -35,7 +36,28 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     startShape = widget.shape;
 
-    endShape = StarShape();
+    endShape = RectangleShape(
+      borderRadius:
+          DynamicBorderRadius.all(DynamicRadius.circular(25.toPercentLength)),
+      borders: RectangleBorders.only(
+        top: DynamicBorderSide(
+            width: 0.toPercentLength,
+            color: Colors.red,
+            gradient: LinearGradient(colors: [Colors.redAccent, Colors.green])),
+        left: DynamicBorderSide(
+            width: 0.toPercentLength,
+            color: Colors.red,
+            gradient: LinearGradient(colors: [Colors.redAccent, Colors.blue])),
+        right: DynamicBorderSide(
+            width: 15.toPercentLength,
+            color: Colors.green,
+            gradient: LinearGradient(colors: [Colors.yellow, Colors.green])),
+        bottom: DynamicBorderSide(
+            width: 15.toPercentLength,
+            color: Colors.green,
+            gradient: LinearGradient(colors: [Colors.yellow, Colors.green])),
+      ),
+    );
 
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: durationInSec));
@@ -71,10 +93,8 @@ class _MorphShapePageState extends State<MorphShapePage>
     MorphableShapeBorder startBorder;
     MorphableShapeBorder endBorder;
 
-    startBorder = MorphableShapeBorder(
-        shape: startShape, borderColor: Colors.redAccent, borderWidth: 1);
-    endBorder = MorphableShapeBorder(
-        shape: endShape, borderColor: Colors.redAccent, borderWidth: 1);
+    startBorder = MorphableShapeBorder(shape: startShape);
+    endBorder = MorphableShapeBorder(shape: endShape);
 
     MorphableShapeBorderTween shapeBorderTween = MorphableShapeBorderTween(
         begin: startBorder, end: endBorder, method: method);
@@ -113,22 +133,6 @@ class _MorphShapePageState extends State<MorphShapePage>
         ),
         body: Stack(
           children: [
-            /*
-          Container(
-          color: Colors.black54,
-          child:Center(
-              child: AnimatedShadowedShape(
-                  duration: Duration(seconds: durationInSec),
-                  shape: endBorder,
-                  child: AnimatedContainer(
-                    duration: Duration(seconds: durationInSec),
-                    color: Colors.amberAccent,
-                    width: shapeWidth,
-                    height: shapeHeight,
-                  )),
-            )),
-            */
-
             Container(
                 color: Colors.black54,
                 child: AnimatedBuilder(
@@ -150,12 +154,13 @@ class _MorphShapePageState extends State<MorphShapePage>
                           ),
                           showControl
                               ? CustomPaint(
-                                  painter: MorphControlPointsPainter(
-                                      DynamicPathMorph.lerpPath(
-                                              t, shapeBorderTween.data)
-                                          .nodes
-                                          .map((e) => e.position)
-                                          .toList()),
+                                  painter: MorphControlPointsPainter(DynamicPathMorph.lerpPaths(
+                                      t,
+                                      shapeBorderTween.data.beginOuterPath,
+                                      shapeBorderTween.data.endOuterPath)
+                                      .nodes
+                                      .map((e) => e.position)
+                                      .toList()),
                                   child: Container(
                                     width: shapeWidth,
                                     height: shapeHeight,
@@ -228,7 +233,6 @@ class _MorphShapePageState extends State<MorphShapePage>
                         ),
                       ),
                       Switch(
-                          activeColor: Colors.white70,
                           value: showControl,
                           onChanged: (value) {
                             setState(() {
@@ -289,18 +293,24 @@ class _MorphShapePageState extends State<MorphShapePage>
 
 class MorphControlPointsPainter extends CustomPainter {
   List<Offset> controlPoints;
-  var myPaint;
 
-  MorphControlPointsPainter(this.controlPoints) {
-    myPaint = Paint();
-    myPaint.color = Color.fromRGBO(255, 0, 0, 1.0);
-    myPaint.style = PaintingStyle.fill;
-    myPaint.strokeWidth = 2.0;
-  }
+  MorphControlPointsPainter(this.controlPoints);
 
   @override
   void paint(Canvas canvas, Size size) {
+    var myPaint = Paint();
+    myPaint.color = Colors.red;
+    myPaint.style = PaintingStyle.fill;
+    myPaint.strokeWidth = 2.0;
     Path path = Path();
+    controlPoints.forEach((element) {
+      path.addOval(Rect.fromCircle(
+          center: element, radius: min(4, 300 / controlPoints.length)));
+    });
+    canvas.drawPath(path, myPaint);
+    myPaint.color = Colors.black;
+    myPaint.style = PaintingStyle.stroke;
+    myPaint.strokeWidth = 2.0;
     controlPoints.forEach((element) {
       path.addOval(Rect.fromCircle(
           center: element, radius: min(4, 300 / controlPoints.length)));

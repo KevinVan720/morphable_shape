@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../morphable_shape_border.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///Bubble shape, with a triangular tip and equal radius rounded corner
-class BubbleShape extends Shape {
+class BubbleShape extends OutlinedShape {
   final ShapeCorner corner;
 
   final Length borderRadius;
@@ -16,31 +16,14 @@ class BubbleShape extends Shape {
   final Length arrowHeadPosition;
 
   const BubbleShape({
+    DynamicBorderSide border = DynamicBorderSide.none,
     this.corner = ShapeCorner.bottomRight,
     this.borderRadius = const Length(6),
     this.arrowHeight = const Length(20, unit: LengthUnit.percent),
     this.arrowWidth = const Length(30, unit: LengthUnit.percent),
     this.arrowCenterPosition = const Length(50, unit: LengthUnit.percent),
     this.arrowHeadPosition = const Length(50, unit: LengthUnit.percent),
-  });
-
-  BubbleShape copyWith({
-    ShapeCorner? corner,
-    Length? borderRadius,
-    Length? arrowHeight,
-    Length? arrowWidth,
-    Length? arrowCenterPosition,
-    Length? arrowHeadPosition,
-  }) {
-    return BubbleShape(
-      corner: corner ?? this.corner,
-      borderRadius: borderRadius ?? this.borderRadius,
-      arrowHeight: arrowHeight ?? this.arrowHeight,
-      arrowWidth: arrowWidth ?? this.arrowWidth,
-      arrowCenterPosition: arrowCenterPosition ?? this.arrowCenterPosition,
-      arrowHeadPosition: arrowHeadPosition ?? this.arrowHeadPosition,
-    );
-  }
+  }) : super(border: border);
 
   BubbleShape.fromJson(Map<String, dynamic> map)
       : corner = parseShapeCorner(map["corner"]) ?? ShapeCorner.bottomRight,
@@ -51,20 +34,43 @@ class BubbleShape extends Shape {
         arrowCenterPosition =
             Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
         arrowHeadPosition =
-            Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength;
+            Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength,
+        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "BubbleShape"};
+    rst.addAll(super.toJson());
     rst["corner"] = corner.toJson();
     rst["borderRadius"] = borderRadius.toJson();
     rst["arrowHeight"] = arrowHeight.toJson();
     rst["arrowWidth"] = arrowWidth.toJson();
     rst["arrowCenterPosition"] = arrowCenterPosition.toJson();
     rst["arrowHeadPosition"] = arrowHeadPosition.toJson();
+
     return rst;
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  BubbleShape copyWith({
+    ShapeCorner? corner,
+    Length? borderRadius,
+    Length? arrowHeight,
+    Length? arrowWidth,
+    Length? arrowCenterPosition,
+    Length? arrowHeadPosition,
+    DynamicBorderSide? border,
+  }) {
+    return BubbleShape(
+      border: border??this.border,
+      corner: corner ?? this.corner,
+      borderRadius: borderRadius ?? this.borderRadius,
+      arrowHeight: arrowHeight ?? this.arrowHeight,
+      arrowWidth: arrowWidth ?? this.arrowWidth,
+      arrowCenterPosition: arrowCenterPosition ?? this.arrowCenterPosition,
+      arrowHeadPosition: arrowHeadPosition ?? this.arrowHeadPosition,
+    );
+  }
+
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
     double borderRadius;
@@ -147,8 +153,7 @@ class BubbleShape extends Shape {
           position: Offset(arrowCenterPosition + arrowWidth / 2, top)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(right - borderRadius, top)));
-      nodes.arcTo(
+      nodes.addArc(
           Rect.fromLTRB(
               right - 2 * borderRadius, top, right, top + 2 * borderRadius),
           3 * pi / 2,
@@ -166,8 +171,7 @@ class BubbleShape extends Shape {
           position: Offset(right, arrowCenterPosition + arrowWidth / 2)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(right, bottom - borderRadius)));
-      nodes.arcTo(
+      nodes.addArc(
           Rect.fromLTRB(right - borderRadius * 2, bottom - borderRadius * 2,
               right, bottom),
           0,
@@ -184,8 +188,7 @@ class BubbleShape extends Shape {
           position: Offset(arrowCenterPosition - arrowWidth / 2, bottom)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(left + borderRadius, bottom)));
-      nodes.arcTo(
+      nodes.addArc(
           Rect.fromLTRB(
               left, bottom - borderRadius * 2, left + borderRadius * 2, bottom),
           pi / 2,
@@ -203,8 +206,7 @@ class BubbleShape extends Shape {
           position: Offset(left, arrowCenterPosition - arrowWidth / 2)));
     }
     if (borderRadius > 0) {
-      nodes.add(DynamicNode(position: Offset(left, top + borderRadius)));
-      nodes.arcTo(
+      nodes.addArc(
           Rect.fromLTRB(
               left, top, left + borderRadius * 2, top + borderRadius * 2),
           pi,

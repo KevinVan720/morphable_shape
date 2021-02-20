@@ -1,30 +1,36 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../morphable_shape_border.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///A rectangle with one side replaced by an arc with a certain height
-class ArcShape extends Shape {
+class ArcShape extends OutlinedShape {
   final ShapeSide side;
   final Length arcHeight;
   final bool isOutward;
 
   const ArcShape({
+    DynamicBorderSide border = DynamicBorderSide.none,
     this.side = ShapeSide.bottom,
     this.isOutward = true,
     this.arcHeight = const Length(20),
-  });
+  }) : super(border: border);
 
   ArcShape.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
         isOutward = map["isOutward"],
-        arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20);
+        arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20),
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "ArcShape"};
+    rst.addAll(super.toJson());
     rst["arcHeight"] = arcHeight.toJson();
     rst["isOutward"] = isOutward;
     rst["side"] = side.toJson();
+
     return rst;
   }
 
@@ -32,15 +38,17 @@ class ArcShape extends Shape {
     ShapeSide? side,
     bool? isOutward,
     Length? arcHeight,
+    DynamicBorderSide? border,
   }) {
     return ArcShape(
       side: side ?? this.side,
       isOutward: isOutward ?? this.isOutward,
       arcHeight: arcHeight ?? this.arcHeight,
+      border: border ?? this.border,
     );
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
     double maximumSize = min(size.height, size.height) / 2;
@@ -88,8 +96,7 @@ class ArcShape extends Shape {
           double startAngle = pi + theta3;
           double sweepAngle = pi - 2 * theta3;
 
-          nodes.add(DynamicNode(position: Offset(0.0, arcHeight)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          nodes.addArc(circleRect, startAngle, sweepAngle);
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
         } else {
@@ -99,8 +106,8 @@ class ArcShape extends Shape {
               height: 2 * radius);
           double startAngle = pi - theta3;
           double sweepAngle = pi - 2 * theta3;
-          nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
         }
@@ -116,9 +123,7 @@ class ArcShape extends Shape {
 
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          nodes.add(DynamicNode(
-              position: Offset(size.width, size.height - arcHeight)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          nodes.addArc(circleRect, startAngle, sweepAngle);
         } else {
           Rect circleRect = Rect.fromCenter(
               center: Offset(size.width / 2, size.height - arcHeight + radius),
@@ -128,8 +133,7 @@ class ArcShape extends Shape {
           double sweepAngle = pi - 2 * theta3;
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
         }
         break;
       case ShapeSide.left:
@@ -143,8 +147,7 @@ class ArcShape extends Shape {
           nodes.add(DynamicNode(position: Offset(arcHeight, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          nodes.add(DynamicNode(position: Offset(arcHeight, size.height)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          nodes.addArc(circleRect, startAngle, sweepAngle);
         } else {
           Rect circleRect = Rect.fromCenter(
               center: Offset(arcHeight - radius, size.height / 2),
@@ -155,8 +158,7 @@ class ArcShape extends Shape {
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          nodes.add(DynamicNode(position: Offset(0, size.height)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
         }
         break;
       case ShapeSide.right: //right
@@ -167,8 +169,7 @@ class ArcShape extends Shape {
               height: 2 * radius);
           double startAngle = -(pi / 2 - theta3);
           double sweepAngle = pi - 2 * theta3;
-          nodes.add(DynamicNode(position: Offset(size.width - arcHeight, 0.0)));
-          nodes.arcTo(circleRect, startAngle, sweepAngle);
+          nodes.addArc(circleRect, startAngle, sweepAngle);
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
         } else {
@@ -178,8 +179,7 @@ class ArcShape extends Shape {
               height: 2 * radius);
           double startAngle = -(pi / 2 + theta3);
           double sweepAngle = pi - 2 * theta3;
-          nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          nodes.arcTo(circleRect, startAngle, -sweepAngle);
+          nodes.addArc(circleRect, startAngle, -sweepAngle);
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
         }

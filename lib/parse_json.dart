@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/parse_json.dart';
-
-import 'morphable_shape_border.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 CornerStyle? parseCornerStyle(String? string) {
   if (string == null) return null;
@@ -56,6 +55,31 @@ ShapeCorner? parseShapeCorner(String? string) {
   return null;
 }
 
+DynamicBorderSide? parseDynamicBorderSide(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return DynamicBorderSide.fromJson(map);
+}
+
+RectangleBorders? parseRectangleBorderSide(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return RectangleBorders.fromJson(map);
+}
+
+RectangleCornerStyles? parseRectangleCornerStyle(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return RectangleCornerStyles.fromJson(map);
+}
+
+DynamicRadius? parseDynamicRadius(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return DynamicRadius.fromJson(map);
+}
+
+DynamicBorderRadius? parseDynamicBorderRadius(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  return DynamicBorderRadius.fromJson(map);
+}
+
 DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
   if (map == null) return null;
   Size? size = parseSize(map["size"]);
@@ -102,7 +126,5 @@ MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
     shape: parseShape(map["shape"]) ??
         RectangleShape(
             borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
-    borderWidth: map["borderWidth"] ?? 0.0,
-    borderColor: parseColor(map["borderColor"]) ?? Colors.black,
   );
 }

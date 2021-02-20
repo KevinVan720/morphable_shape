@@ -1,40 +1,49 @@
 import 'package:flutter/material.dart';
 
-import '../morphable_shape_border.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///A trapezoid shape, can be achieved from a rectangle
 ///may remove in the future
-class TrapezoidShape extends Shape {
+
+class TrapezoidShape extends OutlinedShape {
   final ShapeSide side;
   final Length inset;
 
   const TrapezoidShape(
       {this.side = ShapeSide.bottom,
-      this.inset = const Length(20, unit: LengthUnit.percent)});
+      this.inset = const Length(20, unit: LengthUnit.percent),
+      DynamicBorderSide border = DynamicBorderSide.none})
+      : super(border: border);
 
-  Shape copyWith({
+  TrapezoidShape copyWith({
     ShapeSide? side,
     Length? inset,
+    DynamicBorderSide? border,
   }) {
     return TrapezoidShape(
       side: side ?? this.side,
       inset: inset ?? this.inset,
+      border: border ?? this.border,
     );
   }
 
   TrapezoidShape.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
         inset = Length.fromJson(map['inset']) ??
-            Length(20, unit: LengthUnit.percent);
+            Length(20, unit: LengthUnit.percent),
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "TrapezoidShape"};
+    rst.addAll(super.toJson());
     rst["inset"] = inset.toJson();
     rst["side"] = side.toJson();
     return rst;
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
     Size size = rect.size;
@@ -53,10 +62,8 @@ class TrapezoidShape extends Shape {
     switch (side) {
       case ShapeSide.top:
         {
-          nodes.add(
-              DynamicNode(position: Offset(inset, 0)));
-          nodes.add(
-              DynamicNode(position: Offset(size.width - inset, 0)));
+          nodes.add(DynamicNode(position: Offset(inset, 0)));
+          nodes.add(DynamicNode(position: Offset(size.width - inset, 0)));
 
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0, size.height)));

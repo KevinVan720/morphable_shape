@@ -1,10 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../morphable_shape_border.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///triangle shape defined by the three vertices
 ///vertices should only use the percent length unit
-class TriangleShape extends Shape {
+class TriangleShape extends OutlinedShape {
   final DynamicOffset point1;
   final DynamicOffset point2;
   final DynamicOffset point3;
@@ -18,40 +18,45 @@ class TriangleShape extends Shape {
           const Length(0, unit: LengthUnit.percent)),
       this.point3 = const DynamicOffset(
           const Length(50, unit: LengthUnit.percent),
-          const Length(100, unit: LengthUnit.percent))});
-
-  Shape copyWith({
-    DynamicOffset? point1,
-    DynamicOffset? point2,
-    DynamicOffset? point3,
-  }) {
-    return TriangleShape(
-      point1: point1 ?? this.point1,
-      point2: point2 ?? this.point2,
-      point3: point3 ?? this.point3,
-    );
-  }
+          const Length(100, unit: LengthUnit.percent)),
+      DynamicBorderSide border=DynamicBorderSide.none}) : super(border: border);
 
   TriangleShape.fromJson(Map<String, dynamic> map)
       : point1 = parseDynamicOffset(map["point1"]) ??
-            DynamicOffset(const Length(0, unit: LengthUnit.percent),
-                const Length(0, unit: LengthUnit.percent)),
+      DynamicOffset(const Length(0, unit: LengthUnit.percent),
+          const Length(0, unit: LengthUnit.percent)),
         point2 = parseDynamicOffset(map["point2"]) ??
             DynamicOffset(const Length(100, unit: LengthUnit.percent),
                 const Length(0, unit: LengthUnit.percent)),
         point3 = parseDynamicOffset(map["point3"]) ??
             DynamicOffset(const Length(50, unit: LengthUnit.percent),
-                const Length(100, unit: LengthUnit.percent));
+                const Length(100, unit: LengthUnit.percent)),
+  super(border: parseDynamicBorderSide(map["border"])??DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "TriangleShape"};
+    rst.addAll(super.toJson());
     rst["point1"] = point1.toJson();
     rst["point2"] = point2.toJson();
     rst["point3"] = point3.toJson();
     return rst;
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  TriangleShape copyWith({
+    DynamicOffset? point1,
+    DynamicOffset? point2,
+    DynamicOffset? point3,
+    DynamicBorderSide? border,
+  }) {
+    return TriangleShape(
+      point1: point1 ?? this.point1,
+      point2: point2 ?? this.point2,
+      point3: point3 ?? this.point3,
+      border: border?? this.border,
+    );
+  }
+
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
     Size size = rect.size;

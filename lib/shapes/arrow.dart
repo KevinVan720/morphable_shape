@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../morphable_shape_border.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///An arrow shape with a head and a tail
-class ArrowShape extends Shape {
+
+class ArrowShape extends OutlinedShape {
   final ShapeSide side;
   final Length arrowHeight;
   final Length tailWidth;
@@ -10,35 +11,41 @@ class ArrowShape extends Shape {
   const ArrowShape(
       {this.side = ShapeSide.right,
       this.arrowHeight = const Length(25, unit: LengthUnit.percent),
-      this.tailWidth = const Length(40, unit: LengthUnit.percent)});
-
-  ArrowShape copyWith({
-    ShapeSide? side,
-    Length? arrowHeight,
-    Length? tailWidth,
-  }) {
-    return ArrowShape(
-        side: side ?? this.side,
-        arrowHeight: arrowHeight ?? this.arrowHeight,
-        tailWidth: tailWidth ?? this.tailWidth);
-  }
+      this.tailWidth = const Length(40, unit: LengthUnit.percent),
+      DynamicBorderSide border = DynamicBorderSide.none})
+      : super(border: border);
 
   ArrowShape.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
         arrowHeight = Length.fromJson(map['arrowHeight']) ??
             Length(25, unit: LengthUnit.percent),
         tailWidth = Length.fromJson(map['tailWidth']) ??
-            Length(40, unit: LengthUnit.percent);
+            Length(40, unit: LengthUnit.percent),
+        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "ArrowShape"};
+    rst.addAll(super.toJson());
     rst["side"] = side.toJson();
     rst["arrowHeight"] = arrowHeight.toJson();
     rst["tailWidth"] = tailWidth.toJson();
     return rst;
   }
 
-  DynamicPath generateDynamicPath(Rect rect) {
+  ArrowShape copyWith({
+    ShapeSide? side,
+    Length? arrowHeight,
+    Length? tailWidth,
+    DynamicBorderSide? border,
+  }) {
+    return ArrowShape(
+        side: side ?? this.side,
+        arrowHeight: arrowHeight ?? this.arrowHeight,
+        tailWidth: tailWidth ?? this.tailWidth,
+        border: border ?? this.border);
+  }
+
+  DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
     Size size = rect.size;

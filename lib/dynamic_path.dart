@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'morphable_shape_border.dart';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///Maybe used in the future to help editing DynamicPath
 enum NodeControlMode {
@@ -31,8 +32,8 @@ class DynamicNode {
 
 ///A Bezier path with either straight line or cubic Bezier line
 class DynamicPath {
-  static double boxBoundingTolerance = 0.01;
-  static int defaultPointPrecision = 2;
+  static double boxBoundingTolerance = 0.001;
+  static int defaultPointPrecision = 3;
 
   Size size;
   List<DynamicNode> nodes;
@@ -72,7 +73,8 @@ class DynamicPath {
       iteration++;
     }
 
-    ///Effectively force the points and control points within the bounding rect
+    ///Effectively force the points and control points to all lie within the bounding rect
+    ///also round the offsets by a fixed precision
     for (int index = 0; index < nodes.length; index++) {
       moveNodeBy(index, Offset.zero);
       nodes[index].position =
@@ -84,7 +86,8 @@ class DynamicPath {
     }
 
     /// combine points that lie very close
-    cleanOverlappingNodes();
+    /// not done here because FilledBorderShape needs to access the overlapping point information
+    //removeOverlappingNodes();
   }
 
   int getOutlierIndex({required Rect bound}) {
@@ -100,19 +103,25 @@ class DynamicPath {
     return outlierIndex;
   }
 
-  void cleanOverlappingNodes() {
+  void removeOverlappingNodes() {
     if (nodes.isNotEmpty) {
+      double pointGroupWeight = 1;
       List<DynamicNode> newNodes = [nodes[0]];
       for (int i = 0; i < nodes.length; i++) {
         if ((nodes[i].position - newNodes.last.position).distance <
             boxBoundingTolerance * size.shortestSide) {
           newNodes.last.next = nodes[i].next;
+          newNodes.last.position +=
+              (nodes[i].position - newNodes.last.position) /
+                  (pointGroupWeight + 1);
+          pointGroupWeight++;
         } else if (i == nodes.length - 1 &&
             (nodes[i].position - newNodes.first.position).distance <
                 boxBoundingTolerance * size.shortestSide) {
           newNodes.first.prev = nodes[i].prev;
         } else {
           newNodes.add(nodes[i]);
+          pointGroupWeight = 1;
         }
       }
       nodes = newNodes;
@@ -125,6 +134,44 @@ class DynamicPath {
     rst["nodes"] = nodes.map((e) => e.toJson()).toList();
     return rst;
   }
+
+  ///used to try implement multi colored borders
+  ///does not work great with concave shapes
+  /*
+  Offset getCenterOfMass() {
+    Offset center = Offset.zero;
+    nodes.forEach((element) {
+      center += element.position;
+    });
+    return center / nodes.length.toDouble();
+  }
+
+  void rotate(double angle) {
+    Offset center = getCenterOfMass();
+    nodes.forEach((element) {
+      element.position =
+          element.position.rotateAround(pivot: center, angle: angle);
+      if (element.prev != null) {
+        element.prev = element.prev!.rotateAround(pivot: center, angle: angle);
+      }
+      if (element.next != null) {
+        element.next = element.next!.rotateAround(pivot: center, angle: angle);
+      }
+    });
+  }
+
+  void shift(Offset shift) {
+    nodes.forEach((element) {
+      element.position = element.position + shift;
+      if (element.prev != null) {
+        element.prev = element.prev! + shift;
+      }
+      if (element.next != null) {
+        element.next = element.next! + shift;
+      }
+    });
+  }
+  */
 
   void resize(Size newSize) {
     nodes.forEach((element) {
@@ -333,6 +380,7 @@ class DynamicPath {
 
   ///convert this to a Path
   Path getPath(Size newSize) {
+    resize(newSize);
     Path path = Path();
     if (nodes.isNotEmpty) {
       path.moveTo(nodes[0].position.dx, nodes[0].position.dy);
@@ -353,32 +401,88 @@ class DynamicPath {
       }
     }
 
-    final Matrix4 matrix4 = Matrix4.identity();
-    matrix4.scale(newSize.width / size.width, newSize.height / size.height);
-    return path.transform(matrix4.storage);
+    return path;
   }
 
   ///convert this to a list of Paths
   ///possible for multiple border color and width?
-  List<Path> getPaths(Size newSize) {
-    List<Path> rst = [];
-    for (int i = 0; i < nodes.length; i++) {
-      Path path = Path();
-      path.moveTo(nodes[i].position.dx, nodes[i].position.dy);
-      List<Offset> controlPoints = getNextPathControlPointsAt(i);
-      if (controlPoints.length == 4) {
-        path
-          ..cubicTo(
-              controlPoints[1].dx,
-              controlPoints[1].dy,
-              controlPoints[2].dx,
-              controlPoints[2].dy,
-              controlPoints[3].dx,
-              controlPoints[3].dy);
-      } else {
-        path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
+  /*
+  List<Path> getPaths(
+      Size newSize, DynamicEdgeInsets? borderInsets) {
+    int pathLength = nodes.length;
+    /*
+    if (borderColors.length < pathLength) {
+      int diff = pathLength - borderColors.length;
+      for (int i = 0; i < diff; i++) {
+        borderColors.add(Colors.black);
       }
-      rst.add(path);
+    } else if (borderColors.length > pathLength) {
+      int diff = pathLength - borderColors.length;
+      for (int i = 0; i < diff; i++) {
+        borderColors.removeLast();
+      }
+    }
+
+     */
+
+    //Rect originalRect=getPath(newSize).getBounds();
+    Rect originalRect=Rect.fromLTRB(0, 0, newSize.width, newSize.height);
+    double top = 0, bottom = 0, left = 0, right = 0;
+    if (borderInsets != null) {
+      top = borderInsets.top
+              ?.toPX(constraintSize: originalRect.height)
+              .clamp(0, originalRect.height) ??
+          0;
+      bottom = borderInsets.bottom
+              ?.toPX(constraintSize: originalRect.height)
+              .clamp(0, originalRect.height) ??
+          0;
+      left = borderInsets.left
+              ?.toPX(constraintSize: originalRect.width)
+              .clamp(0, originalRect.width) ??
+          0;
+      right = borderInsets.right
+              ?.toPX(constraintSize: originalRect.width)
+              .clamp(0, originalRect.width) ??
+          0;
+      if (top + bottom > originalRect.height) {
+        double ratio = top / (top + bottom);
+        top =  ratio * originalRect.height;
+        bottom = (1 - ratio) * originalRect.height;
+      }
+      if (left + right > originalRect.width) {
+        double ratio = left / (left + right);
+        left = ratio * originalRect.width;
+        right = (1 - ratio) * originalRect.width;
+      }
+    }
+
+    List<Path> rst = [];
+
+    DynamicPath newPath = DynamicPath(size: size, nodes: []);
+    nodes.forEach((element) {
+      newPath.nodes.add(DynamicNode(
+          position: element.position, prev: element.prev, next: element.next));
+    });
+    newPath.resize(
+        Size(originalRect.width - left - right, originalRect.height - top - bottom));
+    //Offset diff=getCenterOfMass()-newPath.getCenterOfMass();
+    newPath.shift(Offset(originalRect.left+left, originalRect.top+top));
+    //newPath.shift(Offset(left, top));
+
+    for (int i = 0; i < pathLength; i++) {
+      DynamicNode nextNode = nodes[(i + 1) % pathLength];
+      DynamicPath borderPath = DynamicPath(size: size, nodes: []);
+      borderPath.nodes
+          .add(DynamicNode(position: nodes[i].position, next: nodes[i].next));
+      borderPath.nodes
+          .add(DynamicNode(position: nextNode.position, prev: nextNode.prev));
+      DynamicNode nextInnerNode = newPath.nodes[(i + 1) % pathLength];
+      borderPath.nodes.add(DynamicNode(
+          position: nextInnerNode.position, next: nextInnerNode.prev));
+      borderPath.nodes.add(DynamicNode(
+          position: newPath.nodes[i].position, prev: newPath.nodes[i].next));
+      rst.add(borderPath.getPath(size));
     }
 
     final Matrix4 matrix4 = Matrix4.identity();
@@ -386,11 +490,215 @@ class DynamicPath {
     return rst.map((e) => e.transform(matrix4.storage)).toList();
   }
 
+  double getInnerDirection(Offset start, double direction) {
+    if (!this
+        .getPath(size)
+        .contains((start + Offset.fromDirection(direction, 0.1)))) {
+      return direction + pi;
+    }
+    return direction;
+  }
+
+  List<Path> getPaths(Size newSize) {
+    int pathLength = nodes.length;
+
+    List<Path> rst = [];
+
+    for (int i = 0; i < pathLength; i++) {
+      DynamicNode nextNode = nodes[(i + 1) % pathLength];
+      DynamicPath borderPath = DynamicPath(size: size, nodes: []);
+      borderPath.nodes
+          .add(DynamicNode(position: nodes[i].position, next: nodes[i].next));
+      borderPath.nodes
+          .add(DynamicNode(position: nextNode.position, prev: nextNode.prev));
+      DynamicNode nextInnerNode = getNewNode((i + 1) % pathLength)[0];
+      borderPath.nodes.add(DynamicNode(
+          position: nextInnerNode.position, next: nextInnerNode.prev));
+      DynamicNode currentInnerNode = getNewNode((i) % pathLength)[1];
+      borderPath.nodes.add(DynamicNode(
+          position: currentInnerNode.position, prev: currentInnerNode.next));
+
+      //print(i.toString()+"--------------");
+      //borderPath.nodes.forEach((element) {print(element.toJson());});
+      rst.add(borderPath.getPath(size));
+    }
+
+    return rst;
+  }
+
+  List<DynamicNode> getNewNode(int index) {
+    DynamicNode current = getNodeWithControlPoints(index);
+    DynamicNode next = getNodeWithControlPoints((index + 1) % nodes.length);
+    DynamicNode prev = getNodeWithControlPoints((index - 1) % nodes.length);
+    DynamicNode nextnext = getNodeWithControlPoints((index + 2) % nodes.length);
+
+    CubicBezier prevSide = CubicBezier([
+      prev.position.toVector2(),
+      prev.next!.toVector2(),
+      current.prev!.toVector2(),
+      current.position.toVector2()
+    ]);
+    CubicBezier nextSide = CubicBezier([
+      current.position.toVector2(),
+      current.next!.toVector2(),
+      next.prev!.toVector2(),
+      next.position.toVector2()
+    ]);
+    CubicBezier nextnextSide = CubicBezier([
+      next.position.toVector2(),
+      next.next!.toVector2(),
+      nextnext.prev!.toVector2(),
+      nextnext.position.toVector2()
+    ]);
+
+    double prevDirection = 1, nextDirection = 1, nextnextDirection = 1;
+
+    if (!this
+        .getPath(size)
+        .contains(prevSide.offsetPointAt(1, 0.01 * prevDirection).toOffset())) {
+      prevDirection = -prevDirection;
+    }
+    if (!this
+        .getPath(size)
+        .contains(nextSide.offsetPointAt(0, 0.01 * nextDirection).toOffset())) {
+      nextDirection = -nextDirection;
+    }
+
+    if (!this.getPath(size).contains(
+        nextnextSide.offsetPointAt(0, 0.01 * nextnextDirection).toOffset())) {
+      nextnextDirection = -nextnextDirection;
+    }
+
+    List<dynamic> inters = prevSide.intersectionsWithCurve(nextSide);
+    List<DynamicNode> rst = [];
+
+    Bezier prevShifted = prevSide.scaledCurve(100 * prevDirection);
+    Bezier nextShifted = nextSide.scaledCurve(100 * nextDirection);
+    Bezier nextnextShifted = nextnextSide.scaledCurve(100 * nextnextDirection);
+
+    var intersects = prevShifted.intersectionsWithCurve(nextShifted);
+    var intersects2 = prevShifted.intersectionsWithCurve(nextnextShifted);
+
+    if (intersects2.length != 0) {
+      print("nextnext intersect");
+      prevShifted = prevShifted.leftSubcurveAt(intersects2[0].t1);
+      rst.add(DynamicNode(position: prevShifted.endPoint.toOffset()));
+      rst.add(DynamicNode(position: prevShifted.endPoint.toOffset()));
+    } else {
+      if (intersects.length != 0) {
+        prevShifted = prevShifted.leftSubcurveAt(intersects[0].t1);
+        nextShifted = nextShifted.rightSubcurveAt(intersects[0].t2);
+        rst.add(DynamicNode(
+            position: prevShifted.endPoint.toOffset(),
+            prev: prevShifted.points[2].toOffset()));
+        rst.add(DynamicNode(
+            position: nextShifted.startPoint.toOffset(),
+            next: nextShifted.points[1].toOffset()));
+      } else {
+        rst.add(DynamicNode(
+            position: prevShifted.endPoint.toOffset(),
+            prev: prevShifted.points[2].toOffset()));
+        rst.add(DynamicNode(
+            position: nextShifted.startPoint.toOffset(),
+            next: nextShifted.points[1].toOffset()));
+      }
+    }
+
+    return rst;
+  }
+
+  DynamicNode getInsetNodeAt(
+      int index, bool isPrev, BorderSide prevSide, BorderSide nextSide) {
+    DynamicNode node = getNodeWithControlPoints(index);
+    double middleDirection = ((node.prev! - node.position).direction +
+            (node.next! - node.position).direction) /
+        2;
+/*
+    double a1 = Offset.fromDirection(node.prev!.direction).dx;
+    double a2 = Offset.fromDirection(node.prev!.direction).dy;
+    double b1 = Offset.fromDirection(
+            getInnerDirection(node.prev!, node.prev!.direction+pi/2),
+            prevSide.width)
+        .dx;
+    double b2 = Offset.fromDirection(
+            getInnerDirection(node.prev!, node.prev!.direction+pi/2),
+            prevSide.width)
+        .dy;
+    double c1 = Offset.fromDirection(node.next!.direction).dx;
+    double c2 = Offset.fromDirection(node.next!.direction).dy;
+    double d1 = Offset.fromDirection(
+            getInnerDirection(node.next!, node.next!.direction+pi/2),
+            nextSide.width)
+        .dx;
+    double d2 = Offset.fromDirection(
+            getInnerDirection(node.next!, node.next!.direction+pi/2),
+            nextSide.width)
+        .dy;
+
+    double x1 = ((d2 - b2) * c1 - (d1 - b1) * c2) / (a2 * c1 - a1 * c2);
+
+    print("x1: "+x1.toString());
+
+    Offset newPos = node.position +
+        Offset.fromDirection(node.prev!.direction) * x1 +
+        Offset.fromDirection(
+            getInnerDirection(node.position, node.prev!.direction),
+            prevSide.width);
+
+ */
+
+    if (!this
+        .getPath(size)
+        .contains((node.position + Offset.fromDirection(middleDirection, 1)))) {
+      middleDirection = middleDirection + pi;
+    }
+
+    Offset prevDistance = node.prev! - node.position;
+    Offset nextDistance = node.next! - node.position;
+
+    double inset = (prevSide.width + nextSide.width) / 2;
+
+    if (prevSide.width > nextSide.width) {
+      inset = prevSide.width -
+          (prevDistance.distance) /
+              (prevDistance.distance + nextDistance.distance) *
+              (prevSide.width - nextSide.width);
+    } else {
+      inset = nextSide.width -
+          (nextDistance.distance) /
+              (prevDistance.distance + nextDistance.distance) *
+              (nextSide.width - prevSide.width);
+    }
+
+    Offset newPos =
+        node.position + Offset.fromDirection(middleDirection, inset);
+
+    if (isPrev) {
+      return DynamicNode(
+        position: newPos,
+        //prev: (node.next! - node.position) * 0.8 +
+        //    node.position +
+        //    Offset.fromDirection(middleDirection, nextSide.width)
+      );
+    } else {
+      return DynamicNode(
+        position: newPos,
+        //next: (node.prev! - node.position) * 0.8 +
+        //    node.position +
+        //    Offset.fromDirection(middleDirection, prevSide.width)
+      );
+    }
+  }
+
+   */
+
+  ///give a rough estimation of the length of a cubic Bezier path
   static double estimateCubicLength(List<Offset> controlPoints) {
     Offset x0 = controlPoints[0];
     Offset x1 = controlPoints[1];
     Offset x2 = controlPoints[2];
     Offset x3 = controlPoints[3];
+    if ((x0 - x3).distance < 0.0001) return (x0 - x3).distance;
     return ((x3 - x0).distance +
             (x1 - x0).distance +
             (x2 - x1).distance +
