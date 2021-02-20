@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 extension CornerStyleExtension on CornerStyle {
@@ -89,10 +88,6 @@ extension OffsetExtension on Offset {
   Offset roundWithPrecision(int N) {
     return Offset(this.dx.roundWithPrecision(N), this.dy.roundWithPrecision(N));
   }
-
-  Vector2 toVector2() {
-    return Vector2(this.dx, this.dy);
-  }
 }
 
 extension IndexedIterable<E> on Iterable<E> {
@@ -161,12 +156,6 @@ extension addDynamicNodeExtension on List<DynamicNode> {
       this.add(DynamicNode(position: center));
       this.add(DynamicNode(position: points.last));
     }
-  }
-}
-
-extension Vector2ToOffset on Vector2 {
-  Offset toOffset() {
-    return Offset(this.x, this.y);
   }
 }
 

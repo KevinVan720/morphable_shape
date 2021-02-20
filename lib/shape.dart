@@ -90,17 +90,18 @@ abstract class FilledBorderShape extends Shape {
     borderPaths.removeOverlappingPaths();
 
     List<Path> paths = borderPaths.generateBorderPaths(rect);
-    borderColors=borderPaths.fillColors;
-    borderGradients=borderPaths.fillGradients;
+    borderColors = borderPaths.fillColors;
+    borderGradients = borderPaths.fillGradients;
     List<Path> finalPaths = [paths[0]];
     List<Color> finalColors = [borderColors[0]];
     List<Gradient?> finalGradients = [borderGradients[0]];
     for (int i = 1; i < paths.length; i++) {
-      if (i < paths.length - 1 && borderGradients[i] == borderGradients[i - 1] &&
+      if (i < paths.length - 1 &&
+          borderGradients[i] == borderGradients[i - 1] &&
           borderColors[i] == borderColors[i - 1]) {
         finalPaths.last =
             Path.combine(PathOperation.union, finalPaths.last, paths[i]);
-      /*} else if (i == paths.length - 1 &&
+        /*} else if (i == paths.length - 1 &&
           borderGradients[i] == borderGradients[0] &&
           borderColors[i] == borderColors[0]) {
         finalPaths.first =

@@ -71,6 +71,13 @@ Null safety
 
 Update the auto morph method.
 
-## [1.1.0-nullsafety] - 02.19.2021
+## [1.1.0-nullsafety] - 02.20.2021
+
+Performance boost on the morphing process.
+
+Support for multi-colored border and gradient
+filled border.
+
+Update to the editing tool.
 
 

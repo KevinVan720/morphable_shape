@@ -1,7 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
-import 'package:bezier/bezier.dart';
 
 ///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
@@ -93,55 +91,6 @@ List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
   rst.add(p3);
   rst.add(p4);
 
-  return rst;
-}
-
-List<CubicBezier> arcToCubicBezierCurves(
-    Rect rect, double startAngle, double sweepAngle,
-    {int? splitTimes}) {
-  List<Offset> points =
-      arcToCubicBezier(rect, startAngle, sweepAngle, splitTimes: splitTimes);
-  List<CubicBezier> rst = [];
-  for (int i = 0; i < points.length; i += 4) {
-    rst.add(CubicBezier([
-      points[i].toVector2(),
-      points[i + 1].toVector2(),
-      points[i + 2].toVector2(),
-      points[i + 3].toVector2()
-    ]));
-  }
-  return rst;
-}
-
-List<CubicBezier> concaveToCubicBezierCurves(
-    Offset center, double radius, double startAngle, double sweepAngle,
-    {int? splitTimes}) {
-  ///configure the minSplitTimes to let some FilledColorShape have symmetric split at the rounded corners
-  List<Offset> points = arcToCubicBezier(
-      Rect.fromCircle(center: center, radius: radius), startAngle, sweepAngle,
-      splitTimes: splitTimes);
-
-  Offset newCenter = center +
-      Offset.fromDirection((startAngle + sweepAngle / 2).clampAngle(),
-          radius / cos(sweepAngle / 2));
-  double newSweep = (-(pi - sweepAngle)).clampAngle();
-  double newStart =
-      -(pi - (startAngle + sweepAngle / 2) + newSweep / 2).clampAngle();
-
-  points = arcToCubicBezier(
-      Rect.fromCircle(center: newCenter, radius: radius * tan(sweepAngle / 2)),
-      newStart,
-      newSweep,
-      splitTimes: splitTimes);
-  List<CubicBezier> rst = [];
-  for (int i = 0; i < points.length; i += 4) {
-    rst.add(CubicBezier([
-      points[i].toVector2(),
-      points[i + 1].toVector2(),
-      points[i + 2].toVector2(),
-      points[i + 3].toVector2()
-    ]));
-  }
   return rst;
 }
 
