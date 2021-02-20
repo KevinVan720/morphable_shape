@@ -101,7 +101,7 @@ class MorphShape extends Shape {
         List<Color> borderColors = beginBorderColors
             .mapIndexed((e, i) =>
                 ColorTween(begin: e, end: endBorderColors[i]).lerp(t) ??
-                Colors.black)
+                Colors.transparent)
             .toList();
 
         List<Gradient?> borderGradients = beginBorderGradients
@@ -307,13 +307,35 @@ class MorphShape extends Shape {
       if (endGradient == null) {
         return null;
       } else {
-        return Gradient.lerp(
-            LinearGradient(colors: [beginColor, beginColor]), endGradient, t);
+        if(endGradient is LinearGradient) {
+          return Gradient.lerp(
+              LinearGradient(colors: [beginColor, beginColor]), endGradient, t);
+        }
+        if(endGradient is RadialGradient) {
+          return Gradient.lerp(
+              RadialGradient(colors: [beginColor, beginColor]), endGradient, t);
+        }
+        if(endGradient is SweepGradient) {
+          return Gradient.lerp(
+              SweepGradient(colors: [beginColor, beginColor]), endGradient, t);
+        }
+
       }
     } else {
       if (endGradient == null) {
-        return Gradient.lerp(
-            beginGradient, LinearGradient(colors: [endColor, endColor]), t);
+        if(beginGradient is LinearGradient) {
+          return Gradient.lerp(
+              beginGradient, LinearGradient(colors: [endColor, endColor]), t);
+        }
+        if(beginGradient is RadialGradient) {
+          return Gradient.lerp(
+              beginGradient, RadialGradient(colors: [endColor, endColor]), t);
+        }
+        if(beginGradient is SweepGradient) {
+          return Gradient.lerp(
+              beginGradient, SweepGradient(colors: [endColor, endColor]), t);
+        }
+
       } else {
         return Gradient.lerp(beginGradient, endGradient, t);
       }

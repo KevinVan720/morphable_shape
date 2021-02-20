@@ -10,7 +10,7 @@ there.
 ## Getting Started
 
 First, you need to create a Shape instance. The responsive feature means  
-you can have a single shape instance that adapts to different window sizes
+you can have a single shape instance that adapts to different sizes
 without you calculating the desired dimensions. For example, the following  
 code will give you a rectangle with a 60 px circular radius at the top  
 left corner and a (60 px, 10%) elliptical corner at the bottom right corner.  
@@ -64,10 +64,41 @@ enum CornerStyle{
 You can configure the corner styles like this:
 ```dart
 var cornerStyles=RectangleCornerStyles.all(CornerStyle.rounded);
-cornerStyles=RectangleCornerStyles.only(topLeft: CornerStyle.rounded, bottomRight: CornerStyle.concave);
+cornerStyles=RectangleCornerStyles.only(
+topLeft: CornerStyle.rounded, 
+bottomRight: CornerStyle.concave
+);
 ```
 
-The four border sides can also be styled individually or at once:
+You can also specify the border with, color (or gradient) using the
+DynamicBorderSide class:
+```dart
+var border=DynamicBorderSide(
+width: 10.toPXWidth,
+gradient: LinearGradient(colors:[Colors.red, Colors.green]),
+);
+```
+
+Now you get a fully fledged rectangle:
+```
+Shape rectangle=RectangleShape(
+borderRadius:
+        const DynamicBorderRadius.all(DynamicRadius.circular(Length(100))),
+cornerStyles: cornerStyles,
+border: border,
+);
+```
+
+You can make a triangle, a diamond, a trapezoid,  
+or even an arrow shape by just using the RectangleShape  
+class and providing the right corner style and radius.
+
+![rectangle](https://i.imgur.com/I0jXJu2.png)
+
+## RoundedRectangleShape
+If you use the RoundedRectangleShape class, then the four border sides
+can be configured individually. The four border sides can be styled  
+independently or at once:
 ```dart
 var borders=RectangleBorders.all(DynamicBorderSide.none);
 borders=RectangleBorders.symmetric(
@@ -81,28 +112,17 @@ width: 10.toPXWidth,
 gradient: LinearGradient(colors:[Colors.red, Colors.green]),
 ));
 ```
-The DynamicBorderSide class is also used to style the borders for other
-shapes. It supports a responsive width, a color and a gradient(which  
-overrides the color if set not to null).
 
-Now you get a fully fledged rectangle:
+Then you have:
+```dart
+Shape rect=RoundedRectangleShape({
+    borderRadius: DynamicBorderRadius.all(DynamicRadius.circular(Length(100))),
+    borders: borders,
+  });
 ```
-Shape rectangle=RectangleShape(
-borderRadius:
-        const DynamicBorderRadius.all(DynamicRadius.circular(Length(100))),
-cornerStyles: cornerStyles,
-borders: borders,
-);
-```
+Below are some multi-colored border design using this class.
 
-You can make a triangle, a diamond, a trapezoid,  
-or even an arrow shape by just using the RectangleShape  
-class and providing the right corner style and radius.
-
-![rectangle](https://i.imgur.com/I0jXJu2.png)
-
-The border design can also be quite interesting:
-
+![round_rectangle](https://i.imgur.com/Gfh5zxu.png)
 
 ### CircleShape
 CircleShape allows you to choose the start angle and sweep angle:
@@ -142,7 +162,8 @@ insetStyle: CornerStyle.rounded
 
 ## Shape Morphing
 
-Every shape in this package can be gracefully morphed into another shape. By creating a ShapeBorderTween:
+Every shape in this package can be gracefully morphed into another shape, including  
+the border(s). By creating a ShapeBorderTween:
 ```dart
 MorphableShapeBorder startBorder;
 MorphableShapeBorder endBorder;
@@ -165,7 +186,12 @@ shapeBorderTween.lerp(t)
 For an explanation and demonstration of the morphing capabilities, take a look at this
 [Medium post](https://kevinvan.medium.com/creating-morphable-shapes-in-flutter-a-complete-rewrite-ac899bfe4222).
 
-![morph](https://i.imgur.com/cwpoj0Z.gif)
+Below are some showcases of the shape morphing process. Most shapes can be morphed in a natural
+and pixel-perfect fashion.
+![morph](https://i.imgur.com/Ic9xJeN.gif)
+
+![morph2](https://i.imgur.com/j7k4wL6.gif)
+
 
 ## Shape Serialization
 

@@ -36,7 +36,7 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     startShape = widget.shape;
 
-    endShape = RectangleShape();
+    endShape = RoundedRectangleShape();
 
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: durationInSec));
