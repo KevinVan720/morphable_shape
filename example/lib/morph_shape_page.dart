@@ -37,26 +37,6 @@ class _MorphShapePageState extends State<MorphShapePage>
     startShape = widget.shape;
 
     endShape = RectangleShape(
-      borderRadius:
-          DynamicBorderRadius.all(DynamicRadius.circular(25.toPercentLength)),
-      borders: RectangleBorders.only(
-        top: DynamicBorderSide(
-            width: 0.toPercentLength,
-            color: Colors.red,
-            gradient: LinearGradient(colors: [Colors.redAccent, Colors.green])),
-        left: DynamicBorderSide(
-            width: 0.toPercentLength,
-            color: Colors.red,
-            gradient: LinearGradient(colors: [Colors.redAccent, Colors.blue])),
-        right: DynamicBorderSide(
-            width: 15.toPercentLength,
-            color: Colors.green,
-            gradient: LinearGradient(colors: [Colors.yellow, Colors.green])),
-        bottom: DynamicBorderSide(
-            width: 15.toPercentLength,
-            color: Colors.green,
-            gradient: LinearGradient(colors: [Colors.yellow, Colors.green])),
-      ),
     );
 
     controller = AnimationController(
