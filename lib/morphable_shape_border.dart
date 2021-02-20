@@ -4,7 +4,6 @@ import 'package:morphable_shape/shapes/morph.dart';
 
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
-import 'package:morphable_shape/shapes/morph.dart';
 
 ///ShapeBorder with various customizable shapes
 ///can smoothly tween between any two instances of this class
@@ -59,7 +58,6 @@ class MorphableShapeBorder extends ShapeBorder {
   }
 
   @override
-
   int get hashCode => shape.hashCode;
 
   @override
@@ -95,7 +93,7 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
         DynamicPathMorph.sampleBorderPathsFromShape(data!);
       }
       return MorphableShapeBorder(
-        shape: MorphShape(t: t, data: data!),
+        shape: MorphShape(t: t, morphData: data!),
       );
     }
     if (end == null) {
@@ -108,7 +106,7 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
         DynamicPathMorph.sampleBorderPathsFromShape(data!);
       }
       return MorphableShapeBorder(
-        shape: MorphShape(t: t, data: data!),
+        shape: MorphShape(t: t, morphData: data!),
       );
     }
     if (data == null ||
@@ -122,7 +120,7 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       DynamicPathMorph.sampleBorderPathsFromShape(data!);
     }
     return MorphableShapeBorder(
-      shape: MorphShape(t: t, data: data!),
+      shape: MorphShape(t: t, morphData: data!),
     );
   }
 }

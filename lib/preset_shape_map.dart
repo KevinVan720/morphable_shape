@@ -1,6 +1,6 @@
 import 'package:length_unit/length_unit.dart';
 
-import 'morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 const Map<String, Shape> presetShapeMap = {
   "Circle": const CircleShape(),

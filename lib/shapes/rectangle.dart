@@ -2,15 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../morphable_shape.dart';
-import 'package:vector_math/vector_math.dart' hide Colors;
+import 'package:morphable_shape/morphable_shape.dart';
 import 'package:bezier/bezier.dart';
-import 'package:morphable_shape/dynamic_path_morph.dart';
 
 ///Rectangle shape with various corner style and radius for each corner
 class RectangleShape extends FilledBorderShape {
   final RectangleCornerStyles cornerStyles;
-
   final RectangleBorders borders;
 
   final DynamicBorderRadius borderRadius;
@@ -18,31 +15,33 @@ class RectangleShape extends FilledBorderShape {
   const RectangleShape({
     this.borderRadius =
         const DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
-    this.cornerStyles=const RectangleCornerStyles.all(CornerStyle.rounded),
-    this.borders= const RectangleBorders.all(defaultBorder),
+    this.cornerStyles = const RectangleCornerStyles.all(CornerStyle.rounded),
+    this.borders = const RectangleBorders.all(DynamicBorderSide.none),
   });
 
   RectangleShape.fromJson(Map<String, dynamic> map)
       : borderRadius = parseDynamicBorderRadius(map["borderRadius"]) ??
             DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
-        this.borders=parseRectangleBorderSide(map["borders"])??RectangleBorders.all(defaultBorder),
-  this.cornerStyles=parseRectangleCornerStyle(map["cornerStyles"])??RectangleCornerStyles.all(CornerStyle.rounded);
+        this.borders = parseRectangleBorderSide(map["borders"]) ??
+            RectangleBorders.all(defaultBorder),
+        this.cornerStyles = parseRectangleCornerStyle(map["cornerStyles"]) ??
+            RectangleCornerStyles.all(CornerStyle.rounded);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "RectangleShape"};
     rst["borderRadius"] = borderRadius.toJson();
-    rst["borders"]=borders.toJson();
-    rst["cornerStyles"]=cornerStyles.toJson();
+    rst["borders"] = borders.toJson();
+    rst["cornerStyles"] = cornerStyles.toJson();
     return rst;
   }
 
   RectangleShape copyWith(
       {RectangleCornerStyles? cornerStyles,
-        RectangleBorders? borders,
+      RectangleBorders? borders,
       DynamicBorderRadius? borderRadius}) {
     return RectangleShape(
-        cornerStyles: cornerStyles??this.cornerStyles,
-        borders: borders??this.borders,
+        cornerStyles: cornerStyles ?? this.cornerStyles,
+        borders: borders ?? this.borders,
         borderRadius: borderRadius ?? this.borderRadius);
   }
 
@@ -53,6 +52,16 @@ class RectangleShape extends FilledBorderShape {
     rst.addAll(List.generate(3, (index) => borders.bottom.color));
     rst.addAll(List.generate(3, (index) => borders.left.color));
     return rotateList(rst, 2).cast<Color>();
+  }
+
+  @override
+  List<Gradient?> borderFillGradients() {
+    List<Gradient?> rst = [];
+    rst.addAll(List.generate(3, (index) => borders.top.gradient));
+    rst.addAll(List.generate(3, (index) => borders.right.gradient));
+    rst.addAll(List.generate(3, (index) => borders.bottom.gradient));
+    rst.addAll(List.generate(3, (index) => borders.left.gradient));
+    return rotateList(rst, 2).cast<Gradient?>();
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
@@ -93,6 +102,9 @@ class RectangleShape extends FilledBorderShape {
     double rightTopRadius = borderRadius.topRight.y;
     double rightBottomRadius = borderRadius.bottomRight.y;
 
+    ///Another solution for handling the case when either the border with or
+    ///corner radius is too big: Fit the corner radius first, then shrink the
+    ///border width
     /*
     double topTotal =
         topLeftRadius + topRightRadius;
@@ -139,6 +151,8 @@ class RectangleShape extends FilledBorderShape {
 
      */
 
+    ///Handling the case when either the border with or
+    ///corner radius is too big
     double topTotal =
         max(topLeftRadius, leftSideWidth) + max(topRightRadius, rightSideWidth);
     double bottomTotal = max(bottomLeftRadius, leftSideWidth) +
@@ -148,25 +162,25 @@ class RectangleShape extends FilledBorderShape {
     double rightTotal = max(rightTopRadius, topSideWidth) +
         max(rightBottomRadius, bottomSideWidth);
 
-    if (topTotal > size.width || bottomTotal > size.width) {
-      double total = max(topTotal, bottomTotal);
-      topLeftRadius *= size.width / total;
-      topRightRadius *= size.width / total;
-      bottomLeftRadius *= size.width / total;
-      bottomRightRadius *= size.width / total;
-      leftSideWidth *= size.width / total;
-      rightSideWidth *= size.width / total;
+
+    if (max(topTotal, bottomTotal)>size.width || max(leftTotal, rightTotal)>size.height) {
+      double resizeRatio=min(size.width/max(topTotal, bottomTotal),size.height/max(leftTotal, rightTotal));
+
+      topLeftRadius *= resizeRatio;
+      topRightRadius *= resizeRatio;
+      bottomLeftRadius *= resizeRatio;
+      bottomRightRadius *= resizeRatio;
+      //leftSideWidth *= resizeRatio;
+      //rightSideWidth *= resizeRatio;
+
+      leftTopRadius *= resizeRatio;
+      rightTopRadius *= resizeRatio;
+      leftBottomRadius *= resizeRatio;
+      rightBottomRadius *= resizeRatio;
+      //topSideWidth *= resizeRatio;
+      //bottomSideWidth *= resizeRatio;
     }
 
-    if (leftTotal > size.height || rightTotal > size.height) {
-      double total = max(leftTotal, rightTotal);
-      leftTopRadius *= size.height / total;
-      rightTopRadius *= size.height / total;
-      leftBottomRadius *= size.height / total;
-      rightBottomRadius *= size.height / total;
-      topSideWidth *= size.height / total;
-      bottomSideWidth *= size.height / total;
-    }
 
     final double left = rect.left;
     final double top = rect.top;
@@ -177,9 +191,6 @@ class RectangleShape extends FilledBorderShape {
 
     switch (cornerStyles.topRight) {
       case CornerStyle.rounded:
-        //nodes.add(DynamicNode(
-        //    position: Offset(right - max(topRightRadius, rightSideWidth),
-        //        top + topSideWidth)));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(right - max(topRightRadius, rightSideWidth),
@@ -187,7 +198,7 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * topRightRadius - 2 * rightSideWidth),
                 height: max(0, 2 * rightTopRadius - 2 * topSideWidth)),
             -pi / 2,
-            pi / 2);
+            pi / 2, splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -218,7 +229,7 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(topRightRadius, rightSideWidth),
                 height: 2 * max(rightTopRadius, topSideWidth)),
             pi,
-            -pi / 2);
+            -pi / 2,splitTimes: 1);
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(left - 10, top + topSideWidth).toVector2(),
             Offset(right + 10, top + topSideWidth).toVector2());
@@ -295,9 +306,6 @@ class RectangleShape extends FilledBorderShape {
 
     switch (cornerStyles.bottomRight) {
       case CornerStyle.rounded:
-        //nodes.add(DynamicNode(
-        //    position: Offset(right - rightSideWidth,
-        //        bottom - max(bottomSideWidth, rightBottomRadius))));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(right - max(bottomRightRadius, rightSideWidth),
@@ -305,7 +313,7 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * bottomRightRadius - 2 * rightSideWidth),
                 height: max(0, 2 * rightBottomRadius - 2 * bottomSideWidth)),
             0,
-            pi / 2);
+            pi / 2, splitTimes: 1);
 
         break;
       case CornerStyle.cutout:
@@ -337,7 +345,7 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(bottomRightRadius, rightSideWidth),
                 height: 2 * max(rightBottomRadius, bottomSideWidth)),
             -pi / 2,
-            -pi / 2);
+            -pi / 2, splitTimes: 1);
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(right - rightSideWidth, top - 10).toVector2(),
             Offset(right - rightSideWidth, bottom + 10).toVector2());
@@ -417,9 +425,6 @@ class RectangleShape extends FilledBorderShape {
 
     switch (cornerStyles.bottomLeft) {
       case CornerStyle.rounded:
-        //nodes.add(DynamicNode(
-        //    position: Offset(left + max(leftSideWidth, bottomLeftRadius),
-         //       bottom - bottomSideWidth)));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(left + max(leftSideWidth, bottomLeftRadius),
@@ -427,7 +432,7 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * bottomLeftRadius - 2 * leftSideWidth),
                 height: max(0, 2 * leftBottomRadius - 2 * bottomSideWidth)),
             pi / 2,
-            pi / 2);
+            pi / 2, splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -459,7 +464,7 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(bottomLeftRadius, leftSideWidth),
                 height: 2 * max(leftBottomRadius, bottomSideWidth)),
             0,
-            -pi / 2);
+            -pi / 2, splitTimes: 1);
 
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(left - 10, bottom - bottomSideWidth).toVector2(),
@@ -540,9 +545,6 @@ class RectangleShape extends FilledBorderShape {
 
     switch (cornerStyles.topLeft) {
       case CornerStyle.rounded:
-        //nodes.add(DynamicNode(
-        //    position: Offset(
-        //        left + leftSideWidth, top + max(topSideWidth, leftTopRadius))));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(left + max(leftSideWidth, topLeftRadius),
@@ -550,7 +552,7 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * topLeftRadius - 2 * leftSideWidth),
                 height: max(0, 2 * leftTopRadius - 2 * topSideWidth)),
             pi,
-            pi / 2);
+            pi / 2,splitTimes: 1);
 
         break;
       case CornerStyle.cutout:
@@ -583,7 +585,7 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(topLeftRadius, leftSideWidth),
                 height: 2 * max(leftTopRadius, topSideWidth)),
             pi / 2,
-            -pi / 2);
+            -pi / 2, splitTimes: 1);
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(left + leftSideWidth, top - 10).toVector2(),
             Offset(left + leftSideWidth, bottom + 10).toVector2());
@@ -700,6 +702,25 @@ class RectangleShape extends FilledBorderShape {
     double rightTotal = max(rightTopRadius, topSideWidth) +
         max(rightBottomRadius, bottomSideWidth);
 
+    if (max(topTotal, bottomTotal)>size.width || max(leftTotal, rightTotal)>size.height) {
+      double resizeRatio=min(size.width/max(topTotal, bottomTotal),size.height/max(leftTotal, rightTotal));
+
+      topLeftRadius *= resizeRatio;
+      topRightRadius *= resizeRatio;
+      bottomLeftRadius *= resizeRatio;
+      bottomRightRadius *= resizeRatio;
+      //leftSideWidth *= resizeRatio;
+      //rightSideWidth *= resizeRatio;
+
+      leftTopRadius *= resizeRatio;
+      rightTopRadius *= resizeRatio;
+      leftBottomRadius *= resizeRatio;
+      rightBottomRadius *= resizeRatio;
+      //topSideWidth *= resizeRatio;
+      //bottomSideWidth *= resizeRatio;
+    }
+
+    /*
     if (topTotal > size.width || bottomTotal > size.width) {
       double total = max(topTotal, bottomTotal);
       topLeftRadius *= size.width / total;
@@ -720,16 +741,17 @@ class RectangleShape extends FilledBorderShape {
       bottomSideWidth *= size.height / total;
     }
 
+     */
+
     switch (cornerStyles.topRight) {
       case CornerStyle.rounded:
-        //nodes.add(DynamicNode(position: Offset(right - topRightRadius, top)));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(right - topRightRadius, top + rightTopRadius),
                 width: 2 * topRightRadius,
                 height: 2 * rightTopRadius),
             -pi / 2,
-            pi / 2);
+            pi / 2,splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle = atan(rightTopRadius / max(topRightRadius, 0.00000001));
@@ -746,16 +768,13 @@ class RectangleShape extends FilledBorderShape {
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:
-        //nodes.add(DynamicNode(
-        //    position:
-         //       Offset(right - max(0, topRightRadius - rightSideWidth), top)));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(right, top),
                 width: 2 * max(0, topRightRadius - rightSideWidth),
                 height: 2 * max(0, rightTopRadius - topSideWidth)),
             pi,
-            -pi / 2);
+            -pi / 2,splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -769,8 +788,6 @@ class RectangleShape extends FilledBorderShape {
 
     switch (cornerStyles.bottomRight) {
       case CornerStyle.rounded:
-        //nodes.add(
-        //    DynamicNode(position: Offset(right, bottom - rightBottomRadius)));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(
@@ -778,7 +795,7 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * bottomRightRadius,
                 height: 2 * rightBottomRadius),
             0,
-            pi / 2);
+            pi / 2, splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle =
@@ -799,16 +816,13 @@ class RectangleShape extends FilledBorderShape {
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:
-        //nodes.add(DynamicNode(
-        //    position: Offset(
-        //        right, bottom - max(0, rightBottomRadius - bottomSideWidth))));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(right, bottom),
                 width: 2 * max(0, bottomRightRadius - rightSideWidth),
                 height: 2 * max(0, rightBottomRadius - bottomSideWidth)),
             -pi / 2,
-            -pi / 2);
+            -pi / 2, splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -824,8 +838,6 @@ class RectangleShape extends FilledBorderShape {
 
     switch (cornerStyles.bottomLeft) {
       case CornerStyle.rounded:
-        //nodes.add(
-        //    DynamicNode(position: Offset(left + bottomLeftRadius, bottom)));
         nodes.addArc(
             Rect.fromCenter(
                 center:
@@ -833,7 +845,7 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * bottomLeftRadius,
                 height: 2 * leftBottomRadius),
             pi / 2,
-            pi / 2);
+            pi / 2, splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle =
@@ -853,16 +865,13 @@ class RectangleShape extends FilledBorderShape {
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:
-        //nodes.add(DynamicNode(
-        //    position: Offset(
-        //        left + max(0, bottomLeftRadius - leftSideWidth), bottom)));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(left, bottom),
                 width: 2 * max(0, bottomLeftRadius - leftSideWidth),
                 height: 2 * max(0, leftBottomRadius - bottomSideWidth)),
             0,
-            -pi / 2);
+            -pi / 2, splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -877,14 +886,13 @@ class RectangleShape extends FilledBorderShape {
 
     switch (cornerStyles.topLeft) {
       case CornerStyle.rounded:
-        //nodes.add(DynamicNode(position: Offset(left, top + leftTopRadius)));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(left + topLeftRadius, top + leftTopRadius),
                 width: 2 * topLeftRadius,
                 height: 2 * leftTopRadius),
             pi,
-            pi / 2);
+            pi / 2, splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle = atan(leftTopRadius / max(topLeftRadius, 0.00000001));
@@ -900,16 +908,13 @@ class RectangleShape extends FilledBorderShape {
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:
-        //nodes.add(DynamicNode(
-        //    position:
-        //        Offset(left, top + max(0, leftTopRadius - topSideWidth))));
         nodes.addArc(
             Rect.fromCenter(
                 center: Offset(left, top),
                 width: 2 * max(0, topLeftRadius - leftSideWidth),
                 height: 2 * max(0, leftTopRadius - topSideWidth)),
             pi / 2,
-            -pi / 2);
+            -pi / 2,splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(

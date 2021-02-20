@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///A Shape made from a path with straight or cubic Bezier lines
 ///possible for future implementation of freeform lines or import shapes from SVG
@@ -8,13 +8,13 @@ class PathShape extends OutlinedShape {
   final DynamicPath path;
 
   const PathShape(
-      {DynamicBorderSide border = defaultBorder, required this.path})
+      {DynamicBorderSide border = DynamicBorderSide.none, required this.path})
       : super(border: border);
 
   PathShape.fromJson(Map<String, dynamic> map)
       : path = parseDynamicPath(map["path"]) ??
             DynamicPath(size: Size.zero, nodes: []),
-        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
+        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "PathShape"};

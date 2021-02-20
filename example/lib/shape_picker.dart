@@ -37,7 +37,7 @@ class BlockShapePicker extends StatefulWidget {
       ),
       child: Container(
         color:
-            isCurrentShape ? Colors.grey.withOpacity(0.25) : Colors.transparent,
+            isCurrentShape ? Colors.black.withOpacity(0.7) : Colors.transparent,
         child: InkWell(
           onTap: changeShape,
           radius: 60,
@@ -125,6 +125,7 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
+                  backgroundColor: Colors.grey,
                   content: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -144,7 +145,7 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
                   ),
                   actions: <Widget>[
                     TextButton(
-                      child: const Text('Got it'),
+                      child: const Text('Got it', style: TextStyle(color: Colors.black),),
                       onPressed: () {
                         setState(() {
                           widget.valueChanged(currentShape);

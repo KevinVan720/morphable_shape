@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
-import 'value_pickers.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
+
+import 'value_pickers.dart';
 
 class MorphShapePage extends StatefulWidget {
   Shape shape;
@@ -39,12 +40,22 @@ class _MorphShapePageState extends State<MorphShapePage>
       borderRadius:
           DynamicBorderRadius.all(DynamicRadius.circular(25.toPercentLength)),
       borders: RectangleBorders.only(
-        top: DynamicBorderSide(width: 0.toPercentLength, color: Colors.red),
-        left: DynamicBorderSide(width: 0.toPercentLength, color: Colors.red),
-        right:
-            DynamicBorderSide(width: 15.toPercentLength, color: Colors.green),
-        bottom:
-            DynamicBorderSide(width: 15.toPercentLength, color: Colors.green),
+        top: DynamicBorderSide(
+            width: 0.toPercentLength,
+            color: Colors.red,
+            gradient: LinearGradient(colors: [Colors.redAccent, Colors.green])),
+        left: DynamicBorderSide(
+            width: 0.toPercentLength,
+            color: Colors.red,
+            gradient: LinearGradient(colors: [Colors.redAccent, Colors.blue])),
+        right: DynamicBorderSide(
+            width: 15.toPercentLength,
+            color: Colors.green,
+            gradient: LinearGradient(colors: [Colors.yellow, Colors.green])),
+        bottom: DynamicBorderSide(
+            width: 15.toPercentLength,
+            color: Colors.green,
+            gradient: LinearGradient(colors: [Colors.yellow, Colors.green])),
       ),
     );
 
@@ -122,22 +133,6 @@ class _MorphShapePageState extends State<MorphShapePage>
         ),
         body: Stack(
           children: [
-            /*
-          Container(
-          color: Colors.black54,
-          child:Center(
-              child: AnimatedShadowedShape(
-                  duration: Duration(seconds: durationInSec),
-                  shape: endBorder,
-                  child: AnimatedContainer(
-                    duration: Duration(seconds: durationInSec),
-                    color: Colors.amberAccent,
-                    width: shapeWidth,
-                    height: shapeHeight,
-                  )),
-            )),
-            */
-
             Container(
                 color: Colors.black54,
                 child: AnimatedBuilder(
@@ -159,16 +154,13 @@ class _MorphShapePageState extends State<MorphShapePage>
                           ),
                           showControl
                               ? CustomPaint(
-                                  painter: MorphControlPointsPainter(
-                                      DynamicPathMorph.lerpPaths(
-                                              t,
-                                              shapeBorderTween
-                                                  .data.beginOuterPath,
-                                              shapeBorderTween
-                                                  .data.endOuterPath)
-                                          .nodes
-                                          .map((e) => e.position)
-                                          .toList()),
+                                  painter: MorphControlPointsPainter(DynamicPathMorph.lerpPaths(
+                                      t,
+                                      shapeBorderTween.data.beginOuterPath,
+                                      shapeBorderTween.data.endOuterPath)
+                                      .nodes
+                                      .map((e) => e.position)
+                                      .toList()),
                                   child: Container(
                                     width: shapeWidth,
                                     height: shapeHeight,
@@ -241,7 +233,6 @@ class _MorphShapePageState extends State<MorphShapePage>
                         ),
                       ),
                       Switch(
-                          activeColor: Colors.white70,
                           value: showControl,
                           onChanged: (value) {
                             setState(() {

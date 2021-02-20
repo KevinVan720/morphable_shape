@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/parse_json.dart';
-import 'morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 CornerStyle? parseCornerStyle(String? string) {
   if (string == null) return null;
@@ -62,47 +62,22 @@ DynamicBorderSide? parseDynamicBorderSide(Map<String, dynamic>? map) {
 
 RectangleBorders? parseRectangleBorderSide(Map<String, dynamic>? map) {
   if (map == null) return null;
-  return RectangleBorders.only(
-    top: parseDynamicBorderSide(map["top"]) ?? defaultBorder,
-    bottom: parseDynamicBorderSide(map["bottom"]) ?? defaultBorder,
-    left: parseDynamicBorderSide(map["left"]) ?? defaultBorder,
-    right: parseDynamicBorderSide(map["right"]) ?? defaultBorder,
-  );
+  return RectangleBorders.fromJson(map);
 }
 
 RectangleCornerStyles? parseRectangleCornerStyle(Map<String, dynamic>? map) {
   if (map == null) return null;
-  return RectangleCornerStyles.only(
-    topLeft: parseCornerStyle(map["topLeft"]) ?? CornerStyle.rounded,
-    topRight: parseCornerStyle(map["topRight"]) ?? CornerStyle.rounded,
-    bottomLeft: parseCornerStyle(map["bottomLeft"]) ?? CornerStyle.rounded,
-    bottomRight: parseCornerStyle(map["bottomRight"]) ?? CornerStyle.rounded,
-  );
+  return RectangleCornerStyles.fromJson(map);
 }
 
 DynamicRadius? parseDynamicRadius(Map<String, dynamic>? map) {
   if (map == null) return null;
-  Length x = Length.fromJson(map['x']) ?? Length(0);
-  Length y = Length.fromJson(map['y']) ?? Length(0);
-  return DynamicRadius.elliptical(x, y);
+  return DynamicRadius.fromJson(map);
 }
 
 DynamicBorderRadius? parseDynamicBorderRadius(Map<String, dynamic>? map) {
   if (map == null) return null;
-  DynamicRadius topLeft =
-      parseDynamicRadius(map["topLeft"]) ?? DynamicRadius.zero;
-  DynamicRadius topRight =
-      parseDynamicRadius(map["topRight"]) ?? DynamicRadius.zero;
-  DynamicRadius bottomLeft =
-      parseDynamicRadius(map["bottomLeft"]) ?? DynamicRadius.zero;
-  DynamicRadius bottomRight =
-      parseDynamicRadius(map["bottomRight"]) ?? DynamicRadius.zero;
-  return DynamicBorderRadius.only(
-    topLeft: topLeft,
-    topRight: topRight,
-    bottomRight: bottomRight,
-    bottomLeft: bottomLeft,
-  );
+  return DynamicBorderRadius.fromJson(map);
 }
 
 DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {

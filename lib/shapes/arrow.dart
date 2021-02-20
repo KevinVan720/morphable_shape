@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///An arrow shape with a head and a tail
 
@@ -12,8 +12,25 @@ class ArrowShape extends OutlinedShape {
       {this.side = ShapeSide.right,
       this.arrowHeight = const Length(25, unit: LengthUnit.percent),
       this.tailWidth = const Length(40, unit: LengthUnit.percent),
-      DynamicBorderSide border = defaultBorder})
+      DynamicBorderSide border = DynamicBorderSide.none})
       : super(border: border);
+
+  ArrowShape.fromJson(Map<String, dynamic> map)
+      : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
+        arrowHeight = Length.fromJson(map['arrowHeight']) ??
+            Length(25, unit: LengthUnit.percent),
+        tailWidth = Length.fromJson(map['tailWidth']) ??
+            Length(40, unit: LengthUnit.percent),
+        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> rst = {"type": "ArrowShape"};
+    rst.addAll(super.toJson());
+    rst["side"] = side.toJson();
+    rst["arrowHeight"] = arrowHeight.toJson();
+    rst["tailWidth"] = tailWidth.toJson();
+    return rst;
+  }
 
   ArrowShape copyWith({
     ShapeSide? side,
@@ -26,23 +43,6 @@ class ArrowShape extends OutlinedShape {
         arrowHeight: arrowHeight ?? this.arrowHeight,
         tailWidth: tailWidth ?? this.tailWidth,
         border: border ?? this.border);
-  }
-
-  ArrowShape.fromJson(Map<String, dynamic> map)
-      : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
-        arrowHeight = Length.fromJson(map['arrowHeight']) ??
-            Length(25, unit: LengthUnit.percent),
-        tailWidth = Length.fromJson(map['tailWidth']) ??
-            Length(40, unit: LengthUnit.percent),
-        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
-
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "ArrowShape"};
-    rst.addAll(super.toJson());
-    rst["side"] = side.toJson();
-    rst["arrowHeight"] = arrowHeight.toJson();
-    rst["tailWidth"] = tailWidth.toJson();
-    return rst;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

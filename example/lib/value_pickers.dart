@@ -6,6 +6,7 @@ import 'package:morphable_shape/morphable_shape.dart';
 export 'color_picker.dart';
 export 'shape_picker.dart'
     hide useWhiteForeground, PickerItem, PickerItemBuilder, PickerLayoutBuilder;
+export 'gradient_picker.dart';
 
 class LengthSlider extends StatefulWidget {
   const LengthSlider({

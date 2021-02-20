@@ -1,5 +1,5 @@
-import 'package:length_unit/length_unit.dart';
 import 'package:flutter/material.dart';
+import 'package:length_unit/length_unit.dart';
 
 class DynamicRadius {
   const DynamicRadius.circular(Length radius) : this.elliptical(radius, radius);
@@ -8,6 +8,10 @@ class DynamicRadius {
   const DynamicRadius.elliptical(this.x, this.y);
 
   static const DynamicRadius zero = DynamicRadius.circular(const Length(0));
+
+  DynamicRadius.fromJson(Map<String, dynamic> map)
+      : x = Length.fromJson(map["x"]) ?? 0.toPXLength,
+        y = Length.fromJson(map["y"]) ?? 0.toPXLength;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {};
@@ -66,10 +70,11 @@ class DynamicBorderRadius {
     this.bottomRight = const DynamicRadius.circular(Length(0)),
   });
 
-  /*
-  DynamicBorderRadius.fromJson(Map<String, dynamic> map): topLeft=DynamicRadius.fromJson(map["topLeft"]), topRight=DynamicRadius.fromJson(map["topRight"]),
-        bottomLeft=DynamicRadius.fromJson(map["bottomLeft"]),bottomRight=DynamicRadius.fromJson(map["bottomRight"]);
-  */
+  DynamicBorderRadius.fromJson(Map<String, dynamic> map)
+      : topLeft = DynamicRadius.fromJson(map["topLeft"]),
+        topRight = DynamicRadius.fromJson(map["topRight"]),
+        bottomLeft = DynamicRadius.fromJson(map["bottomLeft"]),
+        bottomRight = DynamicRadius.fromJson(map["bottomRight"]);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {};

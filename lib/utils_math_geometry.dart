@@ -1,11 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'morphable_shape.dart';
-
+import 'package:morphable_shape/morphable_shape.dart';
 import 'package:bezier/bezier.dart';
-import 'package:vector_math/vector_math.dart';
 
-const double arcSplitMaxSweepAngle = pi / 4;
+const double arcSplitMaxSweepAngle = pi / 2;
 const defaultBorder =
     DynamicBorderSide(color: Color(0xFF000000), width: Length(1));
 
@@ -71,14 +69,16 @@ Offset getDerivativeOnArc(Rect rect, double t) {
 ///recursively split an arc into multiple cubic Bezier
 List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
     {double limit = arcSplitMaxSweepAngle, int? splitTimes}) {
-  if(splitTimes!=null) {
-    limit=sweepAngle.abs()/pow(2,splitTimes);
+  if (splitTimes != null) {
+    limit = sweepAngle.abs() / pow(2, splitTimes);
   }
   if (sweepAngle.abs() > limit) {
-    List<Offset> rst = arcToCubicBezier(rect, startAngle, sweepAngle / 2.0, limit: limit);
+    List<Offset> rst =
+        arcToCubicBezier(rect, startAngle, sweepAngle / 2.0, limit: limit);
     rst
       ..addAll(arcToCubicBezier(
-          rect, startAngle + sweepAngle / 2.0, sweepAngle / 2.0, limit: limit));
+          rect, startAngle + sweepAngle / 2.0, sweepAngle / 2.0,
+          limit: limit));
     return rst;
   }
 
@@ -104,7 +104,7 @@ List<CubicBezier> arcToCubicBezierCurves(
     Rect rect, double startAngle, double sweepAngle,
     {int? splitTimes}) {
   List<Offset> points =
-  arcToCubicBezier(rect, startAngle, sweepAngle, splitTimes: splitTimes);
+      arcToCubicBezier(rect, startAngle, sweepAngle, splitTimes: splitTimes);
   List<CubicBezier> rst = [];
   for (int i = 0; i < points.length; i += 4) {
     rst.add(CubicBezier([
@@ -130,11 +130,10 @@ List<CubicBezier> concaveToCubicBezierCurves(
           radius / cos(sweepAngle / 2));
   double newSweep = (-(pi - sweepAngle)).clampAngle();
   double newStart =
-  -(pi - (startAngle + sweepAngle / 2) + newSweep / 2).clampAngle();
+      -(pi - (startAngle + sweepAngle / 2) + newSweep / 2).clampAngle();
 
   points = arcToCubicBezier(
-      Rect.fromCircle(
-          center: newCenter, radius: radius * tan(sweepAngle / 2)),
+      Rect.fromCircle(center: newCenter, radius: radius * tan(sweepAngle / 2)),
       newStart,
       newSweep,
       splitTimes: splitTimes);
@@ -150,8 +149,6 @@ List<CubicBezier> concaveToCubicBezierCurves(
   return rst;
 }
 
-
-
 num total(List<num> list) {
   num total = 0;
   list.forEach((element) {
@@ -160,7 +157,7 @@ num total(List<num> list) {
   return total;
 }
 
-List<Object> rotateList(List<Object> list, int v) {
+List<dynamic> rotateList(List<dynamic> list, int v) {
   if (list.isEmpty) return list;
   var i = v % list.length;
   return list.sublist(i)..addAll(list.sublist(0, i));
@@ -179,3 +176,15 @@ int randomChoose(List<num> list) {
   return index;
 }
 
+int estimateCombinationsOf(int n, int k, {int maximum = 10000000}) {
+  if (k > n) {
+    return 0;
+  }
+  int r = 1;
+  for (int d = 1; d <= k; ++d) {
+    if (r > maximum) break;
+    r *= n--;
+    r = r ~/ d;
+  }
+  return r;
+}

@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///triangle shape defined by the three vertices
 ///vertices should only use the percent length unit
@@ -19,7 +19,7 @@ class TriangleShape extends OutlinedShape {
       this.point3 = const DynamicOffset(
           const Length(50, unit: LengthUnit.percent),
           const Length(100, unit: LengthUnit.percent)),
-      DynamicBorderSide border=defaultBorder}) : super(border: border);
+      DynamicBorderSide border=DynamicBorderSide.none}) : super(border: border);
 
   TriangleShape.fromJson(Map<String, dynamic> map)
       : point1 = parseDynamicOffset(map["point1"]) ??
@@ -31,7 +31,7 @@ class TriangleShape extends OutlinedShape {
         point3 = parseDynamicOffset(map["point3"]) ??
             DynamicOffset(const Length(50, unit: LengthUnit.percent),
                 const Length(100, unit: LengthUnit.percent)),
-  super(border: parseDynamicBorderSide(map["border"])??defaultBorder);
+  super(border: parseDynamicBorderSide(map["border"])??DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "TriangleShape"};

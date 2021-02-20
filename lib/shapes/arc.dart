@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///A rectangle with one side replaced by an arc with a certain height
 class ArcShape extends OutlinedShape {
@@ -10,7 +10,7 @@ class ArcShape extends OutlinedShape {
   final bool isOutward;
 
   const ArcShape({
-    DynamicBorderSide border = defaultBorder,
+    DynamicBorderSide border = DynamicBorderSide.none,
     this.side = ShapeSide.bottom,
     this.isOutward = true,
     this.arcHeight = const Length(20),
@@ -20,7 +20,9 @@ class ArcShape extends OutlinedShape {
       : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
         isOutward = map["isOutward"],
         arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20),
-        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "ArcShape"};
@@ -94,7 +96,6 @@ class ArcShape extends OutlinedShape {
           double startAngle = pi + theta3;
           double sweepAngle = pi - 2 * theta3;
 
-          //nodes.add(DynamicNode(position: Offset(0.0, arcHeight)));
           nodes.addArc(circleRect, startAngle, sweepAngle);
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
@@ -105,7 +106,7 @@ class ArcShape extends OutlinedShape {
               height: 2 * radius);
           double startAngle = pi - theta3;
           double sweepAngle = pi - 2 * theta3;
-          //nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
+
           nodes.addArc(circleRect, startAngle, -sweepAngle);
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
@@ -122,8 +123,6 @@ class ArcShape extends OutlinedShape {
 
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          //nodes.add(DynamicNode(
-          //    position: Offset(size.width, size.height - arcHeight)));
           nodes.addArc(circleRect, startAngle, sweepAngle);
         } else {
           Rect circleRect = Rect.fromCenter(
@@ -134,7 +133,6 @@ class ArcShape extends OutlinedShape {
           double sweepAngle = pi - 2 * theta3;
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
-          //nodes.add(DynamicNode(position: Offset(size.width, size.height)));
           nodes.addArc(circleRect, startAngle, -sweepAngle);
         }
         break;
@@ -149,7 +147,6 @@ class ArcShape extends OutlinedShape {
           nodes.add(DynamicNode(position: Offset(arcHeight, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          //nodes.add(DynamicNode(position: Offset(arcHeight, size.height)));
           nodes.addArc(circleRect, startAngle, sweepAngle);
         } else {
           Rect circleRect = Rect.fromCenter(
@@ -161,7 +158,6 @@ class ArcShape extends OutlinedShape {
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
           nodes.add(DynamicNode(position: Offset(size.width, size.height)));
-          //nodes.add(DynamicNode(position: Offset(0, size.height)));
           nodes.addArc(circleRect, startAngle, -sweepAngle);
         }
         break;
@@ -173,7 +169,6 @@ class ArcShape extends OutlinedShape {
               height: 2 * radius);
           double startAngle = -(pi / 2 - theta3);
           double sweepAngle = pi - 2 * theta3;
-          //nodes.add(DynamicNode(position: Offset(size.width - arcHeight, 0.0)));
           nodes.addArc(circleRect, startAngle, sweepAngle);
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));
@@ -184,7 +179,6 @@ class ArcShape extends OutlinedShape {
               height: 2 * radius);
           double startAngle = -(pi / 2 + theta3);
           double sweepAngle = pi - 2 * theta3;
-          //nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
           nodes.addArc(circleRect, startAngle, -sweepAngle);
           nodes.add(DynamicNode(position: Offset(0.0, size.height)));
           nodes.add(DynamicNode(position: Offset(0.0, 0.0)));

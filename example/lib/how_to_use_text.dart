@@ -17,7 +17,7 @@ const List<Widget> howToTextWidgets = [
   Text("Click the shape icon button to choose other shapes."),
   Divider(),
   Text(
-      "Click the code icon button at the top right corner to see the JSON representation of the current shape."),
+      "Click the code icon button to see the JSON representation of the current shape."),
   Divider(),
   Text(
       "Click the eye icon button at the top left corner to see the current shape morph between other predefined shapes."),

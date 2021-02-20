@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'morphable_shape.dart';
 import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///Maybe used in the future to help editing DynamicPath
 enum NodeControlMode {
@@ -104,17 +105,23 @@ class DynamicPath {
 
   void removeOverlappingNodes() {
     if (nodes.isNotEmpty) {
+      double pointGroupWeight = 1;
       List<DynamicNode> newNodes = [nodes[0]];
       for (int i = 0; i < nodes.length; i++) {
         if ((nodes[i].position - newNodes.last.position).distance <
             boxBoundingTolerance * size.shortestSide) {
           newNodes.last.next = nodes[i].next;
+          newNodes.last.position +=
+              (nodes[i].position - newNodes.last.position) /
+                  (pointGroupWeight + 1);
+          pointGroupWeight++;
         } else if (i == nodes.length - 1 &&
             (nodes[i].position - newNodes.first.position).distance <
                 boxBoundingTolerance * size.shortestSide) {
           newNodes.first.prev = nodes[i].prev;
         } else {
           newNodes.add(nodes[i]);
+          pointGroupWeight = 1;
         }
       }
       nodes = newNodes;

@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-import 'morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///The base class for various shapes implemented in this package
 ///should be serializable/deserializable
 ///generate a DynamicPath instance with all the control points, then convert to a Path
 abstract class Shape {
-  final Gradient? borderGradient;
+  const Shape();
 
-  const Shape(
-      {this.borderGradient});
-
-  Map<String, dynamic> toJson() {
-    return {"borderGradient": borderGradient?.toJson()};
-  }
+  Map<String, dynamic> toJson();
 
   Shape copyWith();
 
@@ -43,7 +38,13 @@ abstract class OutlinedShape extends Shape {
   const OutlinedShape({this.border = DynamicBorderSide.none});
 
   Map<String, dynamic> toJson() {
-    return {"border": border.toJson()}..addAll(super.toJson());
+    return {"border": border.toJson()};
+  }
+
+  OutlinedShape copyWith({
+    DynamicBorderSide? border,
+  }) {
+    return this.copyWith(border: border);
   }
 
   DynamicPath generateInnerDynamicPath(Rect rect) {
@@ -58,7 +59,7 @@ abstract class OutlinedShape extends Shape {
     borderPaint.color = border.color;
     borderPaint.strokeWidth =
         2 * border.width.toPX(constraintSize: rect.shortestSide);
-    borderPaint.shader = borderGradient?.createShader(rect);
+    borderPaint.shader = border.gradient?.createShader(rect);
     canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
   }
 }
@@ -70,15 +71,21 @@ abstract class FilledBorderShape extends Shape {
 
   List<Color> borderFillColors();
 
+  List<Gradient?> borderFillGradients();
+
   void drawBorder(Canvas canvas, Rect rect) {
     Paint borderPaint = Paint();
 
     DynamicPath outer = generateOuterDynamicPath(rect);
     DynamicPath inner = generateInnerDynamicPath(rect);
     List<Color> borderColors = borderFillColors();
+    List<Gradient?> borderGradients = borderFillGradients();
 
-    BorderPaths borderPaths =
-        BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
+    BorderPaths borderPaths = BorderPaths(
+        outer: outer,
+        inner: inner,
+        fillColors: borderColors,
+        fillGradients: borderGradients);
 
     borderPaths.removeOverlappingPaths();
 
@@ -89,7 +96,8 @@ abstract class FilledBorderShape extends Shape {
       borderPaint.style = PaintingStyle.fill;
       borderPaint.color = borderPaths.fillColors[i % borderColors.length];
       borderPaint.strokeWidth = 1;
-      borderPaint.shader = borderGradient?.createShader(rect);
+      borderPaint.shader = borderPaths.fillGradients[i % borderGradients.length]
+          ?.createShader(rect);
       canvas.drawPath(paths[i], borderPaint);
     }
   }

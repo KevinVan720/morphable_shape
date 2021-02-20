@@ -1,4 +1,4 @@
-import 'morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 class RectangleCornerStyles {
   final CornerStyle topLeft;
@@ -79,15 +79,14 @@ class RectangleBorders {
         left = vertical,
         right = vertical;
 
-  RectangleBorders fromJson(Map map) {
+  static RectangleBorders fromJson(Map map) {
     return RectangleBorders.only(
-        top : parseDynamicBorderSide(map['top']) ?? defaultBorder,
-        bottom : parseDynamicBorderSide(map['bottom']) ?? defaultBorder,
-        left : parseDynamicBorderSide(map['left']) ?? defaultBorder,
-        right : parseDynamicBorderSide(map['right']) ?? defaultBorder,
+      top: parseDynamicBorderSide(map['top']) ?? defaultBorder,
+      bottom: parseDynamicBorderSide(map['bottom']) ?? defaultBorder,
+      left: parseDynamicBorderSide(map['left']) ?? defaultBorder,
+      right: parseDynamicBorderSide(map['right']) ?? defaultBorder,
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {

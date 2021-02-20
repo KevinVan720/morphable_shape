@@ -10,16 +10,19 @@ class DynamicBorderSide {
     this.color = const Color(0xFF000000),
     this.width = const Length(1.0),
     this.style = BorderStyle.solid,
+    this.gradient,
   });
 
   DynamicBorderSide.fromJson(Map<String, dynamic> map)
       : color = parseColor(map["color"]) ?? Color(0xFF000000),
+        gradient = parseGradient(map["gradient"]),
         width = parseLength(map["length"]) ?? Length(1),
         style = parseBorderStyle(map["style"]) ?? BorderStyle.solid;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
     rst["color"] = color.toJson();
+    rst.updateNotNull("gradient", gradient?.toJson());
     rst["width"] = width.toJson();
     rst["style"] = style.toJson();
     return rst;
@@ -27,6 +30,8 @@ class DynamicBorderSide {
 
   /// The color of this side of the border.
   final Color color;
+
+  final Gradient? gradient;
 
   /// The width of this side of the border, in logical pixels.
   ///
@@ -51,11 +56,13 @@ class DynamicBorderSide {
 
   DynamicBorderSide copyWith({
     Color? color,
+    Gradient? gradient,
     Length? width,
     BorderStyle? style,
   }) {
     return DynamicBorderSide(
       color: color ?? this.color,
+      gradient: gradient ?? this.gradient,
       width: width ?? this.width,
       style: style ?? this.style,
     );
@@ -64,6 +71,7 @@ class DynamicBorderSide {
   DynamicBorderSide scale(double t) {
     return DynamicBorderSide(
       color: color,
+      gradient: gradient?.scale(t),
       width: width.copyWith(value: max(0.0, width.value * t)),
       style: t <= 0.0 ? BorderStyle.none : style,
     );
@@ -75,10 +83,11 @@ class DynamicBorderSide {
     if (other.runtimeType != runtimeType) return false;
     return other is DynamicBorderSide &&
         other.color == color &&
+        other.gradient == gradient &&
         other.width == width &&
         other.style == style;
   }
 
   @override
-  int get hashCode => hashValues(color, width, style);
+  int get hashCode => hashValues(color, gradient, width, style);
 }

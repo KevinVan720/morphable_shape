@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///A trapezoid shape, can be achieved from a rectangle
 ///may remove in the future
@@ -12,10 +12,10 @@ class TrapezoidShape extends OutlinedShape {
   const TrapezoidShape(
       {this.side = ShapeSide.bottom,
       this.inset = const Length(20, unit: LengthUnit.percent),
-      DynamicBorderSide border = defaultBorder})
+      DynamicBorderSide border = DynamicBorderSide.none})
       : super(border: border);
 
-  Shape copyWith({
+  TrapezoidShape copyWith({
     ShapeSide? side,
     Length? inset,
     DynamicBorderSide? border,
@@ -31,7 +31,9 @@ class TrapezoidShape extends OutlinedShape {
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
         inset = Length.fromJson(map['inset']) ??
             Length(20, unit: LengthUnit.percent),
-        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "TrapezoidShape"};

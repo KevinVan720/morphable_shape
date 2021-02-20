@@ -1,10 +1,11 @@
 import 'dart:ui';
+import 'dart:math';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/painting.dart';
-import 'dart:math';
-import 'morphable_shape.dart';
+
+import 'package:morphable_shape/morphable_shape.dart';
 
 enum MorphMethod {
   auto,
@@ -66,7 +67,7 @@ class MorphShapeData {
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
-    int maxTrial = 100,
+    int maxTrial = 360,
     int minControlPoints = 16,
     int maxControlPoints = 120,
   }) {
@@ -76,12 +77,18 @@ class DynamicPathMorph {
       DynamicPath inner = data.begin.generateInnerDynamicPath(data.boundingBox);
       List<Color> borderColors =
           (data.begin as FilledBorderShape).borderFillColors();
+      List<Gradient?> borderGradients =
+          (data.begin as FilledBorderShape).borderFillGradients();
 
-      BorderPaths borderPaths =
-          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
+      BorderPaths borderPaths = BorderPaths(
+          outer: outer,
+          inner: inner,
+          fillColors: borderColors,
+          fillGradients: borderGradients);
 
       borderPaths.removeOverlappingPaths();
       path1 = borderPaths.outer;
+      data.beginPaths = borderPaths;
     } else {
       path1.removeOverlappingNodes();
     }
@@ -92,11 +99,18 @@ class DynamicPathMorph {
       List<Color> borderColors =
           (data.end as FilledBorderShape).borderFillColors();
 
-      BorderPaths borderPaths =
-          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
+      List<Gradient?> borderGradients =
+          (data.end as FilledBorderShape).borderFillGradients();
+
+      BorderPaths borderPaths = BorderPaths(
+          outer: outer,
+          inner: inner,
+          fillColors: borderColors,
+          fillGradients: borderGradients);
 
       borderPaths.removeOverlappingPaths();
       path2 = borderPaths.outer;
+      data.endPaths = borderPaths;
     } else {
       path2.removeOverlappingNodes();
     }
@@ -141,12 +155,23 @@ class DynamicPathMorph {
             minControlPoints: minControlPoints,
             maxControlPoints: maxControlPoints);
       } else {
-        List rst1 = weightedSampling(path1, path2,
+        ///too many possible ways to distribute the points for the weighted algorithm
+        ///just j=ignore it
+
+        List weighted = weightedSampling(path1, path2,
             maxTrial: maxTrial, minControlPoints: minControlPoints);
-        List rst2 = unweightedSampling(path1, path2,
+
+        List unweighted = unweightedSampling(path1, path2,
             minControlPoints: minControlPoints,
             maxControlPoints: maxControlPoints);
-        rst = rst1[5] > rst2[5] ? rst2 : rst1;
+
+        //print("weighted" +
+        //    weighted[5].toString() +
+        //    ", unweighted" +
+        //    unweighted[5].toString());
+
+        ///the 5th element is the weight of the sampling
+        rst = weighted[5] > unweighted[5] ? unweighted : weighted;
       }
       data.beginOuterPath = rst[2];
       data.endOuterPath = rst[3];
@@ -156,49 +181,41 @@ class DynamicPathMorph {
     }
 
     if (data.begin is FilledBorderShape) {
-      DynamicPath outer = data.begin.generateOuterDynamicPath(data.boundingBox);
-      DynamicPath inner = data.begin.generateInnerDynamicPath(data.boundingBox);
-      List<Color> borderColors =
-          (data.begin as FilledBorderShape).borderFillColors();
-
-      BorderPaths borderPaths =
-          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
-
-      borderPaths.removeOverlappingPaths();
-
+      BorderPaths borderPaths = data.beginPaths!;
       borderPaths.outer = data.beginOuterPath;
       borderPaths.inner = supplyPoints(borderPaths.inner, data.supplyCounts1!);
       borderPaths.inner.nodes =
           rotateList(borderPaths.inner.nodes, data.minimumShift!)
               as List<DynamicNode>;
       borderPaths.fillColors =
-          supplyColors(borderPaths.fillColors, data.supplyCounts1!);
+          supplyList(borderPaths.fillColors, data.supplyCounts1!).cast<Color>();
       borderPaths.fillColors =
           rotateList(borderPaths.fillColors, data.minimumShift!) as List<Color>;
-      data.beginPaths = borderPaths;
+      borderPaths.fillGradients =
+          supplyList(borderPaths.fillGradients, data.supplyCounts1!)
+              .cast<Gradient?>();
+      borderPaths.fillGradients =
+          rotateList(borderPaths.fillGradients, data.minimumShift!)
+              as List<Gradient?>;
     }
+
     if (data.end is FilledBorderShape) {
-      DynamicPath outer = data.end.generateOuterDynamicPath(data.boundingBox);
-      DynamicPath inner = data.end.generateInnerDynamicPath(data.boundingBox);
-      List<Color> borderColors =
-          (data.end as FilledBorderShape).borderFillColors();
-
-      BorderPaths borderPaths =
-          BorderPaths(outer: outer, inner: inner, fillColors: borderColors);
-
-      borderPaths.removeOverlappingPaths();
+      BorderPaths borderPaths = data.endPaths!;
 
       borderPaths.outer = data.endOuterPath;
       borderPaths.inner = supplyPoints(borderPaths.inner, data.supplyCounts2!);
       borderPaths.fillColors =
-          supplyColors(borderPaths.fillColors, data.supplyCounts2!);
-      data.endPaths = borderPaths;
+          supplyList(borderPaths.fillColors, data.supplyCounts2!).cast<Color>();
+      borderPaths.fillGradients =
+          supplyList(borderPaths.fillGradients, data.supplyCounts2!)
+              .cast<Gradient?>();
     }
   }
 
   static List<dynamic> weightedSampling(DynamicPath path1, DynamicPath path2,
       {required int minControlPoints, required int maxTrial}) {
     int totalPoints = max(path1.nodes.length, path2.nodes.length);
+    int minPoints = min(path1.nodes.length, path2.nodes.length);
 
     double tempMinWeight = double.infinity;
     List<int>? tempCounts1, tempCounts2;
@@ -208,24 +225,45 @@ class DynamicPathMorph {
         optimalPath2 = DynamicPath(size: Size.zero, nodes: []);
     List<int> optimalCount1 = [], optimalCount2 = [];
 
-    ///for total points that are large, don't need much trials
-    maxTrial =
-        min((maxTrial * minControlPoints / totalPoints).round(), maxTrial);
+    if (totalPoints > minPoints) {
+      int maxPossibleWay =
+          estimateCombinationsOf(totalPoints - 1, minPoints - 1);
 
-    ///for total points that are small, try add a few extra points to the Monte
-    ///Carlo simulation to see if we can find a better solution
-    ///But this takes more time and tends to bend more straight lines,
-    ///Currently just disable it, I can not find something that looks better
-    ///with this setting enabled
-    //int totalPointsVariation = max(5, (minControlPoints / 5).round());
-    int totalPointsVariation = 0;
+      List<List<int>> allPossibleCounts = [];
 
-    for (int iter = 0; iter <= totalPointsVariation; iter++) {
+      ///not so much possible ways, we can just do a brute force search
+      if (maxPossibleWay <= 2 * maxTrial) {
+        maxTrial = maxPossibleWay;
+        allPossibleCounts =
+            generateAllSupplyCounts(totalPoints - minPoints, minPoints);
+      } else {
+        maxTrial =
+            min((maxTrial * minControlPoints / totalPoints).round(), maxTrial);
+      }
+
+      ///for total points that are small, try add a few extra points to the Monte
+      ///Carlo simulation to see if we can find a better solution
+      ///But this takes more time and tends to bend more straight lines,
+      ///Currently just disable it, I can not find something that looks better
+      ///with this setting enabled
+      //int totalPointsVariation = max(5, (minControlPoints / 5).round());
+      //int totalPointsVariation = 0;
+
       for (int trial = 0; trial < maxTrial; trial++) {
-        tempCounts1 =
-            sampleSupplyCounts(path1, totalPoints, oldCounts: tempCounts1);
-        tempCounts2 =
-            sampleSupplyCounts(path2, totalPoints, oldCounts: tempCounts2);
+        if (maxPossibleWay != maxTrial) {
+          tempCounts1 =
+              sampleSupplyCounts(path1, totalPoints, oldCounts: tempCounts1);
+          tempCounts2 =
+              sampleSupplyCounts(path2, totalPoints, oldCounts: tempCounts2);
+        } else {
+          if (path1.nodes.length > path2.nodes.length) {
+            tempCounts1 = List.generate(path1.nodes.length, (index) => 0);
+            tempCounts2 = allPossibleCounts[trial];
+          } else {
+            tempCounts2 = List.generate(path2.nodes.length, (index) => 0);
+            tempCounts1 = allPossibleCounts[trial];
+          }
+        }
 
         tempPath1 = supplyPoints(path1, tempCounts1);
         tempPath2 = supplyPoints(path2, tempCounts2);
@@ -241,40 +279,24 @@ class DynamicPathMorph {
                 tempPath1.nodes.map((e) => e.position).toList(),
             path2Nodes = tempPath2.nodes.map((e) => e.position).toList();
 
-        double centerShift =
-            (centerOfMass(path1Nodes) - centerOfMass(path2Nodes))
-                .distance
-                .clamp(1e-10, double.infinity);
-        double totalAngleShift = computeTotalRotation(path1Nodes, path2Nodes)
-            .abs()
-            .clamp(1e-10, double.infinity);
-        double maxAngleShift = computeMaxRotation(path1Nodes, path2Nodes)
-            .abs()
-            .clamp(1e-10, double.infinity);
+        double tempWeight = computeTotalMorphWeight(path1Nodes, path2Nodes);
 
-        double maxSingleOffset = computeSingleMaxOffset(path1Nodes, path2Nodes)
-            .abs()
-            .clamp(1e-10, double.infinity);
         tempPath1.nodes =
             rotateList(tempPath1.nodes, -tempShift) as List<DynamicNode>;
-        if (path1Nodes.length *
-                centerShift *
-                totalAngleShift *
-                maxAngleShift *
-                maxSingleOffset <
-            tempMinWeight) {
-          tempMinWeight = path1Nodes.length *
-              centerShift *
-              totalAngleShift *
-              maxAngleShift *
-              maxSingleOffset;
+        if (tempWeight < tempMinWeight) {
+          tempMinWeight = tempWeight;
           optimalPath1 = tempPath1;
           optimalPath2 = tempPath2;
           optimalCount1 = tempCounts1;
           optimalCount2 = tempCounts2;
         }
       }
-      totalPoints++;
+    } else {
+      ///Two path have equal length, no need to supply any points
+      optimalCount1 = List.generate(path1.nodes.length, (index) => 0);
+      optimalCount2 = List.generate(path2.nodes.length, (index) => 0);
+      optimalPath1 = supplyPoints(path1, optimalCount1);
+      optimalPath2 = supplyPoints(path2, optimalCount2);
     }
 
     int shift = computeMinimumOffsetIndex(
@@ -288,43 +310,13 @@ class DynamicPathMorph {
             optimalPath1.nodes.map((e) => e.position).toList(),
         path2Nodes = optimalPath2.nodes.map((e) => e.position).toList();
 
-    double centerShift = (centerOfMass(path1Nodes) - centerOfMass(path2Nodes))
-        .distance
-        .clamp(1e-10, double.infinity);
-    double totalAngleShift = computeTotalRotation(path1Nodes, path2Nodes)
-        .abs()
-        .clamp(1e-10, double.infinity);
-    double maxAngleShift = computeMaxRotation(path1Nodes, path2Nodes)
-        .abs()
-        .clamp(1e-10, double.infinity);
-
-    double maxSingleOffset = computeSingleMaxOffset(path1Nodes, path2Nodes)
-        .abs()
-        .clamp(1e-10, double.infinity);
-
-    print("weightd " +
-        centerShift.toString() +
-        ", " +
-        totalAngleShift.toString() +
-        ", " +
-        maxAngleShift.toString() +
-        ", " +
-        maxSingleOffset.toString() +
-        ", " +
-        (centerShift * path1Nodes.length * totalAngleShift * maxAngleShift)
-            .toString());
-
     return [
       optimalCount1,
       optimalCount2,
       optimalPath1,
       optimalPath2,
       shift,
-      centerShift *
-          path1Nodes.length *
-          totalAngleShift *
-          maxAngleShift *
-          maxSingleOffset,
+      computeTotalMorphWeight(path1Nodes, path2Nodes),
     ];
   }
 
@@ -337,6 +329,7 @@ class DynamicPathMorph {
     int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
     if (totalPoints < minControlPoints ||
         path1.nodes.length == path2.nodes.length) {
+      //totalPoints = (minControlPoints / totalPoints).ceil() * totalPoints;
       totalPoints = path1.nodes.length * path2.nodes.length;
     }
 
@@ -364,63 +357,83 @@ class DynamicPathMorph {
             optimalPath1.nodes.map((e) => e.position).toList(),
         path2Nodes = optimalPath2.nodes.map((e) => e.position).toList();
 
-    double centerShift = (centerOfMass(path1Nodes) - centerOfMass(path2Nodes))
-        .distance
-        .clamp(1e-10, double.infinity);
-    double totalAngleShift = computeTotalRotation(path1Nodes, path2Nodes)
-        .abs()
-        .clamp(1e-10, double.infinity);
-    double maxAngleShift = computeMaxRotation(path1Nodes, path2Nodes)
-        .abs()
-        .clamp(1e-10, double.infinity);
-
-    double maxSingleOffset = computeSingleMaxOffset(path1Nodes, path2Nodes)
-        .abs()
-        .clamp(1e-10, double.infinity);
-
-    print("unweightd " +
-        centerShift.toString() +
-        ", " +
-        totalAngleShift.toString() +
-        ", " +
-        maxAngleShift.toString() +
-        ", " +
-        maxSingleOffset.toString() +
-        ", " +
-        (centerShift * path1Nodes.length * totalAngleShift * maxAngleShift)
-            .toString());
-
     return [
       optimalCount1,
       optimalCount2,
       optimalPath1,
       optimalPath2,
       shift,
-      centerShift *
-          path1Nodes.length *
-          totalAngleShift *
-          maxAngleShift *
-          maxSingleOffset,
+      computeTotalMorphWeight(path1Nodes, path2Nodes),
     ];
   }
 
+  /*
   static int computeMinimumOffsetIndex(
       List<Offset> points1, List<Offset> points2) {
     int minimumShift = 0;
     double minimumOffset = double.infinity;
     assert(points1.length == points2.length);
     int length = points1.length;
+
     for (int shift = 0; shift < length; shift++) {
       double currentOffset = 0.0;
       for (int i = 0; i < length; i++) {
         currentOffset += (points1[(i + shift) % length] - points2[i]).distance;
       }
+
       if (currentOffset <= minimumOffset) {
         minimumOffset = currentOffset;
         minimumShift = shift;
       }
     }
+
     return minimumShift;
+  }
+  */
+
+  static int computeMinimumOffsetIndex(
+      List<Offset> points1, List<Offset> points2) {
+    assert(points1.length == points2.length);
+    int length = points1.length;
+    int startShift = 0;
+    double? startOffset, leftOffset, rightOffset;
+
+    while (true) {
+      startOffset = startOffset ??
+          computeTotalOffset(points1, points2, shift: startShift % length);
+      leftOffset = leftOffset ??
+          computeTotalOffset(points1, points2,
+              shift: (startShift - 1) % length);
+      rightOffset = rightOffset ??
+          computeTotalOffset(points1, points2,
+              shift: (startShift + 1) % length);
+      if (leftOffset < startOffset) {
+        startShift -= 1;
+        rightOffset = startOffset;
+        startOffset = leftOffset;
+        leftOffset = null;
+      } else if (rightOffset < startOffset) {
+        startShift += 1;
+        leftOffset = startOffset;
+        startOffset = rightOffset;
+        rightOffset = null;
+      } else {
+        break;
+      }
+    }
+
+    return startShift % length;
+  }
+
+  static double computeTotalOffset(List<Offset> points1, List<Offset> points2,
+      {int shift = 0}) {
+    assert(points1.length == points2.length);
+    int length = points1.length;
+    double currentOffset = 0.0;
+    for (int i = 0; i < length; i += 1) {
+      currentOffset += (points1[(i + shift) % length] - points2[i]).distance;
+    }
+    return currentOffset;
   }
 
   static Offset centerOfMass(List<Offset> points) {
@@ -432,48 +445,13 @@ class DynamicPathMorph {
     return rst / length.toDouble();
   }
 
-  static double computeTotalOffset(List<Offset> points1, List<Offset> points2) {
-    assert(points1.length == points2.length);
-    int length = points1.length;
-    double currentOffset = 0.0;
-    for (int i = 0; i < length; i += 1) {
-      currentOffset += (points1[i] - points2[i]).distance;
-    }
-    return currentOffset;
-  }
-
-  static double computeSingleMaxOffset(
+  static double computeTotalMorphWeight(
       List<Offset> points1, List<Offset> points2) {
-    assert(points1.length == points2.length);
-    int length = points1.length;
-    double maxOffset = 0.0;
-    for (int i = 0; i < length; i += 1) {
-      if ((points1[i] - points2[i]).distance > maxOffset)
-        maxOffset = (points1[i] - points2[i]).distance;
-    }
-    return maxOffset;
-  }
-
-  static double computeTotalRotation(
-      List<Offset> points1, List<Offset> points2) {
-    assert(points1.length == points2.length);
-    int length = points1.length;
-    double currentAngle = 0.0;
-    Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
-    for (int i = 0; i < length; i += 1) {
-      double diff =
-          (points1[i] - center1).direction - (points2[i] - center2).direction;
-      if (diff < -pi) diff += 2 * pi;
-      if (diff > pi) diff -= 2 * pi;
-      currentAngle += diff;
-    }
-    return currentAngle;
-  }
-
-  static double computeMaxRotation(List<Offset> points1, List<Offset> points2) {
     assert(points1.length == points2.length);
     int length = points1.length;
     double maxAngle = 0.0;
+    double totalAngle = 0.0;
+    double maxOffset = 0.0;
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
       double diff =
@@ -481,10 +459,17 @@ class DynamicPathMorph {
       if (diff < -pi) diff += 2 * pi;
       if (diff > pi) diff -= 2 * pi;
       if (diff.abs() > maxAngle) maxAngle = diff.abs();
+      totalAngle += diff;
+      if ((points1[i] - points2[i]).distance > maxOffset)
+        maxOffset = (points1[i] - points2[i]).distance;
     }
-    return maxAngle;
+    return points1.length *
+        max(1e-10, maxAngle) *
+        max(1e-10, totalAngle) *
+        max(1e-10, (center1 - center2).distance);
   }
 
+  /*
   static double computeMinimumOffset(
       List<Offset> points1, List<Offset> points2) {
     double minimumOffset = double.infinity;
@@ -501,6 +486,8 @@ class DynamicPathMorph {
     }
     return minimumOffset;
   }
+
+   */
 
   static DynamicPath lerpPaths(
       double t, DynamicPath beginPath, DynamicPath endPath) {
@@ -520,6 +507,29 @@ class DynamicPathMorph {
     }
     return rst;
   }
+}
+
+List<List<int>> generateAllSupplyCounts(int totalPoints, int slots) {
+  if (slots < 1) {
+    return [];
+  }
+  if (slots == 1) {
+    return [
+      [totalPoints]
+    ];
+  }
+  if (totalPoints < 1) {
+    return [List.generate(slots, (index) => 0)];
+  }
+  List<List<int>> rst = [];
+  for (int i = 0; i <= totalPoints; i++) {
+    List<List<int>> temp = generateAllSupplyCounts(totalPoints - i, slots - 1);
+    temp.forEach((l) {
+      l.insert(0, i);
+    });
+    rst.addAll(temp);
+  }
+  return rst;
 }
 
 List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
@@ -615,18 +625,22 @@ DynamicPath supplyPoints(DynamicPath path, List<int> supplyCounts) {
   return newPath;
 }
 
-List<Color> supplyColors(List<Color> colors, List<int> counts) {
-  int length = colors.length;
+List<dynamic> supplyList(List<dynamic> list, List<int> counts) {
+  int length = list.length;
 
-  List<Color> newColors = [];
+  List<dynamic> newList = [];
 
   for (int i = 0; i < length; i++) {
-    newColors.add(colors[i]);
-    int count = counts[i];
-    if (count >= 1) {
-      newColors.addAll(List.generate(count, (index) => colors[i]));
+    newList.add(list[i]);
+    if (counts[i] >= 1) {
+      newList.addAll(List.generate(counts[i], (index) => list[i]));
     }
   }
 
-  return newColors;
+  return newList;
+}
+
+void printWrapped(String text) {
+  final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
+  pattern.allMatches(text).forEach((match) => print(match.group(0)));
 }

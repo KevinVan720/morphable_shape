@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///border paths for a FilledBorderShape
 ///has an outer path, an inner path and
@@ -13,55 +13,67 @@ class BorderPaths {
   DynamicPath outer;
   DynamicPath inner;
   List<Color> fillColors;
+  List<Gradient?> fillGradients;
 
   BorderPaths(
-      {required this.outer, required this.inner, required this.fillColors});
+      {required this.outer,
+      required this.inner,
+      required this.fillColors,
+      required this.fillGradients});
 
   void removeOverlappingPaths() {
-
     assert(outer.nodes.length == inner.nodes.length);
     if (outer.nodes.isNotEmpty) {
-      double pointGroupWeight=1;
+      double pointGroupWeight = 1;
       List<DynamicNode> outerNodes = [outer.nodes[0]];
       List<DynamicNode> innerNodes = [inner.nodes[0]];
       List<Color> newColors = [fillColors[0]];
+      List<Gradient?> newGradients = [fillGradients[0]];
       for (int i = 0; i < outer.nodes.length; i++) {
         if ((outer.nodes[i].position - outerNodes.last.position).distance <
-            tolerancePercent*outer.size.shortestSide &&
+                tolerancePercent * outer.size.shortestSide &&
             (inner.nodes[i].position - innerNodes.last.position).distance <
-                tolerancePercent*outer.size.shortestSide) {
-
+                tolerancePercent * outer.size.shortestSide) {
           outerNodes.last.next = outer.nodes[i].next;
-          outerNodes.last.position+=(outer.nodes[i].position - outerNodes.last.position)/(pointGroupWeight+1);
+          outerNodes.last.position +=
+              (outer.nodes[i].position - outerNodes.last.position) /
+                  (pointGroupWeight + 1);
           innerNodes.last.next = inner.nodes[i].next;
-          innerNodes.last.position+=(inner.nodes[i].position - innerNodes.last.position)/(pointGroupWeight+1);
+          innerNodes.last.position +=
+              (inner.nodes[i].position - innerNodes.last.position) /
+                  (pointGroupWeight + 1);
           newColors.last = fillColors[i];
+          newGradients.last = fillGradients[i];
 
           pointGroupWeight++;
-
         } else if (i == outer.nodes.length - 1 &&
             (outer.nodes[i].position - outerNodes.first.position).distance <
-                tolerancePercent*outer.size.shortestSide &&
+                tolerancePercent * outer.size.shortestSide &&
             (inner.nodes[i].position - innerNodes.first.position).distance <
-                tolerancePercent*outer.size.shortestSide) {
+                tolerancePercent * outer.size.shortestSide) {
           outerNodes.first.prev = outer.nodes[i].prev;
-          outerNodes.first.position+=(outer.nodes[i].position - outerNodes.first.position)/(pointGroupWeight+1);
+          outerNodes.first.position +=
+              (outer.nodes[i].position - outerNodes.first.position) /
+                  (pointGroupWeight + 1);
           innerNodes.first.prev = inner.nodes[i].prev;
-          innerNodes.first.position+=(inner.nodes[i].position - innerNodes.first.position)/(pointGroupWeight+1);
+          innerNodes.first.position +=
+              (inner.nodes[i].position - innerNodes.first.position) /
+                  (pointGroupWeight + 1);
           newColors.first = fillColors[i];
+          newGradients.first = fillGradients[i];
         } else {
-          pointGroupWeight=1;
+          pointGroupWeight = 1;
           outerNodes.add(outer.nodes[i]);
           innerNodes.add(inner.nodes[i]);
           newColors.add(fillColors[i]);
+          newGradients.add(fillGradients[i]);
         }
       }
       outer.nodes = outerNodes;
       inner.nodes = innerNodes;
 
-      //outer.nodes.forEach((element) {print(element.toJson().toString());});
-
       fillColors = newColors;
+      fillGradients = newGradients;
     }
   }
 

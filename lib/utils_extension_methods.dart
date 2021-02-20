@@ -1,10 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/utils_math_geometry.dart';
 import 'package:vector_math/vector_math.dart';
-import 'package:bezier/bezier.dart';
-import 'morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 extension CornerStyleExtension on CornerStyle {
   String toJson() {

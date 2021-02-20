@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../morphable_shape.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///Bubble shape, with a triangular tip and equal radius rounded corner
 class BubbleShape extends OutlinedShape {
@@ -16,7 +16,7 @@ class BubbleShape extends OutlinedShape {
   final Length arrowHeadPosition;
 
   const BubbleShape({
-    DynamicBorderSide border = defaultBorder,
+    DynamicBorderSide border = DynamicBorderSide.none,
     this.corner = ShapeCorner.bottomRight,
     this.borderRadius = const Length(6),
     this.arrowHeight = const Length(20, unit: LengthUnit.percent),
@@ -35,7 +35,7 @@ class BubbleShape extends OutlinedShape {
             Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
         arrowHeadPosition =
             Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength,
-        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
+        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "BubbleShape"};
@@ -153,7 +153,6 @@ class BubbleShape extends OutlinedShape {
           position: Offset(arrowCenterPosition + arrowWidth / 2, top)));
     }
     if (borderRadius > 0) {
-      //nodes.add(DynamicNode(position: Offset(right - borderRadius, top)));
       nodes.addArc(
           Rect.fromLTRB(
               right - 2 * borderRadius, top, right, top + 2 * borderRadius),
@@ -172,7 +171,6 @@ class BubbleShape extends OutlinedShape {
           position: Offset(right, arrowCenterPosition + arrowWidth / 2)));
     }
     if (borderRadius > 0) {
-      //nodes.add(DynamicNode(position: Offset(right, bottom - borderRadius)));
       nodes.addArc(
           Rect.fromLTRB(right - borderRadius * 2, bottom - borderRadius * 2,
               right, bottom),
@@ -190,7 +188,6 @@ class BubbleShape extends OutlinedShape {
           position: Offset(arrowCenterPosition - arrowWidth / 2, bottom)));
     }
     if (borderRadius > 0) {
-      //nodes.add(DynamicNode(position: Offset(left + borderRadius, bottom)));
       nodes.addArc(
           Rect.fromLTRB(
               left, bottom - borderRadius * 2, left + borderRadius * 2, bottom),
@@ -209,7 +206,6 @@ class BubbleShape extends OutlinedShape {
           position: Offset(left, arrowCenterPosition - arrowWidth / 2)));
     }
     if (borderRadius > 0) {
-      //nodes.add(DynamicNode(position: Offset(left, top + borderRadius)));
       nodes.addArc(
           Rect.fromLTRB(
               left, top, left + borderRadius * 2, top + borderRadius * 2),

@@ -20,7 +20,6 @@ const List<ColorSwatch> materialColors = const <ColorSwatch>[
   Colors.orange,
   Colors.deepOrange,
   Colors.brown,
-  Colors.grey,
   Colors.blueGrey
 ];
 
@@ -241,10 +240,11 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
 
 class BottomSheetColorPicker extends StatefulWidget {
   BottomSheetColorPicker({
+    Key key,
     this.headText = "Pick a color",
     this.currentColor,
     @required this.valueChanged,
-  });
+  }) : super(key: key);
 
   final String headText;
   final Color currentColor;
@@ -298,7 +298,9 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                   ),
                   actions: <Widget>[
                     TextButton(
-                      child: const Text('More Colors'),
+                      child: const Text(
+                        'More Colors',
+                      ),
                       onPressed: () {
                         Navigator.of(context)?.pop();
                         showDialog(
@@ -347,9 +349,9 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
             );
           },
           child: Container(
-            color: currentColor,
+            decoration: BoxDecoration(
+                color: currentColor, border: Border.all(color: Colors.black)),
           ),
-          shape: CircleBorder(),
           elevation: 5.0,
           constraints: BoxConstraints.tight(Size(24, 24)),
           padding: const EdgeInsets.all(0.5),
