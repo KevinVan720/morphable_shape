@@ -246,8 +246,7 @@ class EditShapePageState extends State<EditShapePage>
                             children: [
                               Container(
                                 color: Colors.black54,
-                                child: TabBar(
-                                    tabs: [
+                                child: TabBar(tabs: [
                                   Tab(
                                     //icon: Icon(Icons.directions_bike),
                                     text: "BASIC",
@@ -1664,16 +1663,16 @@ class EditShapePageState extends State<EditShapePage>
 
     Size size = shapeSize;
 
-    double scale = min(size.width, size.height)/2;
+    double scale = min(size.width, size.height) / 2;
     double cornerRadius = shape.cornerRadius.toPX(constraintSize: scale);
     int sides = shape.sides;
 
-    final height = 2*scale;
-    final width = 2*scale;
+    final height = 2 * scale;
+    final width = 2 * scale;
 
     double startAngle = -pi / 2;
 
-    final double alpha = (2.0 * pi / sides)/2;
+    final double alpha = (2.0 * pi / sides) / 2;
     final double centerX = width / 2;
     final double centerY = height / 2;
 
@@ -1685,17 +1684,15 @@ class EditShapePageState extends State<EditShapePage>
     double arcCenterY = (centerY + arcCenterRadius * sin(startAngle));
 
     Offset start = arcToCubicBezier(
-        Rect.fromCircle(
-            center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
-        startAngle - alpha,
-        2 * alpha,
-        splitTimes: 1)
+            Rect.fromCircle(
+                center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
+            startAngle - alpha,
+            2 * alpha,
+            splitTimes: 1)
         .first;
 
-
     nodeControls.add(buildShapeEditingDragHandle(
-        position: start
-            .scale(size.width / width, size.height / height),
+        position: start.scale(size.width / width, size.height / height),
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             updateCurrentShape(shape.copyWith(
@@ -1704,7 +1701,7 @@ class EditShapePageState extends State<EditShapePage>
                     constraintSize: scale,
                     maximumSize: scale * cos(alpha / 2),
                     offset: details.delta,
-                    offsetToDelta: (o) => o.dy/ sin(alpha))));
+                    offsetToDelta: (o) => o.dy / sin(alpha))));
           });
         }));
 
@@ -1716,12 +1713,12 @@ class EditShapePageState extends State<EditShapePage>
 
     Size size = shapeSize;
 
-    double scale = min(size.width, size.height)/2;
+    double scale = min(size.width, size.height) / 2;
     double cornerRadius = shape.cornerRadius.toPX(constraintSize: scale);
     double insetRadius = shape.insetRadius.toPX(constraintSize: scale);
 
-    final height = 2*scale;
-    final width =2* scale;
+    final height = 2 * scale;
+    final width = 2 * scale;
 
     final int vertices = shape.corners * 2;
     final double alpha = (2 * pi) / vertices;

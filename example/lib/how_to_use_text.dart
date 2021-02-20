@@ -21,4 +21,7 @@ const List<Widget> howToTextWidgets = [
   Divider(),
   Text(
       "Click the eye icon button at the top left corner to see the current shape morph between other predefined shapes."),
+  Divider(),
+  Text(
+      "If the morphing process is lagging, try turn off the control points. Painting hundreds of small circles is heavy for the raster thread"),
 ];

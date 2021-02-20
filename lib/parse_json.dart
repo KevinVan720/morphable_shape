@@ -109,6 +109,8 @@ Shape? parseShape(Map<String, dynamic>? map) {
       return PolygonShape.fromJson(map);
     case "RectangleShape":
       return RectangleShape.fromJson(map);
+    case "RoundedRectangleShape":
+      return RoundedRectangleShape.fromJson(map);
     case "StarShape":
       return StarShape.fromJson(map);
     case "TrapezoidShape":

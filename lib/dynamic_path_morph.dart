@@ -170,10 +170,10 @@ class DynamicPathMorph {
             maxControlPoints: maxControlPoints,
             origin: data.boundingBox.center);
 
-        print("weighted" +
+        /*print("weighted" +
             weighted[5].toString() +
             ", unweighted" +
-            unweighted[5].toString());
+            unweighted[5].toString());*/
 
         ///the 5th element is the weight of the sampling
         rst = weighted[5] > unweighted[5] ? unweighted : weighted;
