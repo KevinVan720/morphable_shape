@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
@@ -6,10 +8,10 @@ bool useWhiteForeground(Color color) {
 }
 
 typedef PickerLayoutBuilder = Widget Function(
-    BuildContext context, List<String> allShape, PickerItem child);
-typedef PickerItem = Widget Function(String shape);
+    BuildContext context, List<Shape> allShape, PickerItem child);
+typedef PickerItem = Widget Function(Shape shape);
 typedef PickerItemBuilder = Widget Function(
-  String shape,
+  Shape shape,
   bool isCurrentShape,
   void Function() changeShape,
 );
@@ -20,24 +22,21 @@ class BlockShapePicker extends StatefulWidget {
     this.itemBuilder = defaultItemBuilder,
   });
 
-  final ValueChanged<String> onShapeChanged;
+  final Function onShapeChanged;
   final PickerItemBuilder itemBuilder;
 
   static Widget defaultItemBuilder(
-      String shape, bool isCurrentShape, void Function() changeShape) {
+      Shape shape, bool isCurrentShape, void Function() changeShape) {
     return Material(
       clipBehavior: Clip.antiAlias,
       type: MaterialType.canvas,
+      elevation: 1,
       shape: MorphableShapeBorder(
-        shape: presetShapeMap[shape] ??
-            RectangleShape(
-                borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
-        //borderWidth: isCurrentShape ? 4 : 2,
-        //borderColor: isCurrentShape ? Colors.black87 : Colors.grey
+        shape: shape,
       ),
       child: Container(
         color:
-            isCurrentShape ? Colors.black.withOpacity(0.7) : Colors.transparent,
+            isCurrentShape ? Colors.black.withOpacity(0.7) : Colors.black.withOpacity(0.1),
         child: InkWell(
           onTap: changeShape,
           radius: 60,
@@ -52,37 +51,56 @@ class BlockShapePicker extends StatefulWidget {
 }
 
 class _BlockShapePickerState extends State<BlockShapePicker> {
-  String _currentShape;
+  Shape _currentShape;
 
   @override
   void initState() {
-    _currentShape = "Rectangle";
+    _currentShape = presetRoundedRectangleMap["RectangleAll0"];
     super.initState();
   }
 
-  void changeShape(String shape) {
-    setState(() => _currentShape = shape);
+  void changeShape(Shape shape) {
+    setState(() {
+      _currentShape = shape;
+    });
     widget.onShapeChanged(shape);
   }
 
   @override
   Widget build(BuildContext context) {
     Orientation orientation = MediaQuery.of(context).orientation;
+    Size screenSize=MediaQuery.of(context).size;
 
     return Container(
-      width: orientation == Orientation.portrait ? 300.0 : 300.0,
-      height: orientation == Orientation.portrait ? 360.0 : 200.0,
-      child: GridView.count(
-        crossAxisCount: orientation == Orientation.portrait ? 4 : 6,
-        crossAxisSpacing: 15.0,
-        mainAxisSpacing: 15.0,
-        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        children: presetShapeMap.keys
-            .map((String shape) => widget.itemBuilder(
-                shape, shape == _currentShape, () => changeShape(shape)))
-            .toList(),
-      ),
-    );
+        width: min(screenSize.width*0.8,360.0),
+        height: min(screenSize.height*0.8,360.0),
+        child: ListView(
+          children: presetShapeMap.keys
+              .map((category) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.only(left: 3,top: 1, bottom: 1),
+                      //color: Colors.grey.withOpacity(0.2),
+                      child: Text(category, style: TextStyle(fontWeight: FontWeight.bold),)),
+                  GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        crossAxisCount: (min(screenSize.width*0.8,360.0)/50).floor(),
+                        crossAxisSpacing: 15.0,
+                        mainAxisSpacing: 15.0,
+                        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                        children: presetShapeMap[category].keys.map((String name) {
+                          Shape shape = presetShapeMap[category][name];
+                          return widget.itemBuilder(shape, shape == _currentShape,
+                              () => changeShape(shape));
+                        }).toList(),
+                      ),
+                ],
+              ))
+              .toList(),
+        ));
   }
 }
 
@@ -110,8 +128,8 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
     super.initState();
   }
 
-  void changeShape(String shape) {
-    setState(() => currentShape = presetShapeMap[shape]);
+  void changeShape(Shape shape) {
+    setState(() => currentShape = shape);
   }
 
   @override

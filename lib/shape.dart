@@ -96,15 +96,15 @@ abstract class FilledBorderShape extends Shape {
     List<Color> finalColors = [borderColors[0]];
     List<Gradient?> finalGradients = [borderGradients[0]];
     for (int i = 1; i < paths.length; i++) {
-      if (borderGradients[i] == borderGradients[i - 1] &&
+      if (i < paths.length - 1 && borderGradients[i] == borderGradients[i - 1] &&
           borderColors[i] == borderColors[i - 1]) {
         finalPaths.last =
             Path.combine(PathOperation.union, finalPaths.last, paths[i]);
-      } else if (i == paths.length - 1 &&
+      /*} else if (i == paths.length - 1 &&
           borderGradients[i] == borderGradients[0] &&
           borderColors[i] == borderColors[0]) {
         finalPaths.first =
-            Path.combine(PathOperation.union, finalPaths.first, paths[i]);
+            Path.combine(PathOperation.union, finalPaths.first, paths[i]);*/
       } else {
         finalPaths.add(paths[i]);
         finalColors.add(borderColors[i]);

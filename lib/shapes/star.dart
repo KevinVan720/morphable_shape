@@ -82,7 +82,7 @@ class StarShape extends OutlinedShape {
     final double centerY = scale;
 
     double inset = this.inset.toPX(constraintSize: scale);
-    inset = inset.clamp(0.001 * scale, scale);
+    inset = inset.clamp(0.0, scale * 0.999);
     double sideLength = getThirdSideLength(scale, scale - inset, alpha);
     double beta = getThirdAngle(sideLength, scale, scale - inset);
     double gamma = alpha + beta;
@@ -98,8 +98,8 @@ class StarShape extends OutlinedShape {
     }
 
     for (int i = 0; i < vertices; i++) {
-      final double r;
-      final double omega = -pi / 2 + alpha * i;
+      double r;
+      double omega = -pi / 2 + alpha * i;
       if (i.isEven) {
         r = scale - cornerRadius / sin(beta);
         Offset center =
@@ -123,9 +123,9 @@ class StarShape extends OutlinedShape {
                 splitTimes: 1);
             break;
           case CornerStyle.concave:
-            nodes.addArc(Rect.fromCircle(center: center, radius: cornerRadius),
-                omega - sweepAngle / 2, sweepAngle - 2 * pi,
-                splitTimes: 1);
+            nodes.addStyledCorner(
+                center, cornerRadius, omega - sweepAngle / 2, sweepAngle,
+                splitTimes: 1, style: CornerStyle.concave);
             break;
           case CornerStyle.straight:
             nodes.add(DynamicNode(position: start));
@@ -161,8 +161,20 @@ class StarShape extends OutlinedShape {
                   splitTimes: 1);
               break;
             case CornerStyle.concave:
-              nodes.addArc(Rect.fromCircle(center: center, radius: insetRadius),
-                  omega + sweepAngle / 2 + pi, -sweepAngle - 2 * pi,
+              r = scale - inset;
+              Offset center = Offset(
+                  (r * cos(omega)) + centerX, (r * sin(omega)) + centerY);
+              double newSweep = ((pi - sweepAngle)).clampAngle();
+              double newStart =
+                  ((omega + sweepAngle / 2 + pi + sweepAngle / 2) +
+                          newSweep / 2)
+                      .clampAngle();
+              nodes.addArc(
+                  Rect.fromCircle(
+                      center: center,
+                      radius: insetRadius * tan(sweepAngle / 2)),
+                  newStart,
+                  newSweep,
                   splitTimes: 1);
               break;
             case CornerStyle.straight:
@@ -198,9 +210,10 @@ class StarShape extends OutlinedShape {
                   splitTimes: 1);
               break;
             case CornerStyle.concave:
-              nodes.addArc(Rect.fromCircle(center: center, radius: insetRadius),
-                  omega - sweepAngle / 2, sweepAngle - 2 * pi,
-                  splitTimes: 1);
+              nodes.addStyledCorner(
+                  center, insetRadius, omega - sweepAngle / 2, sweepAngle,
+                  splitTimes: 1, style: CornerStyle.concave);
+
               break;
             case CornerStyle.straight:
               nodes.add(DynamicNode(position: start));

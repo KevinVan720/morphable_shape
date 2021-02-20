@@ -25,6 +25,7 @@ export 'shapes/arrow.dart';
 export 'shapes/circle.dart';
 export 'shapes/polygon.dart';
 export 'shapes/rectangle.dart';
+export 'shapes/rounded_rectangle.dart';
 export 'shapes/star.dart';
 export 'shapes/triangle.dart';
 export 'shapes/morph.dart';
