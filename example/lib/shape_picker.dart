@@ -1,5 +1,5 @@
-import 'package:morphable_shape/morphable_shape.dart';
 import 'package:flutter/material.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 bool useWhiteForeground(Color color) {
   return 1.05 / (color.computeLuminance() + 0.05) > 4.5;
@@ -145,7 +145,10 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
                   ),
                   actions: <Widget>[
                     TextButton(
-                      child: const Text('Got it', style: TextStyle(color: Colors.black),),
+                      child: const Text(
+                        'Got it',
+                        style: TextStyle(color: Colors.black),
+                      ),
                       onPressed: () {
                         setState(() {
                           widget.valueChanged(currentShape);

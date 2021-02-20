@@ -162,9 +162,10 @@ class RectangleShape extends FilledBorderShape {
     double rightTotal = max(rightTopRadius, topSideWidth) +
         max(rightBottomRadius, bottomSideWidth);
 
-
-    if (max(topTotal, bottomTotal)>size.width || max(leftTotal, rightTotal)>size.height) {
-      double resizeRatio=min(size.width/max(topTotal, bottomTotal),size.height/max(leftTotal, rightTotal));
+    if (max(topTotal, bottomTotal) > size.width ||
+        max(leftTotal, rightTotal) > size.height) {
+      double resizeRatio = min(size.width / max(topTotal, bottomTotal),
+          size.height / max(leftTotal, rightTotal));
 
       topLeftRadius *= resizeRatio;
       topRightRadius *= resizeRatio;
@@ -180,7 +181,6 @@ class RectangleShape extends FilledBorderShape {
       //topSideWidth *= resizeRatio;
       //bottomSideWidth *= resizeRatio;
     }
-
 
     final double left = rect.left;
     final double top = rect.top;
@@ -198,7 +198,8 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * topRightRadius - 2 * rightSideWidth),
                 height: max(0, 2 * rightTopRadius - 2 * topSideWidth)),
             -pi / 2,
-            pi / 2, splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -229,7 +230,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(topRightRadius, rightSideWidth),
                 height: 2 * max(rightTopRadius, topSideWidth)),
             pi,
-            -pi / 2,splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(left - 10, top + topSideWidth).toVector2(),
             Offset(right + 10, top + topSideWidth).toVector2());
@@ -313,7 +315,8 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * bottomRightRadius - 2 * rightSideWidth),
                 height: max(0, 2 * rightBottomRadius - 2 * bottomSideWidth)),
             0,
-            pi / 2, splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
 
         break;
       case CornerStyle.cutout:
@@ -345,7 +348,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(bottomRightRadius, rightSideWidth),
                 height: 2 * max(rightBottomRadius, bottomSideWidth)),
             -pi / 2,
-            -pi / 2, splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(right - rightSideWidth, top - 10).toVector2(),
             Offset(right - rightSideWidth, bottom + 10).toVector2());
@@ -432,7 +436,8 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * bottomLeftRadius - 2 * leftSideWidth),
                 height: max(0, 2 * leftBottomRadius - 2 * bottomSideWidth)),
             pi / 2,
-            pi / 2, splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -464,7 +469,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(bottomLeftRadius, leftSideWidth),
                 height: 2 * max(leftBottomRadius, bottomSideWidth)),
             0,
-            -pi / 2, splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
 
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(left - 10, bottom - bottomSideWidth).toVector2(),
@@ -552,7 +558,8 @@ class RectangleShape extends FilledBorderShape {
                 width: max(0, 2 * topLeftRadius - 2 * leftSideWidth),
                 height: max(0, 2 * leftTopRadius - 2 * topSideWidth)),
             pi,
-            pi / 2,splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
 
         break;
       case CornerStyle.cutout:
@@ -585,7 +592,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(topLeftRadius, leftSideWidth),
                 height: 2 * max(leftTopRadius, topSideWidth)),
             pi / 2,
-            -pi / 2, splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
         List<double> intersections11 = beziers[0].intersectionsWithLineSegment(
             Offset(left + leftSideWidth, top - 10).toVector2(),
             Offset(left + leftSideWidth, bottom + 10).toVector2());
@@ -702,8 +710,10 @@ class RectangleShape extends FilledBorderShape {
     double rightTotal = max(rightTopRadius, topSideWidth) +
         max(rightBottomRadius, bottomSideWidth);
 
-    if (max(topTotal, bottomTotal)>size.width || max(leftTotal, rightTotal)>size.height) {
-      double resizeRatio=min(size.width/max(topTotal, bottomTotal),size.height/max(leftTotal, rightTotal));
+    if (max(topTotal, bottomTotal) > size.width ||
+        max(leftTotal, rightTotal) > size.height) {
+      double resizeRatio = min(size.width / max(topTotal, bottomTotal),
+          size.height / max(leftTotal, rightTotal));
 
       topLeftRadius *= resizeRatio;
       topRightRadius *= resizeRatio;
@@ -751,7 +761,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * topRightRadius,
                 height: 2 * rightTopRadius),
             -pi / 2,
-            pi / 2,splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle = atan(rightTopRadius / max(topRightRadius, 0.00000001));
@@ -774,7 +785,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(0, topRightRadius - rightSideWidth),
                 height: 2 * max(0, rightTopRadius - topSideWidth)),
             pi,
-            -pi / 2,splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -795,7 +807,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * bottomRightRadius,
                 height: 2 * rightBottomRadius),
             0,
-            pi / 2, splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle =
@@ -822,7 +835,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(0, bottomRightRadius - rightSideWidth),
                 height: 2 * max(0, rightBottomRadius - bottomSideWidth)),
             -pi / 2,
-            -pi / 2, splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -845,7 +859,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * bottomLeftRadius,
                 height: 2 * leftBottomRadius),
             pi / 2,
-            pi / 2, splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle =
@@ -871,7 +886,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(0, bottomLeftRadius - leftSideWidth),
                 height: 2 * max(0, leftBottomRadius - bottomSideWidth)),
             0,
-            -pi / 2, splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(
@@ -892,7 +908,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * topLeftRadius,
                 height: 2 * leftTopRadius),
             pi,
-            pi / 2, splitTimes: 1);
+            pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.straight:
         double angle = atan(leftTopRadius / max(topLeftRadius, 0.00000001));
@@ -914,7 +931,8 @@ class RectangleShape extends FilledBorderShape {
                 width: 2 * max(0, topLeftRadius - leftSideWidth),
                 height: 2 * max(0, leftTopRadius - topSideWidth)),
             pi / 2,
-            -pi / 2,splitTimes: 1);
+            -pi / 2,
+            splitTimes: 1);
         break;
       case CornerStyle.cutout:
         nodes.add(DynamicNode(

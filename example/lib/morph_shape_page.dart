@@ -36,8 +36,7 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     startShape = widget.shape;
 
-    endShape = RectangleShape(
-    );
+    endShape = RectangleShape();
 
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: durationInSec));
@@ -134,13 +133,16 @@ class _MorphShapePageState extends State<MorphShapePage>
                           ),
                           showControl
                               ? CustomPaint(
-                                  painter: MorphControlPointsPainter(DynamicPathMorph.lerpPaths(
-                                      t,
-                                      shapeBorderTween.data.beginOuterPath,
-                                      shapeBorderTween.data.endOuterPath)
-                                      .nodes
-                                      .map((e) => e.position)
-                                      .toList()),
+                                  painter: MorphControlPointsPainter(
+                                      DynamicPathMorph.lerpPaths(
+                                              t,
+                                              shapeBorderTween
+                                                  .data.beginOuterPath,
+                                              shapeBorderTween
+                                                  .data.endOuterPath)
+                                          .nodes
+                                          .map((e) => e.position)
+                                          .toList()),
                                   child: Container(
                                     width: shapeWidth,
                                     height: shapeHeight,

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///Bubble shape, with a triangular tip and equal radius rounded corner
@@ -35,7 +34,9 @@ class BubbleShape extends OutlinedShape {
             Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
         arrowHeadPosition =
             Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength,
-        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "BubbleShape"};
@@ -60,7 +61,7 @@ class BubbleShape extends OutlinedShape {
     DynamicBorderSide? border,
   }) {
     return BubbleShape(
-      border: border??this.border,
+      border: border ?? this.border,
       corner: corner ?? this.corner,
       borderRadius: borderRadius ?? this.borderRadius,
       arrowHeight: arrowHeight ?? this.arrowHeight,

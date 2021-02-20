@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
@@ -19,19 +20,22 @@ class TriangleShape extends OutlinedShape {
       this.point3 = const DynamicOffset(
           const Length(50, unit: LengthUnit.percent),
           const Length(100, unit: LengthUnit.percent)),
-      DynamicBorderSide border=DynamicBorderSide.none}) : super(border: border);
+      DynamicBorderSide border = DynamicBorderSide.none})
+      : super(border: border);
 
   TriangleShape.fromJson(Map<String, dynamic> map)
       : point1 = parseDynamicOffset(map["point1"]) ??
-      DynamicOffset(const Length(0, unit: LengthUnit.percent),
-          const Length(0, unit: LengthUnit.percent)),
+            DynamicOffset(const Length(0, unit: LengthUnit.percent),
+                const Length(0, unit: LengthUnit.percent)),
         point2 = parseDynamicOffset(map["point2"]) ??
             DynamicOffset(const Length(100, unit: LengthUnit.percent),
                 const Length(0, unit: LengthUnit.percent)),
         point3 = parseDynamicOffset(map["point3"]) ??
             DynamicOffset(const Length(50, unit: LengthUnit.percent),
                 const Length(100, unit: LengthUnit.percent)),
-  super(border: parseDynamicBorderSide(map["border"])??DynamicBorderSide.none);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "TriangleShape"};
@@ -52,7 +56,7 @@ class TriangleShape extends OutlinedShape {
       point1: point1 ?? this.point1,
       point2: point2 ?? this.point2,
       point3: point3 ?? this.point3,
-      border: border?? this.border,
+      border: border ?? this.border,
     );
   }
 

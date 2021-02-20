@@ -119,11 +119,13 @@ class StarShape extends OutlinedShape {
         switch (cornerStyle) {
           case CornerStyle.rounded:
             nodes.addArc(Rect.fromCircle(center: center, radius: cornerRadius),
-                omega - sweepAngle / 2, sweepAngle,splitTimes: 1);
+                omega - sweepAngle / 2, sweepAngle,
+                splitTimes: 1);
             break;
           case CornerStyle.concave:
             nodes.addArc(Rect.fromCircle(center: center, radius: cornerRadius),
-                omega - sweepAngle / 2, sweepAngle - 2 * pi,splitTimes: 1);
+                omega - sweepAngle / 2, sweepAngle - 2 * pi,
+                splitTimes: 1);
             break;
           case CornerStyle.straight:
             nodes.add(DynamicNode(position: start));
@@ -155,11 +157,13 @@ class StarShape extends OutlinedShape {
           switch (insetStyle) {
             case CornerStyle.rounded:
               nodes.addArc(Rect.fromCircle(center: center, radius: insetRadius),
-                  omega + sweepAngle / 2 + pi, -sweepAngle,splitTimes: 1);
+                  omega + sweepAngle / 2 + pi, -sweepAngle,
+                  splitTimes: 1);
               break;
             case CornerStyle.concave:
               nodes.addArc(Rect.fromCircle(center: center, radius: insetRadius),
-                  omega + sweepAngle / 2 + pi, -sweepAngle - 2 * pi,splitTimes: 1);
+                  omega + sweepAngle / 2 + pi, -sweepAngle - 2 * pi,
+                  splitTimes: 1);
               break;
             case CornerStyle.straight:
               nodes.add(DynamicNode(position: start));
@@ -190,11 +194,13 @@ class StarShape extends OutlinedShape {
           switch (insetStyle) {
             case CornerStyle.rounded:
               nodes.addArc(Rect.fromCircle(center: center, radius: insetRadius),
-                  omega - sweepAngle / 2, sweepAngle,splitTimes: 1);
+                  omega - sweepAngle / 2, sweepAngle,
+                  splitTimes: 1);
               break;
             case CornerStyle.concave:
               nodes.addArc(Rect.fromCircle(center: center, radius: insetRadius),
-                  omega - sweepAngle / 2, sweepAngle - 2 * pi,splitTimes: 1);
+                  omega - sweepAngle / 2, sweepAngle - 2 * pi,
+                  splitTimes: 1);
               break;
             case CornerStyle.straight:
               nodes.add(DynamicNode(position: start));

@@ -14,7 +14,8 @@ class PolygonShape extends OutlinedShape {
       this.cornerStyle = CornerStyle.rounded,
       this.cornerRadius = const Length(0),
       border = DynamicBorderSide.none})
-      : assert(sides >= 3), super(border: border);
+      : assert(sides >= 3),
+        super(border: border);
 
   PolygonShape.fromJson(Map<String, dynamic> map)
       : cornerStyle =
@@ -92,18 +93,18 @@ class PolygonShape extends OutlinedShape {
       double arcCenterX = (centerX + arcCenterRadius * cos(cornerAngle));
       double arcCenterY = (centerY + arcCenterRadius * sin(cornerAngle));
       Offset start = arcToCubicBezier(
-          Rect.fromCircle(
-              center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
-          cornerAngle - alpha,
-          2 * alpha,
-          splitTimes: 1)
+              Rect.fromCircle(
+                  center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
+              cornerAngle - alpha,
+              2 * alpha,
+              splitTimes: 1)
           .first;
       Offset end = arcToCubicBezier(
-          Rect.fromCircle(
-              center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
-          cornerAngle - alpha,
-          2 * alpha,
-          splitTimes: 1)
+              Rect.fromCircle(
+                  center: Offset(arcCenterX, arcCenterY), radius: cornerRadius),
+              cornerAngle - alpha,
+              2 * alpha,
+              splitTimes: 1)
           .last;
 
       switch (cornerStyle) {
@@ -242,6 +243,5 @@ class PolygonShape extends OutlinedShape {
     return DynamicPath(size: Size(2 * scale, 2 * scale), nodes: nodes)..resize(rect.size);
   }
   */
-
 
 }

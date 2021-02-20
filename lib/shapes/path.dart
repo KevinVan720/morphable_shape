@@ -14,7 +14,9 @@ class PathShape extends OutlinedShape {
   PathShape.fromJson(Map<String, dynamic> map)
       : path = parseDynamicPath(map["path"]) ??
             DynamicPath(size: Size.zero, nodes: []),
-        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "PathShape"};

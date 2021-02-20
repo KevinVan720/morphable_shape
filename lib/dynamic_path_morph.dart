@@ -1,10 +1,9 @@
-import 'dart:ui';
 import 'dart:math';
+import 'dart:ui';
 
-import 'package:flutter/rendering.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/painting.dart';
-
+import 'package:flutter/rendering.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 enum MorphMethod {
@@ -472,16 +471,15 @@ class DynamicPathMorph {
       totalAngleFromOrigin += diffFromOrigin;
       if ((points1[i] - points2[i]).distance > maxOffset)
         maxOffset = (points1[i] - points2[i]).distance;
-      totalOffset+=(points1[i] - points2[i]).distance;
+      totalOffset += (points1[i] - points2[i]).distance;
     }
 
-    return
-        max(1e-10, maxAngle) *
+    return max(1e-10, maxAngle) *
         max(1e-10, totalAngle) *
         max(1e-10, maxAngleFromOrigin) *
         max(1e-10, totalAngleFromOrigin) *
-        maxOffset*
-        totalOffset*
+        maxOffset *
+        totalOffset *
         max(1e-10, (center1 - center2).distance);
   }
 

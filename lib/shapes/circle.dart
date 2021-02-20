@@ -1,8 +1,7 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-
 import 'package:morphable_shape/morphable_shape.dart';
-
 
 ///Circle shape with a start and sweep angle
 class CircleShape extends OutlinedShape {
@@ -18,7 +17,9 @@ class CircleShape extends OutlinedShape {
   CircleShape.fromJson(Map<String, dynamic> map)
       : startAngle = map["startAngle"] ?? 0.0,
         sweepAngle = map["sweepAngle"] ?? (2 * pi),
-        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "CircleShape"};

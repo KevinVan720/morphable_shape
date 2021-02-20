@@ -21,7 +21,9 @@ class ArrowShape extends OutlinedShape {
             Length(25, unit: LengthUnit.percent),
         tailWidth = Length.fromJson(map['tailWidth']) ??
             Length(40, unit: LengthUnit.percent),
-        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
+        super(
+            border: parseDynamicBorderSide(map["border"]) ??
+                DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "ArrowShape"};
