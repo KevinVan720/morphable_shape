@@ -59,10 +59,10 @@ class RectangleBorders {
   final DynamicBorderSide right;
 
   const RectangleBorders.only({
-    this.top = defaultBorder,
-    this.bottom = defaultBorder,
-    this.left = defaultBorder,
-    this.right = defaultBorder,
+    this.top = DynamicBorderSide.none,
+    this.bottom = DynamicBorderSide.none,
+    this.left = DynamicBorderSide.none,
+    this.right = DynamicBorderSide.none,
   });
 
   const RectangleBorders.all(DynamicBorderSide border)
@@ -72,8 +72,8 @@ class RectangleBorders {
         right = border;
 
   const RectangleBorders.symmetric(
-      {DynamicBorderSide horizontal = defaultBorder,
-      DynamicBorderSide vertical = defaultBorder})
+      {DynamicBorderSide horizontal = DynamicBorderSide.none,
+      DynamicBorderSide vertical = DynamicBorderSide.none})
       : top = horizontal,
         bottom = horizontal,
         left = vertical,
@@ -81,10 +81,10 @@ class RectangleBorders {
 
   static RectangleBorders fromJson(Map map) {
     return RectangleBorders.only(
-      top: parseDynamicBorderSide(map['top']) ?? defaultBorder,
-      bottom: parseDynamicBorderSide(map['bottom']) ?? defaultBorder,
-      left: parseDynamicBorderSide(map['left']) ?? defaultBorder,
-      right: parseDynamicBorderSide(map['right']) ?? defaultBorder,
+      top: parseDynamicBorderSide(map['top']) ?? DynamicBorderSide.none,
+      bottom: parseDynamicBorderSide(map['bottom']) ?? DynamicBorderSide.none,
+      left: parseDynamicBorderSide(map['left']) ?? DynamicBorderSide.none,
+      right: parseDynamicBorderSide(map['right']) ?? DynamicBorderSide.none,
     );
   }
 

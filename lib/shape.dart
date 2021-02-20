@@ -90,15 +90,34 @@ abstract class FilledBorderShape extends Shape {
     borderPaths.removeOverlappingPaths();
 
     List<Path> paths = borderPaths.generateBorderPaths(rect);
-    int shift = 0;
-    for (int i = shift; i < paths.length + shift; i++) {
+    borderColors=borderPaths.fillColors;
+    borderGradients=borderPaths.fillGradients;
+    List<Path> finalPaths = [paths[0]];
+    List<Color> finalColors = [borderColors[0]];
+    List<Gradient?> finalGradients = [borderGradients[0]];
+    for (int i = 1; i < paths.length; i++) {
+      if (borderGradients[i] == borderGradients[i - 1] &&
+          borderColors[i] == borderColors[i - 1]) {
+        finalPaths.last =
+            Path.combine(PathOperation.union, finalPaths.last, paths[i]);
+      } else if (i == paths.length - 1 &&
+          borderGradients[i] == borderGradients[0] &&
+          borderColors[i] == borderColors[0]) {
+        finalPaths.first =
+            Path.combine(PathOperation.union, finalPaths.first, paths[i]);
+      } else {
+        finalPaths.add(paths[i]);
+        finalColors.add(borderColors[i]);
+        finalGradients.add(borderGradients[i]);
+      }
+    }
+    for (int i = 0; i < finalPaths.length; i++) {
       borderPaint.isAntiAlias = true;
       borderPaint.style = PaintingStyle.fill;
-      borderPaint.color = borderPaths.fillColors[i % borderColors.length];
-      borderPaint.strokeWidth = 1;
-      borderPaint.shader = borderPaths.fillGradients[i % borderGradients.length]
-          ?.createShader(rect);
-      canvas.drawPath(paths[i], borderPaint);
+      borderPaint.color = finalColors[i];
+      borderPaint.shader = finalGradients[i]?.createShader(rect);
+      borderPaint.strokeWidth = 2;
+      canvas.drawPath(finalPaths[i], borderPaint);
     }
   }
 }

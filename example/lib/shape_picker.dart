@@ -125,7 +125,6 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  backgroundColor: Colors.grey,
                   content: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -147,7 +146,6 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
                     TextButton(
                       child: const Text(
                         'Got it',
-                        style: TextStyle(color: Colors.black),
                       ),
                       onPressed: () {
                         setState(() {

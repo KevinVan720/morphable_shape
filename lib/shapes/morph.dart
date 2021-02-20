@@ -110,14 +110,32 @@ class MorphShape extends Shape {
             .toList();
 
         List<Path> paths = generateBorderPaths(rect);
-        int shift = 0;
-        for (int i = shift; i < paths.length + shift; i++) {
+        List<Path> finalPaths = [paths[0]];
+        List<Color> finalColors = [borderColors[0]];
+        List<Gradient?> finalGradients = [borderGradients[0]];
+        for (int i = 1; i < paths.length; i++) {
+          if (borderGradients[i] == borderGradients[i - 1] &&
+              borderColors[i] == borderColors[i - 1]) {
+            finalPaths.last =
+                Path.combine(PathOperation.union, finalPaths.last, paths[i]);
+          } else if (i == paths.length - 1 &&
+              borderGradients[i] == borderGradients[0] &&
+              borderColors[i] == borderColors[0]) {
+            finalPaths.first =
+                Path.combine(PathOperation.union, finalPaths.first, paths[i]);
+          } else {
+            finalPaths.add(paths[i]);
+            finalColors.add(borderColors[i]);
+            finalGradients.add(borderGradients[i]);
+          }
+        }
+        for (int i = 0; i < finalPaths.length; i++) {
           borderPaint.isAntiAlias = true;
           borderPaint.style = PaintingStyle.fill;
-          borderPaint.color = borderColors[i];
-          borderPaint.shader = borderGradients[i]?.createShader(rect);
+          borderPaint.color = finalColors[i];
+          borderPaint.shader = finalGradients[i]?.createShader(rect);
           borderPaint.strokeWidth = 2;
-          canvas.drawPath(paths[i], borderPaint);
+          canvas.drawPath(finalPaths[i], borderPaint);
         }
       } else {
         assert(morphData.end is OutlinedShape);
@@ -159,14 +177,33 @@ class MorphShape extends Shape {
             .toList();
 
         List<Path> paths = generateBorderPaths(rect);
-        int shift = 0;
-        for (int i = shift; i < paths.length + shift; i++) {
+
+        List<Path> finalPaths = [paths[0]];
+        List<Color> finalColors = [borderColors[0]];
+        List<Gradient?> finalGradients = [borderGradients[0]];
+        for (int i = 1; i < paths.length; i++) {
+          if (borderGradients[i] == borderGradients[i - 1] &&
+              borderColors[i] == borderColors[i - 1]) {
+            finalPaths.last =
+                Path.combine(PathOperation.union, finalPaths.last, paths[i]);
+          } else if (i == paths.length - 1 &&
+              borderGradients[i] == borderGradients[0] &&
+              borderColors[i] == borderColors[0]) {
+            finalPaths.first =
+                Path.combine(PathOperation.union, finalPaths.first, paths[i]);
+          } else {
+            finalPaths.add(paths[i]);
+            finalColors.add(borderColors[i]);
+            finalGradients.add(borderGradients[i]);
+          }
+        }
+        for (int i = 0; i < finalPaths.length; i++) {
           borderPaint.isAntiAlias = true;
           borderPaint.style = PaintingStyle.fill;
-          borderPaint.color = borderColors[i];
-          borderPaint.shader = borderGradients[i]?.createShader(rect);
+          borderPaint.color = finalColors[i];
+          borderPaint.shader = finalGradients[i]?.createShader(rect);
           borderPaint.strokeWidth = 2;
-          canvas.drawPath(paths[i], borderPaint);
+          canvas.drawPath(finalPaths[i], borderPaint);
         }
       }
     } else {
@@ -215,14 +252,32 @@ class MorphShape extends Shape {
             .toList();
 
         List<Path> paths = generateBorderPaths(rect);
-        int shift = 0;
-        for (int i = shift; i < paths.length + shift; i++) {
+        List<Path> finalPaths = [paths[0]];
+        List<Color> finalColors = [borderColors[0]];
+        List<Gradient?> finalGradients = [borderGradients[0]];
+        for (int i = 1; i < paths.length; i++) {
+          if (borderGradients[i] == borderGradients[i - 1] &&
+              borderColors[i] == borderColors[i - 1]) {
+            finalPaths.last =
+                Path.combine(PathOperation.union, finalPaths.last, paths[i]);
+          } else if (i == paths.length - 1 &&
+              borderGradients[i] == borderGradients[0] &&
+              borderColors[i] == borderColors[0]) {
+            finalPaths.first =
+                Path.combine(PathOperation.union, finalPaths.first, paths[i]);
+          } else {
+            finalPaths.add(paths[i]);
+            finalColors.add(borderColors[i]);
+            finalGradients.add(borderGradients[i]);
+          }
+        }
+        for (int i = 0; i < finalPaths.length; i++) {
           borderPaint.isAntiAlias = true;
           borderPaint.style = PaintingStyle.fill;
-          borderPaint.color = borderColors[i];
-          borderPaint.shader = borderGradients[i]?.createShader(rect);
+          borderPaint.color = finalColors[i];
+          borderPaint.shader = finalGradients[i]?.createShader(rect);
           borderPaint.strokeWidth = 2;
-          canvas.drawPath(paths[i], borderPaint);
+          canvas.drawPath(finalPaths[i], borderPaint);
         }
       } else {
         assert(morphData.end is OutlinedShape);

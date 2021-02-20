@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:bezier/bezier.dart';
 
-const double arcSplitMaxSweepAngle = pi / 4;
-const defaultBorder =
-    DynamicBorderSide(color: Color(0xFF000000), width: Length(1));
-
 ///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
 
@@ -68,7 +64,7 @@ Offset getDerivativeOnArc(Rect rect, double t) {
 
 ///recursively split an arc into multiple cubic Bezier
 List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
-    {double limit = arcSplitMaxSweepAngle, int? splitTimes}) {
+    {double limit = pi / 4, int? splitTimes}) {
   if (splitTimes != null) {
     limit = sweepAngle.abs() / pow(2, splitTimes);
   }

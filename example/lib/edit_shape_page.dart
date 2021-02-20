@@ -91,6 +91,16 @@ class EditShapePageState extends State<EditShapePage>
         Positioned(
           left: nodeSize,
           top: nodeSize,
+          child: Container(
+            decoration:
+            BoxDecoration(border: Border.all(color: Colors.blueAccent)),
+            width: shapeSize.width,
+            height: shapeSize.height,
+          ),
+        ),
+        Positioned(
+          left: nodeSize,
+          top: nodeSize,
           child: Material(
             shape: shapeBorder,
             clipBehavior: Clip.antiAlias,
@@ -104,16 +114,7 @@ class EditShapePageState extends State<EditShapePage>
             ),
           ),
         ),
-        Positioned(
-          left: nodeSize,
-          top: nodeSize,
-          child: Container(
-            decoration:
-                BoxDecoration(border: Border.all(color: Colors.blueAccent)),
-            width: shapeSize.width,
-            height: shapeSize.height,
-          ),
-        ),
+
       ];
 
       if (isEditingPath) {

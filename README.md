@@ -1,36 +1,21 @@
 # morphable_shape
 
-A Flutter package for creating various shapes that are responsive 
+A Flutter package for creating various shapes that are responsive
 and can morph betweem each other.
 
 Notice: Please always try to use the latest version of this package  
-(which has null safety enabled). All subsequent development will happen
+(which has null safety enabled). All future development will happen
 there.
 
 ## Getting Started
 
-Shapes that are responsive (using px or percentage as length measure) and
-able to morph between each other. You can use the shape to create a shapeBorder
-that gets used by the Material widget or ClipPath.
-
-```dart
-var border=MorphableShapeBorder(
-shape: ...,
-borderColor: ...,
-borderWidth: ...,
-);
-
-...
-
-Material(
-shape: shapeBorder,
-clipBehavior: Clip.antiAlias,
-child: ...
-);
-``` 
-
-The responsive feature means you can have a single shape instance that adapts to different window sizes 
-without you calculating the desired dimensions. For example:
+First, you need to create a Shape instance. The responsive feature means  
+you can have a single shape instance that adapts to different window sizes
+without you calculating the desired dimensions. For example, the following  
+code will give you a rectangle with a 60 px circular radius at the top  
+left corner and a (60 px, 10%) elliptical corner at the bottom right corner.  
+(for more information of how to use the Length class, see  
+[length_unit](https://pub.dev/packages/length_unit)).
 ```dart
 Shape rectangle=RectangleShape(
 borderRadius: DynamicBorderRadius.only(
@@ -38,11 +23,25 @@ topLeft: DynamicRadius.circular(10.toPXLength),
 bottomRight: DynamicRadius.elliptical(60.0.toPXLength, 10.0.toPercentLength))
 );
 ```
-will give you a rectangle with a 60 px circular radius at the top left corner and a (60 px, 10%) elliptical corner at the bottom right.  
-For more information of how to use the Length class, see [length_unit](https://pub.dev/packages/length_unit).
 
-For you to design the shape you want more easily, I have created the shape editing tool under the example/ folder
-(also at [https://fluttershape.com/](https://fluttershape.com/))
+You can use the shape to create a shapeBorder that gets used by the Material widget  
+or the ClipPath widget which perform the shape clipping.
+
+```dart
+var border=MorphableShapeBorder(
+shape: rectangle,
+);
+
+var widget=Material(
+shape: shapeBorder,
+clipBehavior: Clip.antiAlias,
+child: Container()
+);
+``` 
+
+You can run the example app to create a local shape editing tool to see the various  
+shapes supported by this package.
+(also hosted online at [https://fluttershape.com/](https://fluttershape.com/))
 
 ## Supported Shapes
 
@@ -51,9 +50,8 @@ Currently supported shapes are:
 ### RectangleShape
 The most powerful and commonly used one should be the RectangleShape class.  
 It allows to you configure each corner of the rectangle individually or at once.  
-If two radii overlap at one of the sides of the rectangle (like 60% and 50%),  
-it automatically scales both sides so that they don’t overlap (just like what CSS does).  
-The RenctangleShape also supports other corner styles:
+It also automatically scales all sides so that they don’t overlap (just like what CSS does).  
+The RectangleShape supports four different corner styles:
 ```dart
 enum CornerStyle{
   rounded,
@@ -61,13 +59,39 @@ enum CornerStyle{
   straight,
   cutout,
 }
+```
+
+You can configure the corner styles like this:
+```dart
+var cornerStyles=RectangleCornerStyles.all(CornerStyle.rounded);
+cornerStyles=RectangleCornerStyles.only(topLeft: CornerStyle.rounded, bottomRight: CornerStyle.concave);
+```
+
+The four border sides can also be styled individually or at once:
+```dart
+var borders=RectangleBorders.all(DynamicBorderSide.none);
+borders=RectangleBorders.symmetric(
+horizontal: DynamicBorderSide(
+width: 10.toPercentWidth,
+color: Colors.blue,
+));
+borders=RectangleBorders.only(
+top: DynamicBorderSide(
+width: 10.toPXWidth,
+gradient: LinearGradient(colors:[Colors.red, Colors.green]),
+));
+```
+The DynamicBorderSide class is also used to style the borders for other
+shapes. It supports a responsive width, a color and a gradient(which  
+overrides the color if set not to null).
+
+Now you get a fully fledged rectangle:
+```
 Shape rectangle=RectangleShape(
-topLeft: CornerStyle.rounded,
-topRight: CornerStyle.concave,
-bottomLeft: CornerStyle.cutout,
-bottomRight: CornerStyle.straight,
-borderRadius: DynamicBorderRadius.all(
-DynamicRadius.circular(50.toPXLength)
+borderRadius:
+        const DynamicBorderRadius.all(DynamicRadius.circular(Length(100))),
+cornerStyles: cornerStyles,
+borders: borders,
 );
 ```
 
@@ -76,6 +100,9 @@ or even an arrow shape by just using the RectangleShape
 class and providing the right corner style and radius.
 
 ![rectangle](https://i.imgur.com/I0jXJu2.png)
+
+The border design can also be quite interesting:
+
 
 ### CircleShape
 CircleShape allows you to choose the start angle and sweep angle:

@@ -22,7 +22,7 @@ class PolygonShape extends OutlinedShape {
             parseCornerStyle(map["cornerStyle"]) ?? CornerStyle.rounded,
         cornerRadius = Length.fromJson(map["cornerRadius"]) ?? Length(0),
         sides = map["sides"] ?? 5,
-        super(border: parseDynamicBorderSide(map["border"]) ?? defaultBorder);
+        super(border: parseDynamicBorderSide(map["border"]) ?? DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "PolygonShape"};

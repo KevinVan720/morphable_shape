@@ -23,7 +23,7 @@ class RectangleShape extends FilledBorderShape {
       : borderRadius = parseDynamicBorderRadius(map["borderRadius"]) ??
             DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
         this.borders = parseRectangleBorderSide(map["borders"]) ??
-            RectangleBorders.all(defaultBorder),
+            RectangleBorders.all(DynamicBorderSide.none),
         this.cornerStyles = parseRectangleCornerStyle(map["cornerStyles"]) ??
             RectangleCornerStyles.all(CornerStyle.rounded);
 
@@ -171,15 +171,15 @@ class RectangleShape extends FilledBorderShape {
       topRightRadius *= resizeRatio;
       bottomLeftRadius *= resizeRatio;
       bottomRightRadius *= resizeRatio;
-      //leftSideWidth *= resizeRatio;
-      //rightSideWidth *= resizeRatio;
+      leftSideWidth *= resizeRatio;
+      rightSideWidth *= resizeRatio;
 
       leftTopRadius *= resizeRatio;
       rightTopRadius *= resizeRatio;
       leftBottomRadius *= resizeRatio;
       rightBottomRadius *= resizeRatio;
-      //topSideWidth *= resizeRatio;
-      //bottomSideWidth *= resizeRatio;
+      topSideWidth *= resizeRatio;
+      bottomSideWidth *= resizeRatio;
     }
 
     final double left = rect.left;
@@ -719,15 +719,15 @@ class RectangleShape extends FilledBorderShape {
       topRightRadius *= resizeRatio;
       bottomLeftRadius *= resizeRatio;
       bottomRightRadius *= resizeRatio;
-      //leftSideWidth *= resizeRatio;
-      //rightSideWidth *= resizeRatio;
+      leftSideWidth *= resizeRatio;
+      rightSideWidth *= resizeRatio;
 
       leftTopRadius *= resizeRatio;
       rightTopRadius *= resizeRatio;
       leftBottomRadius *= resizeRatio;
       rightBottomRadius *= resizeRatio;
-      //topSideWidth *= resizeRatio;
-      //bottomSideWidth *= resizeRatio;
+      topSideWidth *= resizeRatio;
+      bottomSideWidth *= resizeRatio;
     }
 
     /*
