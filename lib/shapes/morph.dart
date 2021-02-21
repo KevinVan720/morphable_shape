@@ -217,7 +217,7 @@ class MorphShape extends Shape {
                         .width
                         .toPX(constraintSize: rect.shortestSide),
                     end: 0.0)
-                .lerp(t);
+                .transform(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
 
         List<Color> endBorderColors = morphData.endPaths!.fillColors;
@@ -295,7 +295,7 @@ class MorphShape extends Shape {
                         .border
                         .width
                         .toPX(constraintSize: rect.shortestSide))
-                .lerp(t);
+                .transform(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
       }
     }
@@ -307,35 +307,33 @@ class MorphShape extends Shape {
       if (endGradient == null) {
         return null;
       } else {
-        if(endGradient is LinearGradient) {
+        if (endGradient is LinearGradient) {
           return Gradient.lerp(
               LinearGradient(colors: [beginColor, beginColor]), endGradient, t);
         }
-        if(endGradient is RadialGradient) {
+        if (endGradient is RadialGradient) {
           return Gradient.lerp(
               RadialGradient(colors: [beginColor, beginColor]), endGradient, t);
         }
-        if(endGradient is SweepGradient) {
+        if (endGradient is SweepGradient) {
           return Gradient.lerp(
               SweepGradient(colors: [beginColor, beginColor]), endGradient, t);
         }
-
       }
     } else {
       if (endGradient == null) {
-        if(beginGradient is LinearGradient) {
+        if (beginGradient is LinearGradient) {
           return Gradient.lerp(
               beginGradient, LinearGradient(colors: [endColor, endColor]), t);
         }
-        if(beginGradient is RadialGradient) {
+        if (beginGradient is RadialGradient) {
           return Gradient.lerp(
               beginGradient, RadialGradient(colors: [endColor, endColor]), t);
         }
-        if(beginGradient is SweepGradient) {
+        if (beginGradient is SweepGradient) {
           return Gradient.lerp(
               beginGradient, SweepGradient(colors: [endColor, endColor]), t);
         }
-
       } else {
         return Gradient.lerp(beginGradient, endGradient, t);
       }

@@ -80,4 +80,8 @@ filled border.
 
 Update to the editing tool.
 
+## [1.1.0] - 02.20.2021
+
+Null safety
+
 
