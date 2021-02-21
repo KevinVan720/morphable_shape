@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
-
 import 'package:morphable_shape/dynamic_path_morph.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 ///this class should only be called by a morphShapeTween
 ///Use PathMorph to morph between two shapes
@@ -148,7 +147,7 @@ class MorphShape extends Shape {
                         .border
                         .width
                         .toPX(constraintSize: rect.shortestSide))
-                .lerp(t);
+                .transform(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
 
         List<Color> beginBorderColors = morphData.beginPaths!.fillColors;
