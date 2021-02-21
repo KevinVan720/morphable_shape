@@ -66,9 +66,9 @@ class MorphShapeData {
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
-    int maxTrial = 360,
-    int minControlPoints = 16,
-    int maxControlPoints = 360,
+    int maxTrial = 240,
+    int minControlPoints = 24,
+    int maxControlPoints = 240,
   }) {
     DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
     if (data.begin is FilledBorderShape) {
@@ -153,7 +153,6 @@ class DynamicPathMorph {
       } else if (data.method == MorphMethod.unweighted) {
         ///use the unweighted method, spread the extra points needed evenly on each curve
         rst = unweightedSampling(path1, path2,
-            minControlPoints: minControlPoints,
             maxControlPoints: maxControlPoints,
             origin: data.boundingBox.center);
       } else {
@@ -166,7 +165,6 @@ class DynamicPathMorph {
             origin: data.boundingBox.center);
 
         List unweighted = unweightedSampling(path1, path2,
-            minControlPoints: minControlPoints,
             maxControlPoints: maxControlPoints,
             origin: data.boundingBox.center);
 
@@ -321,9 +319,7 @@ class DynamicPathMorph {
   }
 
   static List<dynamic> unweightedSampling(DynamicPath path1, DynamicPath path2,
-      {required int minControlPoints,
-      required int maxControlPoints,
-      required Offset origin}) {
+      {required int maxControlPoints, required Offset origin}) {
     int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
 
     ///cap at maxControlPoints, but it is possible that the minimum required points
@@ -361,7 +357,7 @@ class DynamicPathMorph {
       List<Offset> path1Nodes = tempPath1.nodes.map((e) => e.position).toList(),
           path2Nodes = tempPath2.nodes.map((e) => e.position).toList();
 
-      double tempWeight =
+      double tempWeight = path1Nodes.length *
           computeTotalMorphWeight(path1Nodes, path2Nodes, origin: origin);
 
       tempPath1.nodes =
@@ -477,7 +473,7 @@ class DynamicPathMorph {
       if (diffFromOrigin > pi) diffFromOrigin -= 2 * pi;
     }
 
-    return points1.length * max(1e-10, maxAngle) * max(1e-10, totalAngle);
+    return max(1e-10, maxAngle) * max(1e-10, totalAngle);
   }
 
   static DynamicPath lerpPaths(

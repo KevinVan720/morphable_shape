@@ -92,3 +92,7 @@ sdk version changed
 
 code cleanup
 
+## [1.1.3] - 02.21.2021
+
+Update morph algorithm
+

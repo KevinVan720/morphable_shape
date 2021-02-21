@@ -1,6 +1,6 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'utils_extension_methods.dart';
 
 ///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
