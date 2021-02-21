@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'utils_extension_methods.dart';
 
 ///represent a shape feature at one of the four side of a rectangle
 enum ShapeSide { bottom, top, left, right }
@@ -94,42 +95,8 @@ List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
   return rst;
 }
 
-num total(List<num> list) {
-  num total = 0;
-  list.forEach((element) {
-    total += element;
-  });
-  return total;
-}
-
 List<dynamic> rotateList(List<dynamic> list, int v) {
   if (list.isEmpty) return list;
   var i = v % list.length;
   return list.sublist(i)..addAll(list.sublist(0, i));
-}
-
-int randomChoose(List<num> list) {
-  int index = 0;
-  num totalWeight = total(list);
-  var rng = new Random();
-  double randomDraw = rng.nextDouble() * totalWeight;
-  double currentSum = 0;
-  for (int i = 0; i < list.length; i++) {
-    currentSum += list[i];
-    if (randomDraw <= currentSum) return i;
-  }
-  return index;
-}
-
-int estimateCombinationsOf(int n, int k, {int maximum = 10000000}) {
-  if (k > n) {
-    return 0;
-  }
-  int r = 1;
-  for (int d = 1; d <= k; ++d) {
-    if (r > maximum) break;
-    r *= n--;
-    r = r ~/ d;
-  }
-  return r;
 }

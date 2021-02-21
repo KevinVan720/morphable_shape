@@ -101,11 +101,6 @@ abstract class FilledBorderShape extends Shape {
           borderColors[i] == borderColors[i - 1]) {
         finalPaths.last =
             Path.combine(PathOperation.union, finalPaths.last, paths[i]);
-        /*} else if (i == paths.length - 1 &&
-          borderGradients[i] == borderGradients[0] &&
-          borderColors[i] == borderColors[0]) {
-        finalPaths.first =
-            Path.combine(PathOperation.union, finalPaths.first, paths[i]);*/
       } else {
         finalPaths.add(paths[i]);
         finalColors.add(borderColors[i]);

@@ -97,6 +97,16 @@ extension IndexedIterable<E> on Iterable<E> {
   }
 }
 
+extension NumListExtension on List<num> {
+  num total() {
+    num total = 0;
+    this.forEach((element) {
+      total += element;
+    });
+    return total;
+  }
+}
+
 ///Every arc will be converted to cubic Bezier path(s) in this package
 extension addDynamicNodeExtension on List<DynamicNode> {
   void cubicTo(Offset x1, Offset x2, Offset x3) {

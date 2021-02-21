@@ -88,4 +88,7 @@ Null safety
 
 sdk version changed
 
+## [1.1.2] - 02.21.2021
+
+code cleanup
 

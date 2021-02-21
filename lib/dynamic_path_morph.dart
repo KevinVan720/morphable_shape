@@ -498,140 +498,163 @@ class DynamicPathMorph {
     }
     return rst;
   }
-}
 
-List<List<int>> generateAllSupplyCounts(int totalPoints, int slots) {
-  if (slots < 1) {
-    return [];
-  }
-  if (slots == 1) {
-    return [
-      [totalPoints]
-    ];
-  }
-  if (totalPoints < 1) {
-    return [List.generate(slots, (index) => 0)];
-  }
-  List<List<int>> rst = [];
-  for (int i = 0; i <= totalPoints; i++) {
-    List<List<int>> temp = generateAllSupplyCounts(totalPoints - i, slots - 1);
-    temp.forEach((l) {
-      l.insert(0, i);
-    });
-    rst.addAll(temp);
-  }
-  return rst;
-}
-
-List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
-    {bool weightBased = true, List<int>? oldCounts}) {
-  int length = path.nodes.length;
-
-  int newPointsCount = totalPointsCount - length;
-
-  if (newPointsCount == 0) return List.generate(length, (index) => 0);
-
-  List<double> weights = [];
-  double totalWeights = 0.0;
-  for (int i = 0; i < length; i++) {
-    if (weightBased && oldCounts == null) {
-      weights.add(path.getPathLengthAt(i));
-    } else {
-      weights.add(1.0);
+  static List<List<int>> generateAllSupplyCounts(int totalPoints, int slots) {
+    if (slots < 1) {
+      return [];
     }
-  }
-  for (int i = 0; i < length; i++) {
-    totalWeights += weights[i];
-  }
-
-  List<int> counts;
-  int chooseIndex;
-
-  if (oldCounts == null) {
-    double scale = totalWeights / newPointsCount;
-    counts = weights.map((w) => (w / scale).ceil()).toList();
-  } else {
-    counts = oldCounts.map((e) => (e + 1)).toList();
-  }
-
-  while (total(counts) > newPointsCount) {
-    chooseIndex = randomChoose(weights);
-
-    if (counts[chooseIndex] > 0) {
-      counts[chooseIndex] -= 1;
+    if (slots == 1) {
+      return [
+        [totalPoints]
+      ];
     }
+    if (totalPoints < 1) {
+      return [List.generate(slots, (index) => 0)];
+    }
+    List<List<int>> rst = [];
+    for (int i = 0; i <= totalPoints; i++) {
+      List<List<int>> temp =
+          generateAllSupplyCounts(totalPoints - i, slots - 1);
+      temp.forEach((l) {
+        l.insert(0, i);
+      });
+      rst.addAll(temp);
+    }
+    return rst;
   }
 
-  return counts;
-}
+  static List<int> sampleSupplyCounts(DynamicPath path, int totalPointsCount,
+      {bool weightBased = true, List<int>? oldCounts}) {
+    int length = path.nodes.length;
 
-DynamicPath supplyPoints(DynamicPath path, List<int> supplyCounts) {
-  int length = path.nodes.length;
+    int newPointsCount = totalPointsCount - length;
 
-  DynamicPath newPath = DynamicPath(size: path.size, nodes: []);
+    if (newPointsCount == 0) return List.generate(length, (index) => 0);
 
-  Offset? updatedPrev;
-
-  for (int i = 0; i < length; i++) {
-    newPath.nodes.add(DynamicNode(
-        position: path.nodes[i].position,
-        prev: path.nodes[i].prev,
-        next: path.nodes[i].next));
-    if (updatedPrev != null) {
-      newPath.nodes.last.prev = updatedPrev;
-    }
-    updatedPrev = null;
-    int count = supplyCounts[i];
-    if (count >= 1) {
-      int nextIndex = (i + 1) % length;
-      List<Offset> controlPoints = path.getNextPathControlPointsAt(i);
-      if (controlPoints.length == 2) {
-        Offset diff = (path.nodes[nextIndex].position - path.nodes[i].position);
-        for (int j = 1; j < count + 1; j++) {
-          newPath.nodes.add(DynamicNode(
-              position: path.nodes[i].position +
-                  diff * j.roundToDouble() / (count.roundToDouble() + 1)));
-        }
+    List<double> weights = [];
+    double totalWeights = 0.0;
+    for (int i = 0; i < length; i++) {
+      if (weightBased && oldCounts == null) {
+        weights.add(path.getPathLengthAt(i));
       } else {
-        for (int j = count; j > 0; j--) {
-          List<Offset> splittedControlPoints =
-              DynamicPath.splitCubicAt(1 / (j + 1), controlPoints);
-          newPath.nodes.last.next = splittedControlPoints[1];
-          newPath.nodes.add(DynamicNode(
-              position: splittedControlPoints[3],
-              prev: splittedControlPoints[2],
-              next: splittedControlPoints[4]));
-          controlPoints[0] = splittedControlPoints[3];
-          controlPoints[1] = splittedControlPoints[4];
-          controlPoints[2] = splittedControlPoints[5];
-          updatedPrev = splittedControlPoints[5];
+        weights.add(1.0);
+      }
+    }
+    for (int i = 0; i < length; i++) {
+      totalWeights += weights[i];
+    }
+
+    List<int> counts;
+    int chooseIndex;
+
+    if (oldCounts == null) {
+      double scale = totalWeights / newPointsCount;
+      counts = weights.map((w) => (w / scale).ceil()).toList();
+    } else {
+      counts = oldCounts.map((e) => (e + 1)).toList();
+    }
+
+    while (counts.total() > newPointsCount) {
+      chooseIndex = randomChoose(weights);
+
+      if (counts[chooseIndex] > 0) {
+        counts[chooseIndex] -= 1;
+      }
+    }
+
+    return counts;
+  }
+
+  static DynamicPath supplyPoints(DynamicPath path, List<int> supplyCounts) {
+    int length = path.nodes.length;
+
+    DynamicPath newPath = DynamicPath(size: path.size, nodes: []);
+
+    Offset? updatedPrev;
+
+    for (int i = 0; i < length; i++) {
+      newPath.nodes.add(DynamicNode(
+          position: path.nodes[i].position,
+          prev: path.nodes[i].prev,
+          next: path.nodes[i].next));
+      if (updatedPrev != null) {
+        newPath.nodes.last.prev = updatedPrev;
+      }
+      updatedPrev = null;
+      int count = supplyCounts[i];
+      if (count >= 1) {
+        int nextIndex = (i + 1) % length;
+        List<Offset> controlPoints = path.getNextPathControlPointsAt(i);
+        if (controlPoints.length == 2) {
+          Offset diff =
+              (path.nodes[nextIndex].position - path.nodes[i].position);
+          for (int j = 1; j < count + 1; j++) {
+            newPath.nodes.add(DynamicNode(
+                position: path.nodes[i].position +
+                    diff * j.roundToDouble() / (count.roundToDouble() + 1)));
+          }
+        } else {
+          for (int j = count; j > 0; j--) {
+            List<Offset> splittedControlPoints =
+                DynamicPath.splitCubicAt(1 / (j + 1), controlPoints);
+            newPath.nodes.last.next = splittedControlPoints[1];
+            newPath.nodes.add(DynamicNode(
+                position: splittedControlPoints[3],
+                prev: splittedControlPoints[2],
+                next: splittedControlPoints[4]));
+            controlPoints[0] = splittedControlPoints[3];
+            controlPoints[1] = splittedControlPoints[4];
+            controlPoints[2] = splittedControlPoints[5];
+            updatedPrev = splittedControlPoints[5];
+          }
         }
       }
     }
-  }
-  if (updatedPrev != null) {
-    newPath.nodes.first.prev = updatedPrev;
-  }
-
-  return newPath;
-}
-
-List<dynamic> supplyList(List<dynamic> list, List<int> counts) {
-  int length = list.length;
-
-  List<dynamic> newList = [];
-
-  for (int i = 0; i < length; i++) {
-    newList.add(list[i]);
-    if (counts[i] >= 1) {
-      newList.addAll(List.generate(counts[i], (index) => list[i]));
+    if (updatedPrev != null) {
+      newPath.nodes.first.prev = updatedPrev;
     }
+
+    return newPath;
   }
 
-  return newList;
-}
+  static List<dynamic> supplyList(List<dynamic> list, List<int> counts) {
+    int length = list.length;
 
-void printWrapped(String text) {
-  final pattern = RegExp('.{1,800}'); // 800 is the size of each chunk
-  pattern.allMatches(text).forEach((match) => print(match.group(0)));
+    List<dynamic> newList = [];
+
+    for (int i = 0; i < length; i++) {
+      newList.add(list[i]);
+      if (counts[i] >= 1) {
+        newList.addAll(List.generate(counts[i], (index) => list[i]));
+      }
+    }
+
+    return newList;
+  }
+
+  static int randomChoose(List<num> list) {
+    int index = 0;
+    num totalWeight = list.total();
+    var rng = new Random();
+    double randomDraw = rng.nextDouble() * totalWeight;
+    double currentSum = 0;
+    for (int i = 0; i < list.length; i++) {
+      currentSum += list[i];
+      if (randomDraw <= currentSum) return i;
+    }
+    return index;
+  }
+
+  static int estimateCombinationsOf(int n, int k, {int maximum = 10000000}) {
+    if (k > n) {
+      return 0;
+    }
+    int r = 1;
+    for (int d = 1; d <= k; ++d) {
+      if (r > maximum) break;
+      r *= n--;
+      r = r ~/ d;
+    }
+    return r;
+  }
 }
