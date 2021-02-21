@@ -201,10 +201,18 @@ const Map<String, Shape> presetTriangleMap = {
 };
 
 const Map<String, Shape> presetOtherMap = {
-  "BubbleTopLeft": const BubbleShape(corner: ShapeCorner.topLeft),
-  "BubbleBottomRight": const BubbleShape(corner: ShapeCorner.bottomRight),
-  "BubbleLeftTop": const BubbleShape(corner: ShapeCorner.leftTop),
-  "BubbleRightBottom": const BubbleShape(corner: ShapeCorner.rightBottom),
+  "BubbleTopLeft": const BubbleShape(
+      corner: ShapeCorner.topLeft,
+      borderRadius: Length(20, unit: LengthUnit.percent)),
+  "BubbleBottomRight": const BubbleShape(
+      corner: ShapeCorner.bottomRight,
+      borderRadius: Length(20, unit: LengthUnit.percent)),
+  "BubbleLeftTop": const BubbleShape(
+      corner: ShapeCorner.leftTop,
+      borderRadius: Length(20, unit: LengthUnit.percent)),
+  "BubbleRightBottom": const BubbleShape(
+      corner: ShapeCorner.rightBottom,
+      borderRadius: Length(20, unit: LengthUnit.percent)),
   "ArcTop": const ArcShape(
       side: ShapeSide.top, arcHeight: Length(20, unit: LengthUnit.percent)),
   "ArcBottom": const ArcShape(

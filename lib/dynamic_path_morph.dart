@@ -325,11 +325,6 @@ class DynamicPathMorph {
       required int maxControlPoints,
       required Offset origin}) {
     int totalPoints = lcm(path1.nodes.length, path2.nodes.length);
-    if (totalPoints < minControlPoints ||
-        path1.nodes.length == path2.nodes.length) {
-      //totalPoints = (minControlPoints / totalPoints).ceil() * totalPoints;
-      totalPoints = path1.nodes.length * path2.nodes.length;
-    }
 
     ///cap at maxControlPoints, but it is possible that the minimum required points
     ///(max(points1, points2)) is larger than maxControlPoints.
@@ -338,12 +333,49 @@ class DynamicPathMorph {
           max(maxControlPoints, max(path1.nodes.length, path2.nodes.length));
     }
 
-    List<int> optimalCount1 =
-        sampleSupplyCounts(path1, totalPoints, weightBased: false);
-    List<int> optimalCount2 =
-        sampleSupplyCounts(path2, totalPoints, weightBased: false);
-    DynamicPath optimalPath1 = supplyPoints(path1, optimalCount1);
-    DynamicPath optimalPath2 = supplyPoints(path2, optimalCount2);
+    double tempMinWeight = double.infinity;
+    List<int>? tempCounts1, tempCounts2;
+    DynamicPath tempPath1, tempPath2;
+
+    DynamicPath optimalPath1 = DynamicPath(size: Size.zero, nodes: []),
+        optimalPath2 = DynamicPath(size: Size.zero, nodes: []);
+    List<int> optimalCount1 = [], optimalCount2 = [];
+
+    int tempTotalPoints = totalPoints;
+    do {
+      tempCounts1 =
+          sampleSupplyCounts(path1, tempTotalPoints, weightBased: false);
+      tempCounts2 =
+          sampleSupplyCounts(path2, tempTotalPoints, weightBased: false);
+
+      tempPath1 = supplyPoints(path1, tempCounts1);
+      tempPath2 = supplyPoints(path2, tempCounts2);
+
+      int tempShift = computeMinimumOffsetIndex(
+          tempPath1.nodes.map((e) => e.position).toList(),
+          tempPath2.nodes.map((e) => e.position).toList());
+
+      tempPath1.nodes =
+          rotateList(tempPath1.nodes, tempShift) as List<DynamicNode>;
+
+      List<Offset> path1Nodes = tempPath1.nodes.map((e) => e.position).toList(),
+          path2Nodes = tempPath2.nodes.map((e) => e.position).toList();
+
+      double tempWeight =
+          computeTotalMorphWeight(path1Nodes, path2Nodes, origin: origin);
+
+      tempPath1.nodes =
+          rotateList(tempPath1.nodes, -tempShift) as List<DynamicNode>;
+      if (tempWeight < tempMinWeight) {
+        tempMinWeight = tempWeight;
+        optimalPath1 = tempPath1;
+        optimalPath2 = tempPath2;
+        optimalCount1 = tempCounts1;
+        optimalCount2 = tempCounts2;
+      }
+      tempTotalPoints += totalPoints;
+    } while (tempTotalPoints < maxControlPoints);
+
     int shift = computeMinimumOffsetIndex(
         optimalPath1.nodes.map((e) => e.position).toList(),
         optimalPath2.nodes.map((e) => e.position).toList());
@@ -365,30 +397,6 @@ class DynamicPathMorph {
     ];
   }
 
-  /*
-  static int computeMinimumOffsetIndex(
-      List<Offset> points1, List<Offset> points2) {
-    int minimumShift = 0;
-    double minimumOffset = double.infinity;
-    assert(points1.length == points2.length);
-    int length = points1.length;
-
-    for (int shift = 0; shift < length; shift++) {
-      double currentOffset = 0.0;
-      for (int i = 0; i < length; i++) {
-        currentOffset += (points1[(i + shift) % length] - points2[i]).distance;
-      }
-
-      if (currentOffset <= minimumOffset) {
-        minimumOffset = currentOffset;
-        minimumShift = shift;
-      }
-    }
-
-    return minimumShift;
-  }
-  */
-
   static int computeMinimumOffsetIndex(
       List<Offset> points1, List<Offset> points2) {
     assert(points1.length == points2.length);
@@ -396,7 +404,10 @@ class DynamicPathMorph {
     int startShift = 0;
     double? startOffset, leftOffset, rightOffset;
 
-    while (true) {
+    ///just don't use a polyline that is longer than 1000...
+    int maxIter = 1000;
+    int iter = 0;
+    while (iter < maxIter) {
       startOffset = startOffset ??
           computeTotalOffset(points1, points2, shift: startShift % length);
       leftOffset = leftOffset ??
@@ -418,6 +429,7 @@ class DynamicPathMorph {
       } else {
         break;
       }
+      iter++;
     }
 
     return startShift % length;
@@ -450,10 +462,7 @@ class DynamicPathMorph {
     int length = points1.length;
     double maxAngle = 0.0;
     double totalAngle = 0.0;
-    double maxAngleFromOrigin = 0.0;
-    double totalAngleFromOrigin = 0.0;
-    double maxOffset = 0.0;
-    double totalOffset = 0.0;
+
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
       double diff =
@@ -466,42 +475,10 @@ class DynamicPathMorph {
           (points1[i] - origin).direction - (points2[i] - origin).direction;
       if (diffFromOrigin < -pi) diffFromOrigin += 2 * pi;
       if (diffFromOrigin > pi) diffFromOrigin -= 2 * pi;
-      if (diffFromOrigin.abs() > maxAngleFromOrigin)
-        maxAngleFromOrigin = diffFromOrigin.abs();
-      totalAngleFromOrigin += diffFromOrigin;
-      if ((points1[i] - points2[i]).distance > maxOffset)
-        maxOffset = (points1[i] - points2[i]).distance;
-      totalOffset += (points1[i] - points2[i]).distance;
     }
 
-    return max(1e-10, maxAngle) *
-        max(1e-10, totalAngle) *
-        max(1e-10, maxAngleFromOrigin) *
-        max(1e-10, totalAngleFromOrigin) *
-        maxOffset *
-        totalOffset *
-        max(1e-10, (center1 - center2).distance);
+    return points1.length * max(1e-10, maxAngle) * max(1e-10, totalAngle);
   }
-
-  /*
-  static double computeMinimumOffset(
-      List<Offset> points1, List<Offset> points2) {
-    double minimumOffset = double.infinity;
-    assert(points1.length == points2.length);
-    int length = points1.length;
-    for (int shift = 0; shift < length; shift++) {
-      double currentOffset = 0.0;
-      for (int i = 0; i < length; i += 1) {
-        currentOffset += (points1[(i + shift) % length] - points2[i]).distance;
-      }
-      if (currentOffset <= minimumOffset) {
-        minimumOffset = currentOffset;
-      }
-    }
-    return minimumOffset;
-  }
-
-   */
 
   static DynamicPath lerpPaths(
       double t, DynamicPath beginPath, DynamicPath endPath) {
