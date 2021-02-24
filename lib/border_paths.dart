@@ -23,6 +23,7 @@ class BorderPaths {
 
   void removeOverlappingPaths() {
     print(outer.nodes.length);
+    outer.nodes.forEach((element) {print(element.position);});
     print(fillColors.length);
     assert(outer.nodes.length == inner.nodes.length);
     assert(outer.nodes.length == fillColors.length);
