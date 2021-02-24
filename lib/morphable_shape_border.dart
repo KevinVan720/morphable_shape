@@ -24,7 +24,7 @@ class MorphableShapeBorder extends ShapeBorder {
   ///without knowing the constraints
   @override
   EdgeInsetsGeometry get dimensions {
-    return EdgeInsets.all(0);
+    return this.shape.dimensions;
   }
 
   ///TODO: implement this,

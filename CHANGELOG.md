@@ -96,3 +96,7 @@ code cleanup
 
 Update morph algorithm
 
+## [1.1.4] - 02.24.2021
+
+Border side go back to use double as width for constraint reasons
+

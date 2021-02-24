@@ -8,7 +8,7 @@ import 'package:flutter_class_parser/to_json.dart';
 class DynamicBorderSide {
   const DynamicBorderSide({
     this.color = const Color(0xFF000000),
-    this.width = const Length(1.0),
+    this.width = 1.0,
     this.style = BorderStyle.solid,
     this.gradient,
   });
@@ -16,14 +16,14 @@ class DynamicBorderSide {
   DynamicBorderSide.fromJson(Map<String, dynamic> map)
       : color = parseColor(map["color"]) ?? Color(0xFF000000),
         gradient = parseGradient(map["gradient"]),
-        width = parseLength(map["length"]) ?? Length(1),
+        width = map["width"] ?? 1.0,
         style = parseBorderStyle(map["style"]) ?? BorderStyle.solid;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
     rst["color"] = color.toJson();
     rst.updateNotNull("gradient", gradient?.toJson());
-    rst["width"] = width.toJson();
+    rst["width"] = width;
     rst["style"] = style.toJson();
     return rst;
   }
@@ -42,7 +42,7 @@ class DynamicBorderSide {
   /// double-hit pixels, giving it a slightly darker/lighter result.
   ///
   /// To omit the border entirely, set the [style] to [BorderStyle.none].
-  final Length width;
+  final double width;
 
   /// The style of this side of the border.
   ///
@@ -52,12 +52,12 @@ class DynamicBorderSide {
 
   /// A hairline black border that is not rendered.
   static const DynamicBorderSide none =
-      DynamicBorderSide(width: Length(0.0), style: BorderStyle.none);
+      DynamicBorderSide(width: 0.0, style: BorderStyle.none);
 
   DynamicBorderSide copyWith({
     Color? color,
     Gradient? gradient,
-    Length? width,
+    double? width,
     BorderStyle? style,
   }) {
     return DynamicBorderSide(
@@ -72,7 +72,7 @@ class DynamicBorderSide {
     return DynamicBorderSide(
       color: color,
       gradient: gradient?.scale(t),
-      width: width.copyWith(value: max(0.0, width.value * t)),
+      width: max(0.0, width * t),
       style: t <= 0.0 ? BorderStyle.none : style,
     );
   }

@@ -3131,19 +3131,17 @@ class EditShapePageState extends State<EditShapePage>
     rst.add(buildRowWithHeaderText(
         headerText: "Border Width",
         actionWidget: Expanded(
-          child: LengthSlider(
-            sliderValue: border.width,
-            valueChanged: (value) {
+          child: Slider(
+            value: border.width,
+            onChanged: (value) {
               setState(() {
                 updateCurrentShape(
                     shape.copyWith(border: border.copyWith(width: value)));
               });
             },
-            constraintSize: min(size.width, size.height),
             min: 0,
             max: 20,
             divisions: 20,
-            allowedUnits: ["px", "%"],
           ),
         )));
 
@@ -3196,20 +3194,18 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Width",
             actionWidget: Expanded(
-              child: LengthSlider(
-                sliderValue: shape.borders.top.width,
-                valueChanged: (value) {
+              child: Slider(
+                value: shape.borders.top.width,
+                onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borders.copyWith(
                             top: shape.borders.top.copyWith(width: value))));
                   });
                 },
-                constraintSize: size.height,
                 min: 0,
                 max: 20,
                 divisions: 20,
-                allowedUnits: ["px", "%"],
               ),
             )),
         buildRowWithHeaderText(
@@ -3258,21 +3254,18 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Width",
             actionWidget: Expanded(
-              child: LengthSlider(
-                sliderValue: shape.borders.right.width,
-                valueChanged: (value) {
+              child: Slider(
+                value: shape.borders.right.width,
+                onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borders.copyWith(
-                            right:
-                                shape.borders.right.copyWith(width: value))));
+                            right: shape.borders.right.copyWith(width: value))));
                   });
                 },
-                constraintSize: size.width,
                 min: 0,
                 max: 20,
                 divisions: 20,
-                allowedUnits: ["px", "%"],
               ),
             )),
         buildRowWithHeaderText(
@@ -3321,21 +3314,18 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Width",
             actionWidget: Expanded(
-              child: LengthSlider(
-                sliderValue: shape.borders.bottom.width,
-                valueChanged: (value) {
+              child: Slider(
+                value: shape.borders.bottom.width,
+                onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borders.copyWith(
-                            bottom:
-                                shape.borders.bottom.copyWith(width: value))));
+                            bottom: shape.borders.bottom.copyWith(width: value))));
                   });
                 },
-                constraintSize: size.height,
                 min: 0,
                 max: 20,
                 divisions: 20,
-                allowedUnits: ["px", "%"],
               ),
             )),
         buildRowWithHeaderText(
@@ -3384,20 +3374,18 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Width",
             actionWidget: Expanded(
-              child: LengthSlider(
-                sliderValue: shape.borders.left.width,
-                valueChanged: (value) {
+              child: Slider(
+                value: shape.borders.left.width,
+                onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borders.copyWith(
                             left: shape.borders.left.copyWith(width: value))));
                   });
                 },
-                constraintSize: size.height,
                 min: 0,
                 max: 20,
                 divisions: 20,
-                allowedUnits: ["px", "%"],
               ),
             )),
         buildRowWithHeaderText(

@@ -36,6 +36,12 @@ class RoundedRectangleShape extends FilledBorderShape {
         borderRadius: borderRadius ?? this.borderRadius);
   }
 
+  EdgeInsetsGeometry get dimensions => EdgeInsets.only(
+      top: borders.top.width,
+      bottom: borders.bottom.width,
+      left: borders.left.width,
+      right: borders.right.width);
+
   List<Color> borderFillColors() {
     List<Color> rst = [];
     rst.addAll(List.generate(3, (index) => borders.top.color));
@@ -58,14 +64,10 @@ class RoundedRectangleShape extends FilledBorderShape {
   DynamicPath generateInnerDynamicPath(Rect rect) {
     Size size = rect.size;
 
-    double leftSideWidth =
-        this.borders.left.width.toPX(constraintSize: size.width);
-    double rightSideWidth =
-        this.borders.right.width.toPX(constraintSize: size.width);
-    double topSideWidth =
-        this.borders.top.width.toPX(constraintSize: size.height);
-    double bottomSideWidth =
-        this.borders.bottom.width.toPX(constraintSize: size.height);
+    double leftSideWidth = this.borders.left.width;
+    double rightSideWidth = this.borders.right.width;
+    double topSideWidth = this.borders.top.width;
+    double bottomSideWidth = this.borders.bottom.width;
 
     if (leftSideWidth + rightSideWidth > size.width) {
       double ratio = leftSideWidth / (leftSideWidth + rightSideWidth);

@@ -18,6 +18,11 @@ class MorphShape extends Shape {
     return this;
   }
 
+  EdgeInsetsGeometry get dimensions =>
+      EdgeInsetsGeometry.lerp(
+          morphData.begin.dimensions, morphData.end.dimensions, t) ??
+      EdgeInsets.zero;
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     if (rect.width != morphData.boundingBox.width ||
         rect.height != morphData.boundingBox.height) {
@@ -143,10 +148,7 @@ class MorphShape extends Shape {
         borderPaint.strokeWidth = 2 *
             Tween(
                     begin: 0.0,
-                    end: (morphData.end as OutlinedShape)
-                        .border
-                        .width
-                        .toPX(constraintSize: rect.shortestSide))
+                    end: (morphData.end as OutlinedShape).border.width)
                 .transform(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
 
@@ -211,10 +213,7 @@ class MorphShape extends Shape {
 
         borderPaint.strokeWidth = 2 *
             Tween(
-                    begin: (morphData.begin as OutlinedShape)
-                        .border
-                        .width
-                        .toPX(constraintSize: rect.shortestSide),
+                    begin: (morphData.begin as OutlinedShape).border.width,
                     end: 0.0)
                 .transform(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
@@ -286,14 +285,8 @@ class MorphShape extends Shape {
             ?.createShader(rect);
         borderPaint.strokeWidth = 2 *
             Tween(
-                    begin: (morphData.begin as OutlinedShape)
-                        .border
-                        .width
-                        .toPX(constraintSize: rect.shortestSide),
-                    end: (morphData.end as OutlinedShape)
-                        .border
-                        .width
-                        .toPX(constraintSize: rect.shortestSide))
+                    begin: (morphData.begin as OutlinedShape).border.width,
+                    end: (morphData.end as OutlinedShape).border.width)
                 .transform(t);
         canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
       }

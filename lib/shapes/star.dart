@@ -73,7 +73,6 @@ class StarShape extends OutlinedShape {
     double scale = min(rect.width, rect.height) / 2;
     double cornerRadius = this.cornerRadius.toPX(constraintSize: scale / 2);
     double insetRadius = this.insetRadius.toPX(constraintSize: scale / 2);
-    double borderWidth = this.border.width.toPX(constraintSize: scale / 2);
 
     final int vertices = corners * 2;
     final double alpha = (2 * pi) / vertices;
@@ -88,7 +87,6 @@ class StarShape extends OutlinedShape {
     double gamma = alpha + beta;
 
     cornerRadius = cornerRadius.clamp(0, sideLength * tan(beta));
-    borderWidth = borderWidth.clamp(0, sideLength * tan(beta));
 
     double avalSideLength = max(sideLength - cornerRadius / tan(beta), 0.0);
     if (gamma <= pi / 2) {

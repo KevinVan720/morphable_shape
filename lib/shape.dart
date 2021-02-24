@@ -11,6 +11,8 @@ abstract class Shape {
 
   Shape copyWith();
 
+  EdgeInsetsGeometry get dimensions;
+
   DynamicPath generateOuterDynamicPath(Rect rect);
 
   DynamicPath generateInnerDynamicPath(Rect rect);
@@ -37,6 +39,8 @@ abstract class OutlinedShape extends Shape {
 
   const OutlinedShape({this.border = DynamicBorderSide.none});
 
+  EdgeInsetsGeometry get dimensions => EdgeInsets.all(border.width);
+
   Map<String, dynamic> toJson() {
     return {"border": border.toJson()};
   }
@@ -58,7 +62,7 @@ abstract class OutlinedShape extends Shape {
     borderPaint.style = PaintingStyle.stroke;
     borderPaint.color = border.color;
     borderPaint.strokeWidth =
-        2 * border.width.toPX(constraintSize: rect.shortestSide);
+        2 * border.width;
     borderPaint.shader = border.gradient?.createShader(rect);
     canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
   }
