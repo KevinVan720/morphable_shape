@@ -87,7 +87,7 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       if (data == null || end!.shape != data!.end) {
         data = MorphShapeData(
             begin: RectangleShape(),
-            end: end!.shape! is MorphShape
+            end: !(end!.shape is MorphShape)
                 ? end!.shape
                 : (end!.shape as MorphShape).morphData.end,
             boundingBox: Rect.fromLTRB(0, 0, 100, 100),
@@ -101,7 +101,7 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
     if (end == null) {
       if (data == null) {
         data = MorphShapeData(
-            begin: begin!.shape! is MorphShape
+            begin: !(begin!.shape is MorphShape)
                 ? begin!.shape
                 : (begin!.shape as MorphShape).morphData.begin,
             end: RectangleShape(),
@@ -117,10 +117,10 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
     if (data == null ||
         begin!.shape != data!.begin ||
         end!.shape != data!.end) {
-      Shape beginShape = begin!.shape! is MorphShape
+      Shape beginShape = !(begin!.shape is MorphShape)
           ? begin!.shape
           : (begin!.shape as MorphShape).morphData.begin;
-      Shape endShape = end!.shape! is MorphShape
+      Shape endShape = !(end!.shape is MorphShape)
           ? end!.shape
           : (end!.shape as MorphShape).morphData.end;
       data = MorphShapeData(
