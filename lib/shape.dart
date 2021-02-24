@@ -61,8 +61,7 @@ abstract class OutlinedShape extends Shape {
     borderPaint.isAntiAlias = true;
     borderPaint.style = PaintingStyle.stroke;
     borderPaint.color = border.color;
-    borderPaint.strokeWidth =
-        2 * border.width;
+    borderPaint.strokeWidth = 2 * border.width;
     borderPaint.shader = border.gradient?.createShader(rect);
     canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
   }

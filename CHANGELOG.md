@@ -104,3 +104,7 @@ Border side go back to use double as width for constraint reasons
 
 Update drawBorder
 
+## [1.1.6] - 02.25.2021
+
+Avoid morph shape nest into another morph shape
+
