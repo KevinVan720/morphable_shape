@@ -95,6 +95,8 @@ class MorphShape extends Shape {
   @override
   void drawBorder(Canvas canvas, Rect rect) {
     Paint borderPaint = Paint();
+    print(morphData.begin.runtimeType);
+    print(morphData.end.runtimeType);
     if (morphData.begin is FilledBorderShape) {
       if (morphData.end is FilledBorderShape) {
         List<Color> beginBorderColors = morphData.beginPaths!.fillColors;
