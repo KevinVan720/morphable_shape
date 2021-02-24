@@ -22,6 +22,7 @@ class BorderPaths {
       required this.fillGradients});
 
   void removeOverlappingPaths() {
+    print(outer.nodes.length);
     print(fillColors.length);
     assert(outer.nodes.length == inner.nodes.length);
     assert(outer.nodes.length == fillColors.length);
