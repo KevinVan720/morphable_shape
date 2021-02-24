@@ -22,14 +22,18 @@ class BorderPaths {
       required this.fillGradients});
 
   void removeOverlappingPaths() {
+    print(fillColors.length);
     assert(outer.nodes.length == inner.nodes.length);
+    assert(outer.nodes.length == fillColors.length);
+    assert(outer.nodes.length == fillGradients.length);
+
     if (outer.nodes.isNotEmpty) {
       double pointGroupWeight = 1;
       List<DynamicNode> outerNodes = [outer.nodes[0]];
       List<DynamicNode> innerNodes = [inner.nodes[0]];
       List<Color> newColors = [fillColors[0]];
       List<Gradient?> newGradients = [fillGradients[0]];
-      for (int i = 0; i < outer.nodes.length; i++) {
+      for (int i = 1; i < outer.nodes.length; i++) {
         if ((outer.nodes[i].position - outerNodes.last.position).distance <
                 tolerancePercent * outer.size.shortestSide &&
             (inner.nodes[i].position - innerNodes.last.position).distance <

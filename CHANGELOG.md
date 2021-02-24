@@ -100,3 +100,7 @@ Update morph algorithm
 
 Border side go back to use double as width for constraint reasons
 
+## [1.1.5] - 02.25.2021
+
+Update drawBorder
+
