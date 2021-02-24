@@ -84,6 +84,9 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       return null;
     }
     if (begin == null) {
+      if(end!.shape is MorphShape) {
+        return null;
+      }
       if (data == null || end!.shape != data!.end) {
         data = MorphShapeData(
             begin: RectangleShape(),
@@ -97,6 +100,9 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       );
     }
     if (end == null) {
+      if(begin!.shape is MorphShape) {
+        return null;
+      }
       if (data == null) {
         data = MorphShapeData(
             begin: begin!.shape,
@@ -108,6 +114,9 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       return MorphableShapeBorder(
         shape: MorphShape(t: t, morphData: data!),
       );
+    }
+    if(begin!.shape is MorphShape || end!.shape is MorphShape) {
+      return null;
     }
     if (data == null ||
         begin!.shape != data!.begin ||
