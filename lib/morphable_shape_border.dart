@@ -84,13 +84,12 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       return null;
     }
     if (begin == null) {
-      if(end!.shape is MorphShape) {
-        return null;
-      }
       if (data == null || end!.shape != data!.end) {
         data = MorphShapeData(
             begin: RectangleShape(),
-            end: end!.shape,
+            end: end!.shape! is MorphShape
+                ? end!.shape
+                : (end!.shape as MorphShape).morphData.end,
             boundingBox: Rect.fromLTRB(0, 0, 100, 100),
             method: method);
         DynamicPathMorph.sampleBorderPathsFromShape(data!);
@@ -100,12 +99,11 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
       );
     }
     if (end == null) {
-      if(begin!.shape is MorphShape) {
-        return null;
-      }
       if (data == null) {
         data = MorphShapeData(
-            begin: begin!.shape,
+            begin: begin!.shape! is MorphShape
+                ? begin!.shape
+                : (begin!.shape as MorphShape).morphData.begin,
             end: RectangleShape(),
             boundingBox: Rect.fromLTRB(0, 0, 100, 100),
             method: method);
@@ -115,15 +113,19 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
         shape: MorphShape(t: t, morphData: data!),
       );
     }
-    if(begin!.shape is MorphShape || end!.shape is MorphShape) {
-      return null;
-    }
+
     if (data == null ||
         begin!.shape != data!.begin ||
         end!.shape != data!.end) {
+      Shape beginShape = begin!.shape! is MorphShape
+          ? begin!.shape
+          : (begin!.shape as MorphShape).morphData.begin;
+      Shape endShape = end!.shape! is MorphShape
+          ? end!.shape
+          : (end!.shape as MorphShape).morphData.end;
       data = MorphShapeData(
-          begin: begin!.shape,
-          end: end!.shape,
+          begin: beginShape,
+          end: endShape,
           boundingBox: Rect.fromLTRB(0, 0, 100, 100),
           method: method);
       DynamicPathMorph.sampleBorderPathsFromShape(data!);
