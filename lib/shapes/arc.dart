@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
@@ -55,10 +56,8 @@ class ArcShape extends OutlinedShape {
 
     double arcHeight = 0;
     if (this.side.isHorizontal) {
-      arcHeight = this
-          .arcHeight
-          .toPX(constraint: size.height)
-          .clamp(0, maximumSize);
+      arcHeight =
+          this.arcHeight.toPX(constraint: size.height).clamp(0, maximumSize);
     } else {
       arcHeight =
           this.arcHeight.toPX(constraint: size.width).clamp(0, maximumSize);

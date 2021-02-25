@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///A trapezoid shape, can be achieved from a rectangle
@@ -50,13 +49,10 @@ class TrapezoidShape extends OutlinedShape {
 
     double inset;
     if (side.isHorizontal) {
-      inset =
-          this.inset.toPX(constraint: size.width).clamp(0, size.width / 2);
+      inset = this.inset.toPX(constraint: size.width).clamp(0, size.width / 2);
     } else {
-      inset = this
-          .inset
-          .toPX(constraint: size.height)
-          .clamp(0, size.height / 2);
+      inset =
+          this.inset.toPX(constraint: size.height).clamp(0, size.height / 2);
     }
 
     switch (side) {

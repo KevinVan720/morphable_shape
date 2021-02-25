@@ -86,15 +86,13 @@ class BubbleShape extends OutlinedShape {
       arrowWidth = this.arrowWidth.toPX(constraint: size.width);
       arrowCenterPosition =
           this.arrowCenterPosition.toPX(constraint: size.width);
-      arrowHeadPosition =
-          this.arrowHeadPosition.toPX(constraint: size.width);
+      arrowHeadPosition = this.arrowHeadPosition.toPX(constraint: size.width);
     } else {
       arrowHeight = this.arrowHeight.toPX(constraint: size.width);
       arrowWidth = this.arrowWidth.toPX(constraint: size.height);
       arrowCenterPosition =
           this.arrowCenterPosition.toPX(constraint: size.height);
-      arrowHeadPosition =
-          this.arrowHeadPosition.toPX(constraint: size.height);
+      arrowHeadPosition = this.arrowHeadPosition.toPX(constraint: size.height);
     }
 
     List<DynamicNode> nodes = [];
