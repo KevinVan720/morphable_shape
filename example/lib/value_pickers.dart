@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:length_unit/length_unit.dart';
+import 'package:dimension/dimension.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 export 'color_picker.dart';
@@ -16,7 +16,7 @@ class LengthSlider extends StatefulWidget {
     this.sliderColor = Colors.amber,
     this.sliderValue,
     @required this.valueChanged,
-    @required this.constraintSize,
+    @required this.constraint,
     this.allowedUnits = const ["px"],
   });
 
@@ -26,7 +26,7 @@ class LengthSlider extends StatefulWidget {
   final Color sliderColor;
   final List<String> allowedUnits;
   final Length sliderValue;
-  final double constraintSize;
+  final double constraint;
 
   final ValueChanged valueChanged;
 
@@ -61,7 +61,7 @@ class _LengthSlider extends State<LengthSlider> {
 
     if (_sliderValue.unit == LengthUnit.px) {
       min = widget.min ?? 0.0;
-      max = widget.max ?? widget.constraintSize.roundWithPrecision(1);
+      max = widget.max ?? widget.constraint.roundWithPrecision(1);
       divisions = widget.divisions ??
           ((max - min) > 10 ? (max - min) / 5 : (max - min)).round();
     } else {
@@ -154,16 +154,16 @@ class _LengthSlider extends State<LengthSlider> {
                       setState(() {
                         ///avoid null for non auto values
                         double oldPX = _sliderValue.toPX(
-                              constraintSize: widget.constraintSize,
+                              constraint: widget.constraint,
                             ) ??
                             100;
                         LengthUnit newUnit =
                             lengthUnitMap[value] ?? LengthUnit.px;
                         widget.valueChanged(_sliderValue.copyWith(
-                            value: Length.newValue(
+                            value: Length.fromPX(
                               oldPX,
                               newUnit,
-                              constraintSize: widget.constraintSize,
+                              constraint: widget.constraint,
                             ),
                             unit: newUnit));
                         //myController.text =

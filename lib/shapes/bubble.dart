@@ -80,21 +80,21 @@ class BubbleShape extends OutlinedShape {
     double arrowCenterPosition;
     double arrowHeadPosition;
     borderRadius =
-        this.borderRadius.toPX(constraintSize: min(size.height, size.width));
+        this.borderRadius.toPX(constraint: min(size.height, size.width));
     if (corner.isHorizontal) {
-      arrowHeight = this.arrowHeight.toPX(constraintSize: size.height);
-      arrowWidth = this.arrowWidth.toPX(constraintSize: size.width);
+      arrowHeight = this.arrowHeight.toPX(constraint: size.height);
+      arrowWidth = this.arrowWidth.toPX(constraint: size.width);
       arrowCenterPosition =
-          this.arrowCenterPosition.toPX(constraintSize: size.width);
+          this.arrowCenterPosition.toPX(constraint: size.width);
       arrowHeadPosition =
-          this.arrowHeadPosition.toPX(constraintSize: size.width);
+          this.arrowHeadPosition.toPX(constraint: size.width);
     } else {
-      arrowHeight = this.arrowHeight.toPX(constraintSize: size.width);
-      arrowWidth = this.arrowWidth.toPX(constraintSize: size.height);
+      arrowHeight = this.arrowHeight.toPX(constraint: size.width);
+      arrowWidth = this.arrowWidth.toPX(constraint: size.height);
       arrowCenterPosition =
-          this.arrowCenterPosition.toPX(constraintSize: size.height);
+          this.arrowCenterPosition.toPX(constraint: size.height);
       arrowHeadPosition =
-          this.arrowHeadPosition.toPX(constraintSize: size.height);
+          this.arrowHeadPosition.toPX(constraint: size.height);
     }
 
     List<DynamicNode> nodes = [];

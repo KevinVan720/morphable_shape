@@ -788,17 +788,17 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   Length updateLength(Length length,
-      {double constraintSize,
+      {double constraint,
       double minimumSize = 0.00,
       double maximumSize = double.infinity,
       Offset offset,
       double Function(Offset) offsetToDelta}) {
-    double newValue = length.toPX(constraintSize: constraintSize) +
+    double newValue = length.toPX(constraint: constraint) +
         1.0 * offsetToDelta(offset);
     return length.copyWith(
-        value: Length.newValue(
+        value: Length.fromPX(
             newValue.clamp(minimumSize, maximumSize), length.unit,
-            constraintSize: constraintSize));
+            constraint: constraint));
   }
 
   List<Widget> buildArcEditingWidgets(ArcShape shape) {
@@ -811,11 +811,11 @@ class EditShapePageState extends State<EditShapePage>
     double arcHeight;
     if (shape.side.isHorizontal) {
       arcHeight = shape.arcHeight
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, maximumSize);
     } else {
       arcHeight = shape.arcHeight
-          .toPX(constraintSize: size.width)
+          .toPX(constraint: size.width)
           .clamp(0, maximumSize);
     }
 
@@ -854,7 +854,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 arcHeight: updateLength((currentShape as ArcShape).arcHeight,
-                    constraintSize:
+                    constraint:
                         shape.side.isHorizontal ? size.height : size.width,
                     maximumSize: maximumSize,
                     offset: details.delta,
@@ -873,16 +873,16 @@ class EditShapePageState extends State<EditShapePage>
     double tailWidth, arrowHeight;
     if (shape.side.isHorizontal) {
       arrowHeight = shape.arrowHeight
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, size.height);
       tailWidth =
-          shape.tailWidth.toPX(constraintSize: size.width).clamp(0, size.width);
+          shape.tailWidth.toPX(constraint: size.width).clamp(0, size.width);
     } else {
       arrowHeight = shape.arrowHeight
-          .toPX(constraintSize: size.width)
+          .toPX(constraint: size.width)
           .clamp(0, size.width);
       tailWidth = shape.tailWidth
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, size.height);
     }
 
@@ -930,7 +930,7 @@ class EditShapePageState extends State<EditShapePage>
             updateCurrentShape(shape.copyWith(
                 arrowHeight: updateLength(
                     (currentShape as ArrowShape).arrowHeight,
-                    constraintSize:
+                    constraint:
                         shape.side.isHorizontal ? size.width : size.height,
                     maximumSize:
                         shape.side.isHorizontal ? size.width : size.height,
@@ -945,7 +945,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 tailWidth: updateLength((currentShape as ArrowShape).tailWidth,
-                    constraintSize:
+                    constraint:
                         shape.side.isHorizontal ? size.height : size.width,
                     maximumSize:
                         shape.side.isHorizontal ? size.height : size.width,
@@ -1017,21 +1017,21 @@ class EditShapePageState extends State<EditShapePage>
     double arrowCenterPosition;
     double arrowHeadPosition;
     borderRadius =
-        shape.borderRadius.toPX(constraintSize: min(size.height, size.width));
+        shape.borderRadius.toPX(constraint: min(size.height, size.width));
     if (corner.isHorizontal) {
-      arrowHeight = shape.arrowHeight.toPX(constraintSize: size.height);
-      arrowWidth = shape.arrowWidth.toPX(constraintSize: size.width);
+      arrowHeight = shape.arrowHeight.toPX(constraint: size.height);
+      arrowWidth = shape.arrowWidth.toPX(constraint: size.width);
       arrowCenterPosition =
-          shape.arrowCenterPosition.toPX(constraintSize: size.width);
+          shape.arrowCenterPosition.toPX(constraint: size.width);
       arrowHeadPosition =
-          shape.arrowHeadPosition.toPX(constraintSize: size.width);
+          shape.arrowHeadPosition.toPX(constraint: size.width);
     } else {
-      arrowHeight = shape.arrowHeight.toPX(constraintSize: size.width);
-      arrowWidth = shape.arrowWidth.toPX(constraintSize: size.height);
+      arrowHeight = shape.arrowHeight.toPX(constraint: size.width);
+      arrowWidth = shape.arrowWidth.toPX(constraint: size.height);
       arrowCenterPosition =
-          shape.arrowCenterPosition.toPX(constraintSize: size.height);
+          shape.arrowCenterPosition.toPX(constraint: size.height);
       arrowHeadPosition =
-          shape.arrowHeadPosition.toPX(constraintSize: size.height);
+          shape.arrowHeadPosition.toPX(constraint: size.height);
     }
 
     final double spacingLeft = shape.corner.isLeft ? arrowHeight : 0;
@@ -1234,14 +1234,14 @@ class EditShapePageState extends State<EditShapePage>
             updateCurrentShape(shape.copyWith(
                 arrowHeight: updateLength(
                     (currentShape as BubbleShape).arrowHeight,
-                    constraintSize:
+                    constraint:
                         shape.corner.isHorizontal ? size.height : size.width,
                     maximumSize: arrowHeightBound,
                     offset: details.delta,
                     offsetToDelta: arrowCenterDragUpdateVertical),
                 arrowCenterPosition: updateLength(
                     (currentShape as BubbleShape).arrowCenterPosition,
-                    constraintSize:
+                    constraint:
                         shape.corner.isHorizontal ? size.width : size.height,
                     maximumSize: arrowCenterPositionBound,
                     offset: details.delta,
@@ -1255,7 +1255,7 @@ class EditShapePageState extends State<EditShapePage>
             updateCurrentShape(shape.copyWith(
                 arrowWidth: updateLength(
                     (currentShape as BubbleShape).arrowWidth,
-                    constraintSize:
+                    constraint:
                         shape.corner.isHorizontal ? size.width : size.height,
                     maximumSize: arrowWidthBound,
                     offset: details.delta,
@@ -1269,7 +1269,7 @@ class EditShapePageState extends State<EditShapePage>
             updateCurrentShape(shape.copyWith(
                 arrowHeadPosition: updateLength(
                     (currentShape as BubbleShape).arrowHeadPosition,
-                    constraintSize:
+                    constraint:
                         shape.corner.isHorizontal ? size.width : size.height,
                     maximumSize: arrowHeadPositionBound,
                     offset: details.delta,
@@ -1283,7 +1283,7 @@ class EditShapePageState extends State<EditShapePage>
             updateCurrentShape(shape.copyWith(
                 borderRadius: updateLength(
                     (currentShape as BubbleShape).borderRadius,
-                    constraintSize: min(size.width, size.height),
+                    constraint: min(size.width, size.height),
                     maximumSize: radiusBound,
                     offset: details.delta,
                     offsetToDelta: radiusDragUpdate)));
@@ -1319,7 +1319,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
                 x: updateLength(
                     (currentShape as RectangleShape).borderRadius.topLeft.x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dx));
@@ -1337,7 +1337,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
                 x: updateLength(
                     (currentShape as RectangleShape).borderRadius.topRight.x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dx));
@@ -1356,7 +1356,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 x: updateLength(
                     (currentShape as RectangleShape).borderRadius.bottomLeft.x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dx));
@@ -1375,7 +1375,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 x: updateLength(
                     (currentShape as RectangleShape).borderRadius.bottomRight.x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dx));
@@ -1393,7 +1393,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
                 y: updateLength(
                     (currentShape as RectangleShape).borderRadius.topLeft.y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy));
@@ -1411,7 +1411,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
                 y: updateLength(
                     (currentShape as RectangleShape).borderRadius.topRight.y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy));
@@ -1430,7 +1430,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 y: updateLength(
                     (currentShape as RectangleShape).borderRadius.bottomLeft.y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dy));
@@ -1449,7 +1449,7 @@ class EditShapePageState extends State<EditShapePage>
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 y: updateLength(
                     (currentShape as RectangleShape).borderRadius.bottomRight.y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dy));
@@ -1493,7 +1493,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .topLeft
                         .x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dx));
@@ -1514,7 +1514,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .topRight
                         .x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dx));
@@ -1536,7 +1536,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .bottomLeft
                         .x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dx));
@@ -1558,7 +1558,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .bottomRight
                         .x,
-                    constraintSize: size.width,
+                    constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dx));
@@ -1579,7 +1579,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .topLeft
                         .y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy));
@@ -1600,7 +1600,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .topRight
                         .y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy));
@@ -1622,7 +1622,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .bottomLeft
                         .y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dy));
@@ -1644,7 +1644,7 @@ class EditShapePageState extends State<EditShapePage>
                         .borderRadius
                         .bottomRight
                         .y,
-                    constraintSize: size.height,
+                    constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
                     offsetToDelta: (o) => -o.dy));
@@ -1664,7 +1664,7 @@ class EditShapePageState extends State<EditShapePage>
     Size size = shapeSize;
 
     double scale = min(size.width, size.height) / 2;
-    double cornerRadius = shape.cornerRadius.toPX(constraintSize: scale);
+    double cornerRadius = shape.cornerRadius.toPX(constraint: scale);
     int sides = shape.sides;
 
     final height = 2 * scale;
@@ -1698,7 +1698,7 @@ class EditShapePageState extends State<EditShapePage>
             updateCurrentShape(shape.copyWith(
                 cornerRadius: updateLength(
                     (currentShape as PolygonShape).cornerRadius,
-                    constraintSize: scale,
+                    constraint: scale,
                     maximumSize: scale * cos(alpha / 2),
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy / sin(alpha))));
@@ -1714,8 +1714,8 @@ class EditShapePageState extends State<EditShapePage>
     Size size = shapeSize;
 
     double scale = min(size.width, size.height) / 2;
-    double cornerRadius = shape.cornerRadius.toPX(constraintSize: scale);
-    double insetRadius = shape.insetRadius.toPX(constraintSize: scale);
+    double cornerRadius = shape.cornerRadius.toPX(constraint: scale);
+    double insetRadius = shape.insetRadius.toPX(constraint: scale);
 
     final height = 2 * scale;
     final width = 2 * scale;
@@ -1726,7 +1726,7 @@ class EditShapePageState extends State<EditShapePage>
     final double centerX = width / 2;
     final double centerY = height / 2;
 
-    double inset = shape.inset.toPX(constraintSize: radius);
+    double inset = shape.inset.toPX(constraint: radius);
     inset = inset.clamp(0.0, radius * 0.9999);
     double sideLength = getThirdSideLength(radius, radius - inset, alpha);
     double beta = getThirdAngle(sideLength, radius, radius - inset);
@@ -1759,7 +1759,7 @@ class EditShapePageState extends State<EditShapePage>
             updateCurrentShape(shape.copyWith(
                 cornerRadius: updateLength(
                     (currentShape as StarShape).cornerRadius,
-                    constraintSize: scale,
+                    constraint: scale,
                     maximumSize: sideLength * tan(beta),
                     offset: details.delta,
                     offsetToDelta: (o) => o.dy / cos(beta) * tan(beta))));
@@ -1774,7 +1774,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 inset: updateLength((currentShape as StarShape).inset,
-                    constraintSize: radius,
+                    constraint: radius,
                     maximumSize: radius * 0.99,
                     offset: details.delta,
                     offsetToDelta: (o) => (-o.dx / cos(-pi / 2 + alpha)))));
@@ -1800,7 +1800,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(
                   insetRadius: updateLength(
                       (currentShape as StarShape).insetRadius,
-                      constraintSize: scale,
+                      constraint: scale,
                       maximumSize: avalSideLength * tan(gamma),
                       offset: details.delta,
                       offsetToDelta: (o) =>
@@ -1826,7 +1826,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(
                   insetRadius: updateLength(
                       (currentShape as StarShape).insetRadius,
-                      constraintSize: scale,
+                      constraint: scale,
                       maximumSize: avalSideLength * tan(pi - gamma),
                       offset: details.delta,
                       offsetToDelta: (o) =>
@@ -1851,10 +1851,10 @@ class EditShapePageState extends State<EditShapePage>
     double inset;
     if (shape.side.isHorizontal) {
       inset =
-          shape.inset.toPX(constraintSize: size.width).clamp(0, size.width / 2);
+          shape.inset.toPX(constraint: size.width).clamp(0, size.width / 2);
     } else {
       inset = shape.inset
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, size.height / 2);
     }
 
@@ -1885,7 +1885,7 @@ class EditShapePageState extends State<EditShapePage>
         setState(() {
           updateCurrentShape(shape.copyWith(
               inset: updateLength((currentShape as TrapezoidShape).inset,
-                  constraintSize:
+                  constraint:
                       shape.side.isHorizontal ? size.width : size.height,
                   maximumSize: shape.side.isHorizontal
                       ? size.width / 2
@@ -1923,12 +1923,12 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicOffset newOffset = shape.point3.copyWith(
                 dx: updateLength((currentShape as TriangleShape).point3.dx,
-                    constraintSize: width,
+                    constraint: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
                 dy: updateLength((currentShape as TriangleShape).point3.dy,
-                    constraintSize: height,
+                    constraint: height,
                     maximumSize: height,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dy)));
@@ -1941,12 +1941,12 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicOffset newOffset = shape.point2.copyWith(
                 dx: updateLength((currentShape as TriangleShape).point2.dx,
-                    constraintSize: width,
+                    constraint: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
                 dy: updateLength((currentShape as TriangleShape).point2.dy,
-                    constraintSize: height,
+                    constraint: height,
                     maximumSize: height,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dy)));
@@ -1960,12 +1960,12 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicOffset newOffset = shape.point1.copyWith(
                 dx: updateLength((currentShape as TriangleShape).point1.dx,
-                    constraintSize: width,
+                    constraint: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
                 dy: updateLength((currentShape as TriangleShape).point1.dy,
-                    constraintSize: height,
+                    constraint: height,
                     maximumSize: height,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dy)));
@@ -2031,7 +2031,7 @@ class EditShapePageState extends State<EditShapePage>
                       updateCurrentShape(shape.copyWith(path: path));
                     });
                   },
-                  constraintSize: shapeSize,
+            constraintSize: shapeSize,
                 )
               : Container(
                   padding: EdgeInsets.only(right: 5),
@@ -2048,7 +2048,7 @@ class EditShapePageState extends State<EditShapePage>
                       updateCurrentShape(shape.copyWith(path: path));
                     });
                   },
-                  constraintSize: shapeSize,
+            constraintSize: shapeSize,
                 )
               : Container(
                   padding: EdgeInsets.only(right: 5),
@@ -2164,7 +2164,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(arcHeight: value));
             });
           },
-          constraintSize: shape.side.isHorizontal ? size.height : size.width,
+          constraint: shape.side.isHorizontal ? size.height : size.width,
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2200,7 +2200,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(arrowHeight: value));
             });
           },
-          constraintSize: shape.side.isHorizontal ? size.height : size.width,
+          constraint: shape.side.isHorizontal ? size.height : size.width,
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2216,7 +2216,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(tailWidth: value));
             });
           },
-          constraintSize: shape.side.isHorizontal ? size.width : size.height,
+          constraint: shape.side.isHorizontal ? size.width : size.height,
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2252,7 +2252,7 @@ class EditShapePageState extends State<EditShapePage>
                 updateCurrentShape(shape.copyWith(arrowCenterPosition: value));
               });
             },
-            constraintSize:
+            constraint:
                 shape.corner.isHorizontal ? size.width : size.height,
             allowedUnits: ["px", "%"],
           ),
@@ -2268,7 +2268,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(arrowHeadPosition: value));
             });
           },
-          constraintSize: shape.corner.isHorizontal ? size.width : size.height,
+          constraint: shape.corner.isHorizontal ? size.width : size.height,
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2284,7 +2284,7 @@ class EditShapePageState extends State<EditShapePage>
                 updateCurrentShape(shape.copyWith(arrowHeight: value));
               });
             },
-            constraintSize:
+            constraint:
                 shape.corner.isHorizontal ? size.height : size.width,
             allowedUnits: ["px", "%"],
           ),
@@ -2300,7 +2300,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(arrowWidth: value));
             });
           },
-          constraintSize: shape.corner.isHorizontal ? size.width : size.height,
+          constraint: shape.corner.isHorizontal ? size.width : size.height,
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2316,7 +2316,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(borderRadius: value));
             });
           },
-          constraintSize: min(size.width, size.height),
+          constraint: min(size.width, size.height),
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2408,7 +2408,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(cornerRadius: value));
             });
           },
-          constraintSize: min(size.width, size.height),
+          constraint: min(size.width, size.height),
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2458,7 +2458,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topLeft.copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2476,7 +2476,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topLeft.copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2522,7 +2522,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topRight.copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2541,7 +2541,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topRight.copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2587,7 +2587,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2606,7 +2606,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2652,7 +2652,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2671,7 +2671,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2709,7 +2709,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topLeft.copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2727,7 +2727,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topLeft.copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2758,7 +2758,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topRight.copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2777,7 +2777,7 @@ class EditShapePageState extends State<EditShapePage>
                               shape.borderRadius.topRight.copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2808,7 +2808,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2827,7 +2827,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2858,7 +2858,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(x: value))));
                 });
               },
-              constraintSize: size.width,
+              constraint: size.width,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2877,7 +2877,7 @@ class EditShapePageState extends State<EditShapePage>
                               .copyWith(y: value))));
                 });
               },
-              constraintSize: size.height,
+              constraint: size.height,
               allowedUnits: ["px", "%"],
             ),
           ),
@@ -2929,7 +2929,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(cornerRadius: value));
             });
           },
-          constraintSize: min(size.width, size.height),
+          constraint: min(size.width, size.height),
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2945,7 +2945,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(inset: value));
             });
           },
-          constraintSize: min(size.width, size.height),
+          constraint: min(size.width, size.height),
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2974,7 +2974,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(insetRadius: value));
             });
           },
-          constraintSize: min(size.width, size.height),
+          constraint: min(size.width, size.height),
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -3010,7 +3010,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(inset: value));
             });
           },
-          constraintSize: shape.side.isHorizontal ? size.width : size.height,
+          constraint: shape.side.isHorizontal ? size.width : size.height,
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -3031,7 +3031,7 @@ class EditShapePageState extends State<EditShapePage>
           children: [
             Text("X  "),
             FixedUnitValuePicker(
-              value: shape.point1.dx.value,
+              value: (shape.point1.dx as Length).value,
               onValueChanged: (double value) {
                 updateCurrentShape(shape.copyWith(
                     point1: shape.point1.copyWith(dx: value.toPercentLength)));
@@ -3043,7 +3043,7 @@ class EditShapePageState extends State<EditShapePage>
             ),
             Text("Y  "),
             FixedUnitValuePicker(
-              value: shape.point1.dy.value,
+              value: (shape.point1.dy as Length).value,
               onValueChanged: (double value) {
                 updateCurrentShape(shape.copyWith(
                     point1: shape.point1.copyWith(dy: value.toPercentLength)));
@@ -3063,7 +3063,7 @@ class EditShapePageState extends State<EditShapePage>
           children: [
             Text("X  "),
             FixedUnitValuePicker(
-              value: shape.point2.dx.value,
+              value: (shape.point2.dx as Length).value,
               onValueChanged: (double value) {
                 updateCurrentShape(shape.copyWith(
                     point2: shape.point1.copyWith(dx: value.toPercentLength)));
@@ -3075,7 +3075,7 @@ class EditShapePageState extends State<EditShapePage>
             ),
             Text("Y  "),
             FixedUnitValuePicker(
-              value: shape.point2.dy.value,
+              value: (shape.point2.dy as Length).value,
               onValueChanged: (double value) {
                 updateCurrentShape(shape.copyWith(
                     point2: shape.point1.copyWith(dy: value.toPercentLength)));
@@ -3095,7 +3095,7 @@ class EditShapePageState extends State<EditShapePage>
           children: [
             Text("X  "),
             FixedUnitValuePicker(
-              value: shape.point3.dx.value,
+              value: (shape.point3.dx as Length).value,
               onValueChanged: (double value) {
                 updateCurrentShape(shape.copyWith(
                     point1: shape.point3.copyWith(dx: value.toPercentLength)));
@@ -3107,7 +3107,7 @@ class EditShapePageState extends State<EditShapePage>
             ),
             Text("Y  "),
             FixedUnitValuePicker(
-              value: shape.point3.dy.value,
+              value: (shape.point3.dy as Length).value,
               onValueChanged: (double value) {
                 updateCurrentShape(shape.copyWith(
                     point1: shape.point3.copyWith(dy: value.toPercentLength)));

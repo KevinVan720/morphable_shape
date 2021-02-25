@@ -56,18 +56,18 @@ class ArrowShape extends OutlinedShape {
     if (side.isHorizontal) {
       arrowHeight = this
           .arrowHeight
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, size.height);
       tailWidth =
-          this.tailWidth.toPX(constraintSize: size.width).clamp(0, size.width);
+          this.tailWidth.toPX(constraint: size.width).clamp(0, size.width);
     } else {
       arrowHeight = this
           .arrowHeight
-          .toPX(constraintSize: size.width)
+          .toPX(constraint: size.width)
           .clamp(0, size.width);
       tailWidth = this
           .tailWidth
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, size.height);
     }
 

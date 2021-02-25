@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:length_unit/length_unit.dart';
+import 'package:dimension/dimension.dart';
 
 class DynamicRadius {
   const DynamicRadius.circular(Length radius) : this.elliptical(radius, radius);
@@ -38,8 +38,8 @@ class DynamicRadius {
 
   Radius toRadius({Size? size, Size? screenSize}) {
     return Radius.elliptical(
-        x.toPX(constraintSize: size?.width, screenSize: screenSize),
-        y.toPX(constraintSize: size?.height, screenSize: screenSize));
+        x.toPX(constraint: size?.width, screenSize: screenSize),
+        y.toPX(constraint: size?.height, screenSize: screenSize));
   }
 
   @override

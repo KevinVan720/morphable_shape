@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:length_unit/length_unit.dart';
+import 'package:dimension/dimension.dart';
 
 import 'package:morphable_shape/morphable_shape.dart';
 

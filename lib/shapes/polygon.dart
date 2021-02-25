@@ -57,7 +57,7 @@ class PolygonShape extends OutlinedShape {
     double scale = min(rect.width, rect.height) / 2;
     final double centerX = scale;
     final double centerY = scale;
-    double cornerRadius = this.cornerRadius.toPX(constraintSize: scale);
+    double cornerRadius = this.cornerRadius.toPX(constraint: scale);
     double borderWidth = 0.0;
 
     borderWidth = borderWidth.clamp(0, scale * cos(alpha));

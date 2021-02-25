@@ -57,11 +57,11 @@ class ArcShape extends OutlinedShape {
     if (this.side.isHorizontal) {
       arcHeight = this
           .arcHeight
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, maximumSize);
     } else {
       arcHeight =
-          this.arcHeight.toPX(constraintSize: size.width).clamp(0, maximumSize);
+          this.arcHeight.toPX(constraint: size.width).clamp(0, maximumSize);
     }
     double theta1, theta2, theta3, radius;
     if (this.side.isHorizontal) {

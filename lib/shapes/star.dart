@@ -71,8 +71,8 @@ class StarShape extends OutlinedShape {
     List<DynamicNode> nodes = [];
 
     double scale = min(rect.width, rect.height) / 2;
-    double cornerRadius = this.cornerRadius.toPX(constraintSize: scale / 2);
-    double insetRadius = this.insetRadius.toPX(constraintSize: scale / 2);
+    double cornerRadius = this.cornerRadius.toPX(constraint: scale / 2);
+    double insetRadius = this.insetRadius.toPX(constraint: scale / 2);
 
     final int vertices = corners * 2;
     final double alpha = (2 * pi) / vertices;
@@ -80,7 +80,7 @@ class StarShape extends OutlinedShape {
     final double centerX = scale;
     final double centerY = scale;
 
-    double inset = this.inset.toPX(constraintSize: scale);
+    double inset = this.inset.toPX(constraint: scale);
     inset = inset.clamp(0.0, scale * 0.999);
     double sideLength = getThirdSideLength(scale, scale - inset, alpha);
     double beta = getThirdAngle(sideLength, scale, scale - inset);

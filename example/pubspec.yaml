@@ -12,7 +12,7 @@ dependencies:
   morphable_shape:
     path: ../
 
-  length_unit: ^0.1.0
+  dimension: 0.0.1
 
 dev_dependencies:
   flutter_test:

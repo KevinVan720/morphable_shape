@@ -103,7 +103,6 @@ class RectangleShape extends OutlinedShape {
         Offset start = Offset(right - topRightRadius, top);
         Offset end = Offset(right, top + rightTopRadius);
         nodes.add(DynamicNode(position: start));
-        //nodes.add(DynamicNode(position: (start + end) / 2));
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:
@@ -139,7 +138,6 @@ class RectangleShape extends OutlinedShape {
         Offset start = Offset(right, bottom - rightBottomRadius);
         Offset end = Offset(right - bottomRightRadius, bottom);
         nodes.add(DynamicNode(position: start));
-        //nodes.add(DynamicNode(position: (start + end) / 2));
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:
@@ -178,7 +176,6 @@ class RectangleShape extends OutlinedShape {
         Offset start = Offset(left + bottomLeftRadius, bottom);
         Offset end = Offset(left, bottom - leftBottomRadius);
         nodes.add(DynamicNode(position: start));
-        //nodes.add(DynamicNode(position: (start + end) / 2));
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:
@@ -216,7 +213,6 @@ class RectangleShape extends OutlinedShape {
         Offset start = Offset(left, top + leftTopRadius);
         Offset end = Offset(left + topLeftRadius, top);
         nodes.add(DynamicNode(position: start));
-        //nodes.add(DynamicNode(position: (start + end) / 2));
         nodes.add(DynamicNode(position: end));
         break;
       case CornerStyle.concave:

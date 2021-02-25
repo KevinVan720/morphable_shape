@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/flutter_class_parser.dart';
-import 'package:length_unit/length_unit.dart';
+import 'package:dimension/dimension.dart';
 
 import 'color_picker.dart';
 

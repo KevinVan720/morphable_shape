@@ -2,7 +2,7 @@ library morphable_shape;
 
 export 'package:flutter_class_parser/parse_json.dart';
 export 'package:flutter_class_parser/to_json.dart';
-export 'package:length_unit/length_unit.dart';
+export 'package:dimension/dimension.dart';
 
 export 'utils_math_geometry.dart';
 export 'utils_extension_methods.dart';

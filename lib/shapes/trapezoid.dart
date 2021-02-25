@@ -51,11 +51,11 @@ class TrapezoidShape extends OutlinedShape {
     double inset;
     if (side.isHorizontal) {
       inset =
-          this.inset.toPX(constraintSize: size.width).clamp(0, size.width / 2);
+          this.inset.toPX(constraint: size.width).clamp(0, size.width / 2);
     } else {
       inset = this
           .inset
-          .toPX(constraintSize: size.height)
+          .toPX(constraint: size.height)
           .clamp(0, size.height / 2);
     }
 
