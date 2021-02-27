@@ -20,6 +20,8 @@ class ShapeShadow extends ui.Shadow {
   /// The amount the box should be inflated prior to applying the blur.
   final double spreadRadius;
 
+  ///This gradient will only be used by the ShadowedShape class.
+  ///If used by other class, this gradient takes no effect
   final Gradient? gradient;
 
   /// Create the [Paint] object that corresponds to this shadow description.
