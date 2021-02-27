@@ -62,7 +62,6 @@ class ShapeShadow extends ui.Shadow {
   ///
   /// {@macro dart.ui.shadow.lerp}
   static ShapeShadow? lerp(ShapeShadow? a, ShapeShadow? b, double t) {
-    assert(t != null);
     if (a == null && b == null) return null;
     if (a == null) return b!.scale(t);
     if (b == null) return a.scale(1.0 - t);
@@ -82,7 +81,6 @@ class ShapeShadow extends ui.Shadow {
   /// {@macro dart.ui.shadow.lerp}
   static List<ShapeShadow>? lerpList(
       List<ShapeShadow>? a, List<ShapeShadow>? b, double t) {
-    assert(t != null);
     if (a == null && b == null) return null;
     a ??= <ShapeShadow>[];
     b ??= <ShapeShadow>[];
