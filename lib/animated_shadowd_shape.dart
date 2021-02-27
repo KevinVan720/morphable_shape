@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
-class ListShadowTween extends Tween<List<Shadow>?> {
-  ListShadowTween({
-    List<Shadow>? begin,
-    List<Shadow>? end,
+class ListShapeShadowTween extends Tween<List<ShapeShadow>?> {
+  ListShapeShadowTween({
+    List<ShapeShadow>? begin,
+    List<ShapeShadow>? end,
   }) : super(begin: begin, end: end);
 
   @override
-  List<Shadow>? lerp(double t) {
-    return Shadow.lerpList(begin, end, t);
+  List<ShapeShadow>? lerp(double t) {
+    return ShapeShadow.lerpList(begin, end, t);
   }
 }
 
@@ -27,7 +27,7 @@ class AnimatedShadowedShape extends ImplicitlyAnimatedWidget {
   }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
 
   final Widget? child;
-  final List<Shadow>? shadows;
+  final List<ShapeShadow>? shadows;
   final ShapeBorder? shape;
   final MorphMethod? method;
 
@@ -38,7 +38,7 @@ class AnimatedShadowedShape extends ImplicitlyAnimatedWidget {
 class _AnimatedShadowedShapeState
     extends AnimatedWidgetBaseState<AnimatedShadowedShape> {
   MorphableShapeBorderTween? _shapeBorderTween;
-  ListShadowTween? _listShadowTween;
+  ListShapeShadowTween? _listShadowTween;
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
@@ -49,9 +49,12 @@ class _AnimatedShadowedShapeState
                 begin: value as MorphableShapeBorder,
                 method: widget.method ?? MorphMethod.auto))
         as MorphableShapeBorderTween?;
-    _listShadowTween = visitor(_listShadowTween, widget.shadows,
-            (dynamic value) => ListShadowTween(begin: value as List<Shadow>))
-        as ListShadowTween?;
+    _listShadowTween = visitor(
+            _listShadowTween,
+            widget.shadows,
+            (dynamic value) =>
+                ListShapeShadowTween(begin: value as List<ShapeShadow>))
+        as ListShapeShadowTween?;
   }
 
   @override

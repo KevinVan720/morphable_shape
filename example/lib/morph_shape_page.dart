@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 import 'value_pickers.dart';
 
@@ -121,10 +121,18 @@ class _MorphShapePageState extends State<MorphShapePage>
                       return Center(
                           child: Stack(
                         children: [
-                          Material(
-                            animationDuration: Duration.zero,
+                          ShadowedShape(
                             shape: shapeBorderTween.lerp(t),
-                            clipBehavior: Clip.antiAlias,
+                            shadows: [
+                              ShapeShadow(
+                                  blurRadius: 5,
+                                  //color: Colors.cyanAccent,
+                                  gradient: LinearGradient(colors: [
+                                    Colors.cyanAccent,
+                                    Colors.purpleAccent
+                                  ]),
+                                  offset: Offset(2, 2))
+                            ],
                             child: Container(
                               color: Colors.amberAccent,
                               width: shapeWidth,

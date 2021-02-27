@@ -32,7 +32,7 @@ class CustomShapeBorderClipper extends CustomClipper<Path> {
 }
 
 class ClipShadowPath extends StatelessWidget {
-  final List<Shadow>? shadows;
+  final List<ShapeShadow>? shadows;
   final CustomClipper<Path> clipper;
   final Widget child;
 
@@ -96,7 +96,7 @@ class _ShapeBorderPainter extends CustomPainter {
 }
 
 class _ClipShadowShadowPainter extends CustomPainter {
-  final List<Shadow>? shadows;
+  final List<ShapeShadow>? shadows;
   final CustomClipper<Path> clipper;
 
   _ClipShadowShadowPainter({required this.shadows, required this.clipper});
@@ -104,7 +104,9 @@ class _ClipShadowShadowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     shadows?.forEach((element) {
-      var paint = element.toPaint();
+      var paint = element.toPaint()
+        ..shader = element.gradient
+            ?.createShader(Rect.fromLTRB(0, 0, size.width, size.height));
       var clipPath = clipper.getClip(size).shift(element.offset);
       canvas.drawPath(clipPath, paint);
     });
@@ -118,7 +120,7 @@ class _ClipShadowShadowPainter extends CustomPainter {
 
 class ShadowedShape extends StatelessWidget {
   final ShapeBorder? shape;
-  final List<Shadow>? shadows;
+  final List<ShapeShadow>? shadows;
   final Widget? child;
 
   ShadowedShape({this.shape, this.shadows, this.child});
