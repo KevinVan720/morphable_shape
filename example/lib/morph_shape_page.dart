@@ -123,16 +123,17 @@ class _MorphShapePageState extends State<MorphShapePage>
                         children: [
                           ShadowedShape(
                             shape: shapeBorderTween.lerp(t),
-                            shadows: [
+                            /*shadows: [
                               ShapeShadow(
-                                  blurRadius: 5,
+                                  spreadRadius: -10,
+                                  blurRadius: 50,
                                   //color: Colors.cyanAccent,
                                   gradient: LinearGradient(colors: [
                                     Colors.cyanAccent,
                                     Colors.purpleAccent
                                   ]),
-                                  offset: Offset(2, 2))
-                            ],
+                                  offset: Offset(0, 0))
+                            ],*/
                             child: Container(
                               color: Colors.amberAccent,
                               width: shapeWidth,

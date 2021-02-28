@@ -104,10 +104,12 @@ class _ClipShadowShadowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     shadows?.forEach((element) {
+      Rect rect = Rect.fromLTRB(0, 0, size.width, size.height)
+          .inflate(element.spreadRadius);
       var paint = element.toPaint()
-        ..shader = element.gradient
-            ?.createShader(Rect.fromLTRB(0, 0, size.width, size.height));
-      var clipPath = clipper.getClip(size).shift(element.offset);
+        ..shader = element.gradient?.createShader(rect);
+      var clipPath =
+          clipper.getClip(rect.size).shift(element.offset + rect.topLeft);
       canvas.drawPath(clipPath, paint);
     });
   }

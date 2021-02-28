@@ -124,4 +124,8 @@ Update length_unit package to dimension
 
 ShapeShadow class - supports gradient shadow for shapes
 
+## [1.2.1] - 02.28.2021
+
+ShapeShadow class - supports spread radius
+
 
