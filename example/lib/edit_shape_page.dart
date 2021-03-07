@@ -1,16 +1,15 @@
-import 'dart:math';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/morphable_shape_border.dart';
 
-import 'value_pickers.dart';
-import 'morph_shape_page.dart';
 import 'how_to_use_text.dart';
+import 'morph_shape_page.dart';
+import 'value_pickers.dart';
 
 class EditShapePage extends StatefulWidget {
   @override
@@ -793,8 +792,8 @@ class EditShapePageState extends State<EditShapePage>
       double maximumSize = double.infinity,
       Offset offset,
       double Function(Offset) offsetToDelta}) {
-    double newValue = length.toPX(constraint: constraint) +
-        1.0 * offsetToDelta(offset);
+    double newValue =
+        length.toPX(constraint: constraint) + 1.0 * offsetToDelta(offset);
     return length.copyWith(
         value: Length.fromPX(
             newValue.clamp(minimumSize, maximumSize), length.unit,
@@ -810,13 +809,11 @@ class EditShapePageState extends State<EditShapePage>
 
     double arcHeight;
     if (shape.side.isHorizontal) {
-      arcHeight = shape.arcHeight
-          .toPX(constraint: size.height)
-          .clamp(0, maximumSize);
+      arcHeight =
+          shape.arcHeight.toPX(constraint: size.height).clamp(0, maximumSize);
     } else {
-      arcHeight = shape.arcHeight
-          .toPX(constraint: size.width)
-          .clamp(0, maximumSize);
+      arcHeight =
+          shape.arcHeight.toPX(constraint: size.width).clamp(0, maximumSize);
     }
 
     Offset position;
@@ -872,18 +869,15 @@ class EditShapePageState extends State<EditShapePage>
 
     double tailWidth, arrowHeight;
     if (shape.side.isHorizontal) {
-      arrowHeight = shape.arrowHeight
-          .toPX(constraint: size.height)
-          .clamp(0, size.height);
+      arrowHeight =
+          shape.arrowHeight.toPX(constraint: size.height).clamp(0, size.height);
       tailWidth =
           shape.tailWidth.toPX(constraint: size.width).clamp(0, size.width);
     } else {
-      arrowHeight = shape.arrowHeight
-          .toPX(constraint: size.width)
-          .clamp(0, size.width);
-      tailWidth = shape.tailWidth
-          .toPX(constraint: size.height)
-          .clamp(0, size.height);
+      arrowHeight =
+          shape.arrowHeight.toPX(constraint: size.width).clamp(0, size.width);
+      tailWidth =
+          shape.tailWidth.toPX(constraint: size.height).clamp(0, size.height);
     }
 
     Offset headPosition, tailPosition;
@@ -1023,15 +1017,13 @@ class EditShapePageState extends State<EditShapePage>
       arrowWidth = shape.arrowWidth.toPX(constraint: size.width);
       arrowCenterPosition =
           shape.arrowCenterPosition.toPX(constraint: size.width);
-      arrowHeadPosition =
-          shape.arrowHeadPosition.toPX(constraint: size.width);
+      arrowHeadPosition = shape.arrowHeadPosition.toPX(constraint: size.width);
     } else {
       arrowHeight = shape.arrowHeight.toPX(constraint: size.width);
       arrowWidth = shape.arrowWidth.toPX(constraint: size.height);
       arrowCenterPosition =
           shape.arrowCenterPosition.toPX(constraint: size.height);
-      arrowHeadPosition =
-          shape.arrowHeadPosition.toPX(constraint: size.height);
+      arrowHeadPosition = shape.arrowHeadPosition.toPX(constraint: size.height);
     }
 
     final double spacingLeft = shape.corner.isLeft ? arrowHeight : 0;
@@ -1850,12 +1842,10 @@ class EditShapePageState extends State<EditShapePage>
 
     double inset;
     if (shape.side.isHorizontal) {
-      inset =
-          shape.inset.toPX(constraint: size.width).clamp(0, size.width / 2);
+      inset = shape.inset.toPX(constraint: size.width).clamp(0, size.width / 2);
     } else {
-      inset = shape.inset
-          .toPX(constraint: size.height)
-          .clamp(0, size.height / 2);
+      inset =
+          shape.inset.toPX(constraint: size.height).clamp(0, size.height / 2);
     }
 
     Offset position;
@@ -2031,7 +2021,7 @@ class EditShapePageState extends State<EditShapePage>
                       updateCurrentShape(shape.copyWith(path: path));
                     });
                   },
-            constraintSize: shapeSize,
+                  constraintSize: shapeSize,
                 )
               : Container(
                   padding: EdgeInsets.only(right: 5),
@@ -2048,7 +2038,7 @@ class EditShapePageState extends State<EditShapePage>
                       updateCurrentShape(shape.copyWith(path: path));
                     });
                   },
-            constraintSize: shapeSize,
+                  constraintSize: shapeSize,
                 )
               : Container(
                   padding: EdgeInsets.only(right: 5),
@@ -2252,8 +2242,7 @@ class EditShapePageState extends State<EditShapePage>
                 updateCurrentShape(shape.copyWith(arrowCenterPosition: value));
               });
             },
-            constraint:
-                shape.corner.isHorizontal ? size.width : size.height,
+            constraint: shape.corner.isHorizontal ? size.width : size.height,
             allowedUnits: ["px", "%"],
           ),
         )));
@@ -2284,8 +2273,7 @@ class EditShapePageState extends State<EditShapePage>
                 updateCurrentShape(shape.copyWith(arrowHeight: value));
               });
             },
-            constraint:
-                shape.corner.isHorizontal ? size.height : size.width,
+            constraint: shape.corner.isHorizontal ? size.height : size.width,
             allowedUnits: ["px", "%"],
           ),
         )));
@@ -3129,6 +3117,21 @@ class EditShapePageState extends State<EditShapePage>
     DynamicBorderSide border = shape.border;
 
     rst.add(buildRowWithHeaderText(
+      headerText: "Border Style",
+      actionWidget: DropdownButton<BorderStyle>(
+          value: border.style,
+          onChanged: (BorderStyle newStyle) {
+            setState(() {
+              updateCurrentShape(
+                  shape.copyWith(border: border.copyWith(style: newStyle)));
+            });
+          },
+          items: BorderStyle.values
+              .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
+              .toList()),
+    ));
+
+    rst.add(buildRowWithHeaderText(
         headerText: "Border Width",
         actionWidget: Expanded(
           child: Slider(
@@ -3260,7 +3263,8 @@ class EditShapePageState extends State<EditShapePage>
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borders.copyWith(
-                            right: shape.borders.right.copyWith(width: value))));
+                            right:
+                                shape.borders.right.copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3320,7 +3324,8 @@ class EditShapePageState extends State<EditShapePage>
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borders.copyWith(
-                            bottom: shape.borders.bottom.copyWith(width: value))));
+                            bottom:
+                                shape.borders.bottom.copyWith(width: value))));
                   });
                 },
                 min: 0,

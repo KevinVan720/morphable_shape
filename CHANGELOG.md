@@ -128,4 +128,8 @@ ShapeShadow class - supports gradient shadow for shapes
 
 ShapeShadow class - supports spread radius
 
+## [1.2.2] - 03.07.2021
+
+Handle BorderStyle.none correctly now
+
 

@@ -76,6 +76,45 @@ class DynamicBorderSide {
     );
   }
 
+  static DynamicBorderSide lerp(
+      DynamicBorderSide a, DynamicBorderSide b, double t) {
+    if (t == 0.0) return a;
+    if (t == 1.0) return b;
+    final double width = Tween(begin: a.width, end: b.width).transform(t);
+    if (width < 0.0) return DynamicBorderSide.none;
+    if (a.style == b.style) {
+      return DynamicBorderSide(
+        color: Color.lerp(a.color, b.color, t)!,
+        gradient: Gradient.lerp(a.gradient, b.gradient, t),
+        width: width,
+        style: a.style, // == b.style
+      );
+    }
+    Color colorA, colorB;
+    switch (a.style) {
+      case BorderStyle.solid:
+        colorA = a.color;
+        break;
+      case BorderStyle.none:
+        colorA = a.color.withAlpha(0x00);
+        break;
+    }
+    switch (b.style) {
+      case BorderStyle.solid:
+        colorB = b.color;
+        break;
+      case BorderStyle.none:
+        colorB = b.color.withAlpha(0x00);
+        break;
+    }
+    return DynamicBorderSide(
+      color: Color.lerp(colorA, colorB, t)!,
+      gradient: Gradient.lerp(a.gradient, b.gradient, t),
+      width: width,
+      style: BorderStyle.solid,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
