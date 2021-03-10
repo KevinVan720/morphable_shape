@@ -117,6 +117,8 @@ Shape? parseShape(Map<String, dynamic>? map) {
       return TrapezoidShape.fromJson(map);
     case "TriangleShape":
       return TriangleShape.fromJson(map);
+    case "PathShape":
+      return PathShape.fromJson(map);
     default:
       return null;
   }

@@ -132,4 +132,12 @@ ShapeShadow class - supports spread radius
 
 Handle BorderStyle.none correctly now
 
+## [1.2.3] - 03.09.2021
+
+PathShape parsing fixed
+
+## [1.2.4] - 03.09.2021
+
+Update dependence
+
 
