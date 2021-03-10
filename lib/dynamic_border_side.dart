@@ -15,7 +15,7 @@ class DynamicBorderSide {
   DynamicBorderSide.fromJson(Map<String, dynamic> map)
       : color = parseColor(map["color"]) ?? Color(0xFF000000),
         gradient = parseGradient(map["gradient"]),
-        width = map["width"] ?? 1.0,
+        width = map["width"].toDouble() ?? 1.0,
         style = parseBorderStyle(map["style"]) ?? BorderStyle.solid;
 
   Map<String, dynamic> toJson() {

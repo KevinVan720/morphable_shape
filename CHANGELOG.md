@@ -140,4 +140,7 @@ PathShape parsing fixed
 
 Update dependence
 
+## [1.2.5] - 03.09.2021
+
+fix int to double problem
 

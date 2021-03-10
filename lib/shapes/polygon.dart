@@ -7,7 +7,6 @@ class PolygonShape extends OutlinedShape {
   final int sides;
   final Length cornerRadius;
   final CornerStyle cornerStyle;
-  //final DynamicBorderSides border;
 
   const PolygonShape(
       {this.sides = 5,

@@ -15,8 +15,8 @@ class CircleShape extends OutlinedShape {
   }) : super(border: border);
 
   CircleShape.fromJson(Map<String, dynamic> map)
-      : startAngle = map["startAngle"] ?? 0.0,
-        sweepAngle = map["sweepAngle"] ?? (2 * pi),
+      : startAngle = map["startAngle"].toDouble() ?? 0.0,
+        sweepAngle = map["sweepAngle"].toDouble() ?? (2 * pi),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
