@@ -66,7 +66,7 @@ class MorphShapeData {
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
-    int maxTrial = 240,
+    int maxTrial = 1200,
     int minControlPoints = 24,
     int maxControlPoints = 240,
   }) {
@@ -167,11 +167,6 @@ class DynamicPathMorph {
         List unweighted = unweightedSampling(path1, path2,
             maxControlPoints: maxControlPoints,
             origin: data.boundingBox.center);
-
-        /*print("weighted" +
-            weighted[5].toString() +
-            ", unweighted" +
-            unweighted[5].toString());*/
 
         ///the 5th element is the weight of the sampling
         rst = weighted[5] > unweighted[5] ? unweighted : weighted;

@@ -144,3 +144,7 @@ Update dependence
 
 fix int to double problem
 
+## [1.2.6] - 03.11.2021
+
+Update dependence
+
