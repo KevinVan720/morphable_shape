@@ -161,3 +161,6 @@ Update to the morphing algorithm.
 
 Update to the morphing algorithm.
 
+## [1.3.0] - 03.12.2021
+
+Update to the morphing algorithm.
