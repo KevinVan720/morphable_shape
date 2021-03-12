@@ -563,7 +563,7 @@ class DynamicPathMorph {
         (rightShift2Origin - leftShift2Origin).abs() *
         (topShift2Origin - bottomShift2Origin).abs();
 
-    return min(length, 24) *
+    return length *
         max(1e-10, maxAngle) *
         max(1e-10, totalAngle) *
         max(1e-10, maxAngleOrigin) *
