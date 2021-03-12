@@ -84,6 +84,20 @@ class DynamicPathMorph {
       isSameType = true;
     }
 
+    if (data.begin is PolygonShape && data.end is PolygonShape) {
+      if ((data.begin as PolygonShape).sides !=
+          (data.end as PolygonShape).sides) {
+        isSameType = false;
+      }
+    }
+
+    if (data.begin is StarShape && data.end is StarShape) {
+      if ((data.begin as StarShape).corners !=
+          (data.end as StarShape).corners) {
+        isSameType = false;
+      }
+    }
+
     DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
     if (data.begin is FilledBorderShape) {
       DynamicPath outer = path1;
@@ -477,6 +491,9 @@ class DynamicPathMorph {
     double maxAngle = 0.0;
     double totalAngle = 0.0;
 
+    double maxAngleOrigin = 0.0;
+    double totalAngleOrigin = 0.0;
+
     ///metric regarding x and y axis mirror symmetry
     double rightShift1 = 0.0,
         leftShift1 = 0.0,
@@ -487,6 +504,15 @@ class DynamicPathMorph {
         topShift2 = 0.0,
         bottomShift2 = 0.0;
 
+    double rightShift1Origin = 0.0,
+        leftShift1Origin = 0.0,
+        topShift1Origin = 0.0,
+        bottomShift1Origin = 0.0;
+    double rightShift2Origin = 0.0,
+        leftShift2Origin = 0.0,
+        topShift2Origin = 0.0,
+        bottomShift2Origin = 0.0;
+
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
       double diff =
@@ -495,10 +521,12 @@ class DynamicPathMorph {
       if (diff > pi) diff -= 2 * pi;
       if (diff.abs() > maxAngle) maxAngle = diff.abs();
       totalAngle += diff;
-      double diffFromOrigin =
+      double diffOrigin =
           (points1[i] - origin).direction - (points2[i] - origin).direction;
-      if (diffFromOrigin < -pi) diffFromOrigin += 2 * pi;
-      if (diffFromOrigin > pi) diffFromOrigin -= 2 * pi;
+      if (diffOrigin < -pi) diffOrigin += 2 * pi;
+      if (diffOrigin > pi) diffOrigin -= 2 * pi;
+      if (diffOrigin.abs() > maxAngleOrigin) maxAngleOrigin = diffOrigin.abs();
+      totalAngleOrigin += diff;
 
       if (points1[i].dx < center1.dx) leftShift1 += points1[i].dy;
       if (points1[i].dx > center1.dx) rightShift1 += points1[i].dy;
@@ -511,6 +539,18 @@ class DynamicPathMorph {
 
       if (points2[i].dy < center2.dy) topShift2 += points2[i].dx;
       if (points2[i].dy > center2.dy) bottomShift2 += points2[i].dx;
+
+      if (points1[i].dx < origin.dx) leftShift1Origin += points1[i].dy;
+      if (points1[i].dx > origin.dx) rightShift1Origin += points1[i].dy;
+
+      if (points2[i].dx < origin.dx) leftShift1Origin += points2[i].dy;
+      if (points2[i].dx > origin.dx) rightShift1Origin += points2[i].dy;
+
+      if (points1[i].dy < origin.dy) topShift1Origin += points1[i].dx;
+      if (points1[i].dy > origin.dy) bottomShift1Origin += points1[i].dx;
+
+      if (points2[i].dy < origin.dy) topShift2Origin += points2[i].dx;
+      if (points2[i].dy > origin.dy) bottomShift2Origin += points2[i].dx;
     }
 
     double totalShift = (rightShift1 - leftShift1).abs() *
@@ -518,10 +558,18 @@ class DynamicPathMorph {
         (rightShift2 - leftShift2).abs() *
         (topShift2 - bottomShift2).abs();
 
-    return length *
+    double totalShiftOrigin = (rightShift1Origin - leftShift1Origin).abs() *
+        (topShift1Origin - bottomShift1Origin).abs() *
+        (rightShift2Origin - leftShift2Origin).abs() *
+        (topShift2Origin - bottomShift2Origin).abs();
+
+    return min(length, 24) *
         max(1e-10, maxAngle) *
         max(1e-10, totalAngle) *
-        max(1e-10, totalShift);
+        max(1e-10, maxAngleOrigin) *
+        max(1e-10, totalAngleOrigin) *
+        max(1e-10, totalShift) *
+        max(1e-10, totalShiftOrigin);
   }
 
   static DynamicPath lerpPaths(

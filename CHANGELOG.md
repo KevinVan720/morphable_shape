@@ -157,3 +157,7 @@ should morph in a more controlled manner
 
 Update to the morphing algorithm.
 
+## [1.2.9] - 03.12.2021
+
+Update to the morphing algorithm.
+

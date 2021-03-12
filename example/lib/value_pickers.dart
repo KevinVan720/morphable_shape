@@ -1,12 +1,12 @@
+import 'package:dimension/dimension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:dimension/dimension.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 export 'color_picker.dart';
+export 'gradient_picker.dart';
 export 'shape_picker.dart'
     hide useWhiteForeground, PickerItem, PickerItemBuilder, PickerLayoutBuilder;
-export 'gradient_picker.dart';
 
 class LengthSlider extends StatefulWidget {
   const LengthSlider({
@@ -85,13 +85,9 @@ class _LengthSlider extends State<LengthSlider> {
                       min: min,
                       max: max,
                       divisions: divisions,
-                      //label:
-                      //    '${((_sliderValue.value ?? 0) * 100).round() / 100.0}',
                       value: (_sliderValue.value ?? 0).clamp(min, max),
                       onChanged: (newValue) {
                         setState(() {
-                          //textController.text =
-                          //    '${newValue.roundWithPrecision(1)}';
                           widget.valueChanged(
                               widget.sliderValue.copyWith(value: newValue));
                         });
@@ -148,6 +144,7 @@ class _LengthSlider extends State<LengthSlider> {
                     isDense: true,
                     isExpanded: true,
                     iconSize: 0,
+                    icon: null,
                     underline: Container(),
                     value: _sliderValue.getUnit(),
                     onChanged: (String value) {
