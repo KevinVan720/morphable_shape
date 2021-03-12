@@ -66,7 +66,7 @@ class MorphShapeData {
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
-    int maxTrial = 720,
+    int maxTrial = 960,
     int minControlPoints = 24,
     int maxControlPoints = 240,
   }) {
@@ -182,10 +182,12 @@ class DynamicPathMorph {
             maxControlPoints: maxControlPoints,
             origin: data.boundingBox.center);
 
+        /*
         print("weighted: " +
             weighted[5].toString() +
             " unweighted: " +
             unweighted[5].toString());
+        */
 
         ///the 5th element is the weight of the sampling
         rst = weighted[5] > unweighted[5] ? unweighted : weighted;
@@ -476,7 +478,14 @@ class DynamicPathMorph {
     double totalAngle = 0.0;
 
     ///metric regarding x and y axis mirror symmetry
-    double rightShift = 0.0, leftShift = 0.0, topShift = 0.0, bottomShift = 0.0;
+    double rightShift1 = 0.0,
+        leftShift1 = 0.0,
+        topShift1 = 0.0,
+        bottomShift1 = 0.0;
+    double rightShift2 = 0.0,
+        leftShift2 = 0.0,
+        topShift2 = 0.0,
+        bottomShift2 = 0.0;
 
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
@@ -491,21 +500,23 @@ class DynamicPathMorph {
       if (diffFromOrigin < -pi) diffFromOrigin += 2 * pi;
       if (diffFromOrigin > pi) diffFromOrigin -= 2 * pi;
 
-      if (points1[i].dx < center1.dx) leftShift += points1[i].dy;
-      if (points1[i].dx > center1.dx) rightShift += points1[i].dy;
+      if (points1[i].dx < center1.dx) leftShift1 += points1[i].dy;
+      if (points1[i].dx > center1.dx) rightShift1 += points1[i].dy;
 
-      if (points2[i].dx < center2.dx) leftShift += points2[i].dy;
-      if (points2[i].dx > center2.dx) rightShift += points2[i].dy;
+      if (points2[i].dx < center2.dx) leftShift1 += points2[i].dy;
+      if (points2[i].dx > center2.dx) rightShift1 += points2[i].dy;
 
-      if (points1[i].dy < center1.dy) topShift += points1[i].dx;
-      if (points1[i].dy > center1.dy) bottomShift += points1[i].dx;
+      if (points1[i].dy < center1.dy) topShift1 += points1[i].dx;
+      if (points1[i].dy > center1.dy) bottomShift1 += points1[i].dx;
 
-      if (points2[i].dy < center2.dy) topShift += points2[i].dx;
-      if (points2[i].dy > center2.dy) bottomShift += points2[i].dx;
+      if (points2[i].dy < center2.dy) topShift2 += points2[i].dx;
+      if (points2[i].dy > center2.dy) bottomShift2 += points2[i].dx;
     }
 
-    double totalShift =
-        (rightShift - leftShift).abs() * (topShift - bottomShift).abs();
+    double totalShift = (rightShift1 - leftShift1).abs() *
+        (topShift1 - bottomShift1).abs() *
+        (rightShift2 - leftShift2).abs() *
+        (topShift2 - bottomShift2).abs();
 
     return length *
         max(1e-10, maxAngle) *

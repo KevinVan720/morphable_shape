@@ -153,3 +153,7 @@ Update dependence
 Update to the morphing algorithm, now the same shape class
 should morph in a more controlled manner
 
+## [1.2.8] - 03.12.2021
+
+Update to the morphing algorithm.
+
