@@ -66,10 +66,24 @@ class MorphShapeData {
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
-    int maxTrial = 1200,
+    int maxTrial = 720,
     int minControlPoints = 24,
     int maxControlPoints = 240,
   }) {
+    ///if both shape are from the same type, they should in principle have the same number
+    ///of points (some points may be overlapping). We can use those overlapped points
+    ///to morph instead of removing them and finding new points
+    ///
+    bool isSameType = false;
+    if (data.begin.toJson()["type"] == data.end.toJson()["type"] ||
+
+        ///special case, rounded rectangle and rectangle both have 12 points and
+        ///should be treated equally during morphing
+        ((data.begin.toJson()["type"] as String).contains("Rectangle") &&
+            (data.end.toJson()["type"] as String).contains("Rectangle"))) {
+      isSameType = true;
+    }
+
     DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
     if (data.begin is FilledBorderShape) {
       DynamicPath outer = path1;
@@ -85,11 +99,11 @@ class DynamicPathMorph {
           fillColors: borderColors,
           fillGradients: borderGradients);
 
-      borderPaths.removeOverlappingPaths();
+      if (!isSameType) borderPaths.removeOverlappingPaths();
       path1 = borderPaths.outer;
       data.beginPaths = borderPaths;
     } else {
-      path1.removeOverlappingNodes();
+      if (!isSameType) path1.removeOverlappingNodes();
     }
     DynamicPath path2 = data.end.generateOuterDynamicPath(data.boundingBox);
     if (data.end is FilledBorderShape) {
@@ -107,11 +121,11 @@ class DynamicPathMorph {
           fillColors: borderColors,
           fillGradients: borderGradients);
 
-      borderPaths.removeOverlappingPaths();
+      if (!isSameType) borderPaths.removeOverlappingPaths();
       path2 = borderPaths.outer;
       data.endPaths = borderPaths;
     } else {
-      path2.removeOverlappingNodes();
+      if (!isSameType) path2.removeOverlappingNodes();
     }
 
     sampleDynamicPaths(data, path1, path2,
@@ -167,6 +181,11 @@ class DynamicPathMorph {
         List unweighted = unweightedSampling(path1, path2,
             maxControlPoints: maxControlPoints,
             origin: data.boundingBox.center);
+
+        print("weighted: " +
+            weighted[5].toString() +
+            " unweighted: " +
+            unweighted[5].toString());
 
         ///the 5th element is the weight of the sampling
         rst = weighted[5] > unweighted[5] ? unweighted : weighted;
@@ -451,8 +470,13 @@ class DynamicPathMorph {
       {Offset origin = Offset.zero}) {
     assert(points1.length == points2.length);
     int length = points1.length;
+
+    ///metric regarding rotational symmetry
     double maxAngle = 0.0;
     double totalAngle = 0.0;
+
+    ///metric regarding x and y axis mirror symmetry
+    double rightShift = 0.0, leftShift = 0.0, topShift = 0.0, bottomShift = 0.0;
 
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
@@ -466,9 +490,27 @@ class DynamicPathMorph {
           (points1[i] - origin).direction - (points2[i] - origin).direction;
       if (diffFromOrigin < -pi) diffFromOrigin += 2 * pi;
       if (diffFromOrigin > pi) diffFromOrigin -= 2 * pi;
+
+      if (points1[i].dx < center1.dx) leftShift += points1[i].dy;
+      if (points1[i].dx > center1.dx) rightShift += points1[i].dy;
+
+      if (points2[i].dx < center2.dx) leftShift += points2[i].dy;
+      if (points2[i].dx > center2.dx) rightShift += points2[i].dy;
+
+      if (points1[i].dy < center1.dy) topShift += points1[i].dx;
+      if (points1[i].dy > center1.dy) bottomShift += points1[i].dx;
+
+      if (points2[i].dy < center2.dy) topShift += points2[i].dx;
+      if (points2[i].dy > center2.dy) bottomShift += points2[i].dx;
     }
 
-    return max(1e-10, maxAngle) * max(1e-10, totalAngle);
+    double totalShift =
+        (rightShift - leftShift).abs() * (topShift - bottomShift).abs();
+
+    return length *
+        max(1e-10, maxAngle) *
+        max(1e-10, totalAngle) *
+        max(1e-10, totalShift);
   }
 
   static DynamicPath lerpPaths(

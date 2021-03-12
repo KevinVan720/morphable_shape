@@ -148,3 +148,8 @@ fix int to double problem
 
 Update dependence
 
+## [1.2.7] - 03.11.2021
+
+Update to the morphing algorithm, now the same shape class
+should morph in a more controlled manner
+

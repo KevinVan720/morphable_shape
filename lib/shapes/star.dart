@@ -127,6 +127,7 @@ class StarShape extends OutlinedShape {
             break;
           case CornerStyle.straight:
             nodes.add(DynamicNode(position: start));
+            nodes.add(DynamicNode(position: (start + end) / 2));
             nodes.add(DynamicNode(position: end));
             break;
           case CornerStyle.cutout:
@@ -177,6 +178,7 @@ class StarShape extends OutlinedShape {
               break;
             case CornerStyle.straight:
               nodes.add(DynamicNode(position: start));
+              nodes.add(DynamicNode(position: (start + end) / 2));
               nodes.add(DynamicNode(position: end));
               break;
             case CornerStyle.cutout:
@@ -215,6 +217,7 @@ class StarShape extends OutlinedShape {
               break;
             case CornerStyle.straight:
               nodes.add(DynamicNode(position: start));
+              nodes.add(DynamicNode(position: (start + end) / 2));
               nodes.add(DynamicNode(position: end));
               break;
             case CornerStyle.cutout:

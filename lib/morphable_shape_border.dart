@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/shapes/rectangle.dart';
-import 'package:morphable_shape/shapes/morph.dart';
-
-import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/dynamic_path_morph.dart';
+import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/shapes/morph.dart';
+import 'package:morphable_shape/shapes/rectangle.dart';
 
 ///ShapeBorder with various customizable shapes
 ///can smoothly tween between any two instances of this class

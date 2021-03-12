@@ -151,16 +151,11 @@ class BubbleShape extends OutlinedShape {
       nodes.add(DynamicNode(
           position: Offset(arrowCenterPosition + arrowWidth / 2, top)));
     }
-    if (borderRadius > 0) {
-      nodes.addArc(
-          Rect.fromLTRB(
-              right - 2 * borderRadius, top, right, top + 2 * borderRadius),
-          3 * pi / 2,
-          pi / 2);
-    } else {
-      nodes.add(DynamicNode(position: Offset(right, top)));
-    }
-    //RIGHT, TOP
+    nodes.addArc(
+        Rect.fromLTRB(
+            right - 2 * borderRadius, top, right, top + 2 * borderRadius),
+        3 * pi / 2,
+        pi / 2);
 
     if (this.corner.isRight) {
       nodes.add(DynamicNode(
@@ -169,15 +164,11 @@ class BubbleShape extends OutlinedShape {
       nodes.add(DynamicNode(
           position: Offset(right, arrowCenterPosition + arrowWidth / 2)));
     }
-    if (borderRadius > 0) {
-      nodes.addArc(
-          Rect.fromLTRB(right - borderRadius * 2, bottom - borderRadius * 2,
-              right, bottom),
-          0,
-          pi / 2);
-    } else {
-      nodes.add(DynamicNode(position: Offset(right, bottom)));
-    }
+    nodes.addArc(
+        Rect.fromLTRB(
+            right - borderRadius * 2, bottom - borderRadius * 2, right, bottom),
+        0,
+        pi / 2);
 
     if (this.corner.isBottom) {
       nodes.add(DynamicNode(
@@ -186,16 +177,11 @@ class BubbleShape extends OutlinedShape {
       nodes.add(DynamicNode(
           position: Offset(arrowCenterPosition - arrowWidth / 2, bottom)));
     }
-    if (borderRadius > 0) {
-      nodes.addArc(
-          Rect.fromLTRB(
-              left, bottom - borderRadius * 2, left + borderRadius * 2, bottom),
-          pi / 2,
-          pi / 2);
-    } else {
-      nodes.add(DynamicNode(position: Offset(left, bottom)));
-    }
-    //LEFT, BOTTOM
+    nodes.addArc(
+        Rect.fromLTRB(
+            left, bottom - borderRadius * 2, left + borderRadius * 2, bottom),
+        pi / 2,
+        pi / 2);
 
     if (this.corner.isLeft) {
       nodes.add(DynamicNode(
@@ -204,15 +190,11 @@ class BubbleShape extends OutlinedShape {
       nodes.add(DynamicNode(
           position: Offset(left, arrowCenterPosition - arrowWidth / 2)));
     }
-    if (borderRadius > 0) {
-      nodes.addArc(
-          Rect.fromLTRB(
-              left, top, left + borderRadius * 2, top + borderRadius * 2),
-          pi,
-          pi / 2);
-    } else {
-      nodes.add(DynamicNode(position: Offset(left, top)));
-    }
+    nodes.addArc(
+        Rect.fromLTRB(
+            left, top, left + borderRadius * 2, top + borderRadius * 2),
+        pi,
+        pi / 2);
 
     return DynamicPath(nodes: nodes, size: size);
   }
