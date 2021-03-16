@@ -199,15 +199,17 @@ String jsonStr=json.encode(shape.toJson());
 Shape shapeDecoded=parseShape(json.decode(jsonStr));
 ```
 
-## Shadowed Shape
-You can use the ShadowedShape widget to add shadow to your widget.
+## Decorated Shadowed Shape
+You can use the DecoratedShadowedShape widget to add shadow and inset shadow to your widget.
 ```dart
-class ShadowedShape extends StatelessWidget {
-  final ShapeBorder? shape;
-  final List<ShapeShadow>? shadows;
-  final Widget? child;
-  }
+DecoratedShadowedShape(
+      shape: shape,
+      shadows: shadows,
+      insetShadows: insetShadows,
+      decoration: decoration,
+      child: child);
 ```
+This will render the following component from bottom to top: shadows, decoration, inset shadows, child, shape border.
 
 The ShapeShadow is very similar to the BoxShadow class but supports Gradient filling:
 ```dart
@@ -219,6 +221,8 @@ const ShapeShadow({
     this.gradient,
   })
 ```
+
+If you want implicit animation for this widget, use the AnimatedDecoratedShadowedShape.
 
 ## A Shape Editing Tool
 

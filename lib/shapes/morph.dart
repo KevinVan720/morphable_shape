@@ -95,6 +95,9 @@ class MorphShape extends Shape {
   @override
   void drawBorder(Canvas canvas, Rect rect) {
     Paint borderPaint = Paint();
+    //borderPaint.isAntiAlias = true;
+    //borderPaint.strokeMiterLimit = 10.0;
+    borderPaint.strokeJoin = StrokeJoin.miter;
     if (morphData.begin is FilledBorderShape) {
       if (morphData.end is FilledBorderShape) {
         List<Color> beginBorderColors = morphData.beginPaths!.fillColors;
@@ -130,7 +133,6 @@ class MorphShape extends Shape {
           }
         }
         for (int i = 0; i < finalPaths.length; i++) {
-          borderPaint.isAntiAlias = true;
           borderPaint.style = PaintingStyle.fill;
           borderPaint.color = finalColors[i];
           borderPaint.shader = finalGradients[i]?.createShader(rect);
@@ -193,7 +195,6 @@ class MorphShape extends Shape {
           }
         }
         for (int i = 0; i < finalPaths.length; i++) {
-          borderPaint.isAntiAlias = true;
           borderPaint.style = PaintingStyle.fill;
           borderPaint.color = finalColors[i];
           borderPaint.shader = finalGradients[i]?.createShader(rect);
@@ -212,7 +213,6 @@ class MorphShape extends Shape {
             .border
             .gradient
             ?.createShader(rect);
-
         borderPaint.strokeWidth = 2 *
             Tween(
                     begin: (morphData.begin as OutlinedShape).border.width,
@@ -262,7 +262,6 @@ class MorphShape extends Shape {
           }
         }
         for (int i = 0; i < finalPaths.length; i++) {
-          borderPaint.isAntiAlias = true;
           borderPaint.style = PaintingStyle.fill;
           borderPaint.color = finalColors[i];
           borderPaint.shader = finalGradients[i]?.createShader(rect);

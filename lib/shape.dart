@@ -63,6 +63,7 @@ abstract class OutlinedShape extends Shape {
       borderPaint.style = PaintingStyle.stroke;
       borderPaint.color = border.color;
       borderPaint.strokeWidth = 2 * border.width;
+      borderPaint.strokeMiterLimit = 0.0;
       borderPaint.shader = border.gradient?.createShader(rect);
       canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
     }
@@ -118,6 +119,7 @@ abstract class FilledBorderShape extends Shape {
       borderPaint.color = finalColors[i];
       borderPaint.shader = finalGradients[i]?.createShader(rect);
       borderPaint.strokeWidth = 2;
+      borderPaint.strokeMiterLimit = 0.0;
       canvas.drawPath(finalPaths[i], borderPaint);
     }
   }

@@ -49,7 +49,7 @@ class ShapeShadow extends ui.Shadow {
       color: color,
       gradient: gradient,
       offset: offset * factor,
-      blurRadius: blurRadius * factor,
+      blurRadius: (blurRadius * factor).clamp(0, double.infinity),
       spreadRadius: spreadRadius * factor,
     );
   }
@@ -65,11 +65,14 @@ class ShapeShadow extends ui.Shadow {
     if (a == null && b == null) return null;
     if (a == null) return b!.scale(t);
     if (b == null) return a.scale(1.0 - t);
+
     return ShapeShadow(
       color: Color.lerp(a.color, b.color, t)!,
       gradient: Gradient.lerp(a.gradient, b.gradient, t),
       offset: Offset.lerp(a.offset, b.offset, t)!,
-      blurRadius: ui.lerpDouble(a.blurRadius, b.blurRadius, t)!,
+      blurRadius: ui
+          .lerpDouble(a.blurRadius, b.blurRadius, t)!
+          .clamp(0, double.infinity),
       spreadRadius: ui.lerpDouble(a.spreadRadius, b.spreadRadius, t)!,
     );
   }

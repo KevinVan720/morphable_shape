@@ -164,3 +164,11 @@ Update to the morphing algorithm.
 ## [1.3.0] - 03.12.2021
 
 Update to the morphing algorithm.
+
+## [1.3.1] - 03.13.2021
+
+Shadow blur radius not negative
+
+## [1.3.2] - 03.16.2021
+
+Support inset shadows

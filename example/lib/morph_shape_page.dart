@@ -121,21 +121,11 @@ class _MorphShapePageState extends State<MorphShapePage>
                       return Center(
                           child: Stack(
                         children: [
-                          ShadowedShape(
+                          DecoratedShadowedShape(
+                            decoration:
+                                BoxDecoration(color: Colors.amberAccent),
                             shape: shapeBorderTween.lerp(t),
-                            /*shadows: [
-                              ShapeShadow(
-                                  spreadRadius: -10,
-                                  blurRadius: 50,
-                                  //color: Colors.cyanAccent,
-                                  gradient: LinearGradient(colors: [
-                                    Colors.cyanAccent,
-                                    Colors.purpleAccent
-                                  ]),
-                                  offset: Offset(0, 0))
-                            ],*/
                             child: Container(
-                              color: Colors.amberAccent,
                               width: shapeWidth,
                               height: shapeHeight,
                             ),
