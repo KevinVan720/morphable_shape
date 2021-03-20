@@ -304,9 +304,9 @@ class EditShapePageState extends State<EditShapePage>
     if (currentShape is BubbleShape) {
       stackedComponents.addAll(buildBubbleEditingWidgets(currentShape));
     }
-    if (currentShape is CircleShape) {
-      stackedComponents.addAll(buildCircleEditingWidgets(currentShape));
-    }
+    //if (currentShape is CircleShape) {
+    //  stackedComponents.addAll(buildCircleEditingWidgets(currentShape));
+    //}
 
     if (currentShape is PathShape) {
       stackedComponents.addAll(buildPathEditingWidgets(currentShape));
@@ -447,9 +447,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildBubbleEditingPanelWidget(currentShape));
     }
 
-    if (currentShape is CircleShape) {
-      stackedComponents.addAll(buildCircleEditingPanelWidget(currentShape));
-    }
+    //if (currentShape is CircleShape) {
+    //  stackedComponents.addAll(buildCircleEditingPanelWidget(currentShape));
+    //}
 
     if (currentShape is PathShape) {
       stackedComponents.addAll(buildPathEditingPanelWidget(currentShape));
@@ -951,6 +951,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
+  /*
   List<Widget> buildCircleEditingWidgets(CircleShape shape) {
     List<Widget> nodeControls = [];
 
@@ -999,6 +1000,8 @@ class EditShapePageState extends State<EditShapePage>
 
     return nodeControls;
   }
+
+   */
 
   List<Widget> buildBubbleEditingWidgets(BubbleShape shape) {
     List<Widget> nodeControls = [];
@@ -2313,6 +2316,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
+  /*
   List<Widget> buildCircleEditingPanelWidget(CircleShape shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
@@ -2349,6 +2353,7 @@ class EditShapePageState extends State<EditShapePage>
 
     return rst;
   }
+  */
 
   List<Widget> buildPolygonEditingPanelWidget(PolygonShape shape) {
     Size size = shapeSize;

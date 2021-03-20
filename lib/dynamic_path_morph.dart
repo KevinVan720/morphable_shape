@@ -67,36 +67,14 @@ class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {
     int maxTrial = 960,
-    int minControlPoints = 24,
+    int minControlPoints = 12,
     int maxControlPoints = 240,
   }) {
     ///if both shape are from the same type, they should in principle have the same number
     ///of points (some points may be overlapping). We can use those overlapped points
     ///to morph instead of removing them and finding new points
     ///
-    bool isSameType = false;
-    if (data.begin.toJson()["type"] == data.end.toJson()["type"] ||
-
-        ///special case, rounded rectangle and rectangle both have 12 points and
-        ///should be treated equally during morphing
-        ((data.begin.toJson()["type"] as String).contains("Rectangle") &&
-            (data.end.toJson()["type"] as String).contains("Rectangle"))) {
-      isSameType = true;
-    }
-
-    if (data.begin is PolygonShape && data.end is PolygonShape) {
-      if ((data.begin as PolygonShape).sides !=
-          (data.end as PolygonShape).sides) {
-        isSameType = false;
-      }
-    }
-
-    if (data.begin is StarShape && data.end is StarShape) {
-      if ((data.begin as StarShape).corners !=
-          (data.end as StarShape).corners) {
-        isSameType = false;
-      }
-    }
+    bool isSameMorphGeometry = data.begin.isSameMorphGeometry(data.end);
 
     DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
     if (data.begin is FilledBorderShape) {
@@ -113,11 +91,11 @@ class DynamicPathMorph {
           fillColors: borderColors,
           fillGradients: borderGradients);
 
-      if (!isSameType) borderPaths.removeOverlappingPaths();
+      if (!isSameMorphGeometry) borderPaths.removeOverlappingPaths();
       path1 = borderPaths.outer;
       data.beginPaths = borderPaths;
     } else {
-      if (!isSameType) path1.removeOverlappingNodes();
+      if (!isSameMorphGeometry) path1.removeOverlappingNodes();
     }
     DynamicPath path2 = data.end.generateOuterDynamicPath(data.boundingBox);
     if (data.end is FilledBorderShape) {
@@ -135,14 +113,15 @@ class DynamicPathMorph {
           fillColors: borderColors,
           fillGradients: borderGradients);
 
-      if (!isSameType) borderPaths.removeOverlappingPaths();
+      if (!isSameMorphGeometry) borderPaths.removeOverlappingPaths();
       path2 = borderPaths.outer;
       data.endPaths = borderPaths;
     } else {
-      if (!isSameType) path2.removeOverlappingNodes();
+      if (!isSameMorphGeometry) path2.removeOverlappingNodes();
     }
 
     sampleDynamicPaths(data, path1, path2,
+        isSameMorphGeometry: isSameMorphGeometry,
         maxTrial: maxTrial,
         minControlPoints: minControlPoints,
         maxControlPoints: maxControlPoints);
@@ -152,11 +131,12 @@ class DynamicPathMorph {
     MorphShapeData data,
     DynamicPath path1,
     DynamicPath path2, {
+    required bool isSameMorphGeometry,
     required int maxTrial,
     required int minControlPoints,
     required int maxControlPoints,
   }) {
-    ///the supply points have been calculated
+    ///the supply points have already been calculated
     if (data.supplyCounts1 != null &&
         data.supplyCounts2 != null &&
         path1.nodes.length == data.supplyCounts1!.length &&
@@ -168,44 +148,57 @@ class DynamicPathMorph {
               as List<DynamicNode>;
     } else {
       List rst = [];
-      if (data.method == MorphMethod.weighted) {
-        ///we try adding points multiple times and choose the one that need the least offset to morph
-        ///from one shape to another. Because the function to choose the least weighted edge is random,
-        ///this is a Monte Carlo method. Because the total points is small, it should be fine to try
-        ///multiple times (maxTrial) here
 
-        rst = weightedSampling(path1, path2,
-            maxTrial: maxTrial,
-            minControlPoints: minControlPoints,
-            origin: data.boundingBox.center);
-      } else if (data.method == MorphMethod.unweighted) {
-        ///use the unweighted method, spread the extra points needed evenly on each curve
-        rst = unweightedSampling(path1, path2,
-            maxControlPoints: maxControlPoints,
-            origin: data.boundingBox.center);
+      ///two paths having different number of control points or not the same type
+      if (path1.nodes.length != path2.nodes.length || !isSameMorphGeometry) {
+        if (data.method == MorphMethod.weighted) {
+          ///we try adding points multiple times and choose the one that need the least offset to morph
+          ///from one shape to another. Because the function to choose the least weighted edge is random,
+          ///this is a Monte Carlo method. Because the total points is small, it should be fine to try
+          ///multiple times (maxTrial) here
+
+          rst = weightedSampling(path1, path2,
+              maxTrial: maxTrial,
+              minControlPoints: minControlPoints,
+              origin: data.boundingBox.center);
+        } else if (data.method == MorphMethod.unweighted) {
+          ///use the unweighted method, spread the extra points needed evenly on each curve
+          rst = unweightedSampling(path1, path2,
+              maxControlPoints: maxControlPoints,
+              origin: data.boundingBox.center);
+        } else {
+          ///too many possible ways to distribute the points for the weighted algorithm
+          ///just j=ignore it
+
+          List weighted = weightedSampling(path1, path2,
+              maxTrial: maxTrial,
+              minControlPoints: minControlPoints,
+              origin: data.boundingBox.center);
+
+          List unweighted = unweightedSampling(path1, path2,
+              maxControlPoints: maxControlPoints,
+              origin: data.boundingBox.center);
+
+          /*print("weighted: " +
+              weighted[5].toString() +
+              " unweighted: " +
+              unweighted[5].toString());*/
+
+          ///the 5th element is the weight of the sampling
+          rst = weighted[5] > unweighted[5] ? unweighted : weighted;
+        }
       } else {
-        ///too many possible ways to distribute the points for the weighted algorithm
-        ///just j=ignore it
-
-        List weighted = weightedSampling(path1, path2,
-            maxTrial: maxTrial,
-            minControlPoints: minControlPoints,
-            origin: data.boundingBox.center);
-
-        List unweighted = unweightedSampling(path1, path2,
-            maxControlPoints: maxControlPoints,
-            origin: data.boundingBox.center);
-
-        /*
-        print("weighted: " +
-            weighted[5].toString() +
-            " unweighted: " +
-            unweighted[5].toString());
-        */
-
-        ///the 5th element is the weight of the sampling
-        rst = weighted[5] > unweighted[5] ? unweighted : weighted;
+        ///two paths having the same morph geometry, no need to do anything
+        rst = [
+          List.generate(path1.nodes.length, (index) => 0),
+          List.generate(path2.nodes.length, (index) => 0),
+          path1,
+          path2,
+          0,
+          0,
+        ];
       }
+
       data.beginOuterPath = rst[2];
       data.endOuterPath = rst[3];
       data.supplyCounts1 = rst[0];
@@ -272,8 +265,7 @@ class DynamicPathMorph {
         allPossibleCounts =
             generateAllSupplyCounts(totalPoints - minPoints, minPoints);
       } else {
-        maxTrial =
-            min((maxTrial * minControlPoints / totalPoints).round(), maxTrial);
+        maxTrial = min((maxTrial / totalPoints).round(), maxTrial);
       }
 
       for (int trial = 0; trial < maxTrial; trial++) {
@@ -368,6 +360,11 @@ class DynamicPathMorph {
     List<int> optimalCount1 = [], optimalCount2 = [];
 
     int tempTotalPoints = totalPoints;
+    int stepPoints = max(
+        ((maxControlPoints - totalPoints).abs() / (4 * totalPoints)).round() *
+            totalPoints,
+        totalPoints);
+
     do {
       tempCounts1 =
           sampleSupplyCounts(path1, tempTotalPoints, weightBased: false);
@@ -387,7 +384,7 @@ class DynamicPathMorph {
       List<Offset> path1Nodes = tempPath1.nodes.map((e) => e.position).toList(),
           path2Nodes = tempPath2.nodes.map((e) => e.position).toList();
 
-      double tempWeight = path1Nodes.length *
+      double tempWeight =
           computeTotalMorphWeight(path1Nodes, path2Nodes, origin: origin);
 
       tempPath1.nodes =
@@ -399,7 +396,7 @@ class DynamicPathMorph {
         optimalCount1 = tempCounts1;
         optimalCount2 = tempCounts2;
       }
-      tempTotalPoints += totalPoints;
+      tempTotalPoints += stepPoints;
     } while (tempTotalPoints < maxControlPoints);
 
     int shift = computeMinimumOffsetIndex(
@@ -495,23 +492,11 @@ class DynamicPathMorph {
     double totalAngleOrigin = 0.0;
 
     ///metric regarding x and y axis mirror symmetry
-    double rightShift1 = 0.0,
-        leftShift1 = 0.0,
-        topShift1 = 0.0,
-        bottomShift1 = 0.0;
-    double rightShift2 = 0.0,
-        leftShift2 = 0.0,
-        topShift2 = 0.0,
-        bottomShift2 = 0.0;
-
-    double rightShift1Origin = 0.0,
-        leftShift1Origin = 0.0,
-        topShift1Origin = 0.0,
-        bottomShift1Origin = 0.0;
-    double rightShift2Origin = 0.0,
-        leftShift2Origin = 0.0,
-        topShift2Origin = 0.0,
-        bottomShift2Origin = 0.0;
+    double xBalance1 = 0.0, yBalance1 = 0.0, xBalance2 = 0.0, yBalance2 = 0.0;
+    double xBalance1Origin = 0.0,
+        yBalance1Origin = 0.0,
+        xBalance2Origin = 0.0,
+        yBalance2Origin = 0.0;
 
     Offset center1 = centerOfMass(points1), center2 = centerOfMass(points2);
     for (int i = 0; i < length; i += 1) {
@@ -528,48 +513,36 @@ class DynamicPathMorph {
       if (diffOrigin.abs() > maxAngleOrigin) maxAngleOrigin = diffOrigin.abs();
       totalAngleOrigin += diff;
 
-      if (points1[i].dx < center1.dx) leftShift1 += points1[i].dy;
-      if (points1[i].dx > center1.dx) rightShift1 += points1[i].dy;
+      xBalance1 += points1[i].dx - center1.dx;
+      yBalance1 += points1[i].dy - center1.dy;
 
-      if (points2[i].dx < center2.dx) leftShift1 += points2[i].dy;
-      if (points2[i].dx > center2.dx) rightShift1 += points2[i].dy;
+      xBalance2 += points2[i].dx - center2.dx;
+      yBalance2 += points2[i].dy - center2.dy;
 
-      if (points1[i].dy < center1.dy) topShift1 += points1[i].dx;
-      if (points1[i].dy > center1.dy) bottomShift1 += points1[i].dx;
+      xBalance1Origin += points1[i].dx - origin.dx;
+      yBalance1Origin += points1[i].dy - origin.dy;
 
-      if (points2[i].dy < center2.dy) topShift2 += points2[i].dx;
-      if (points2[i].dy > center2.dy) bottomShift2 += points2[i].dx;
+      xBalance2Origin += points2[i].dx - origin.dx;
+      yBalance2Origin += points2[i].dy - origin.dy;
 
-      if (points1[i].dx < origin.dx) leftShift1Origin += points1[i].dy;
-      if (points1[i].dx > origin.dx) rightShift1Origin += points1[i].dy;
-
-      if (points2[i].dx < origin.dx) leftShift1Origin += points2[i].dy;
-      if (points2[i].dx > origin.dx) rightShift1Origin += points2[i].dy;
-
-      if (points1[i].dy < origin.dy) topShift1Origin += points1[i].dx;
-      if (points1[i].dy > origin.dy) bottomShift1Origin += points1[i].dx;
-
-      if (points2[i].dy < origin.dy) topShift2Origin += points2[i].dx;
-      if (points2[i].dy > origin.dy) bottomShift2Origin += points2[i].dx;
+      /*bool isBend1 = (points1[(i + 1) % length] - points1[i]).direction !=
+          (points1[i] - points1[(i - 1) % length]).direction;
+      bool isBend2 = (points2[(i + 1) % length] - points2[i]).direction !=
+          (points2[i] - points2[(i - 1) % length]).direction;
+      if (isBend1 && !isBend2 || !isBend1 && isBend2) bend++;*/
     }
 
-    double totalShift = (rightShift1 - leftShift1).abs() *
-        (topShift1 - bottomShift1).abs() *
-        (rightShift2 - leftShift2).abs() *
-        (topShift2 - bottomShift2).abs();
+    double totalBalance = (xBalance1 * xBalance2 * yBalance1 * yBalance2).abs();
+    double totalBalanceOrigin =
+        (xBalance1Origin * xBalance2Origin * yBalance1Origin * yBalance2Origin)
+            .abs();
 
-    double totalShiftOrigin = (rightShift1Origin - leftShift1Origin).abs() *
-        (topShift1Origin - bottomShift1Origin).abs() *
-        (rightShift2Origin - leftShift2Origin).abs() *
-        (topShift2Origin - bottomShift2Origin).abs();
-
-    return length *
-        max(1e-10, maxAngle) *
+    return max(1e-10, maxAngle) *
         max(1e-10, totalAngle) *
         max(1e-10, maxAngleOrigin) *
         max(1e-10, totalAngleOrigin) *
-        max(1e-10, totalShift) *
-        max(1e-10, totalShiftOrigin);
+        max(1e-10, totalBalance) *
+        max(1e-10, totalBalanceOrigin);
   }
 
   static DynamicPath lerpPaths(

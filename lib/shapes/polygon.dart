@@ -49,6 +49,10 @@ class PolygonShape extends OutlinedShape {
     );
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is PolygonShape && this.sides == shape.sides;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 

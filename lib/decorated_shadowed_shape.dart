@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
-///A simpler version of the Material class
-///Not in use right now
+///A widget that contains a decoration, shadows, inset shadows and clipped by a shape border
 
 class CustomShapeBorderClipper extends CustomClipper<Path> {
   const CustomShapeBorderClipper({
@@ -34,21 +33,23 @@ class CustomShapeBorderClipper extends CustomClipper<Path> {
 class ClipShadowPath extends StatelessWidget {
   final List<ShapeShadow>? shadows;
   final CustomClipper<Path> clipper;
-  final Widget child;
+  final Widget? child;
 
   ClipShadowPath({
     this.shadows,
     required this.clipper,
-    required this.child,
+    this.child,
   });
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _ClipShapeShadowPainter(
-        clipper: this.clipper,
-        shadows: this.shadows,
-      ),
+      painter: this.shadows != null
+          ? _ClipShapeShadowPainter(
+              clipper: this.clipper,
+              shadows: this.shadows,
+            )
+          : null,
       child: ClipPath(child: child, clipper: this.clipper),
     );
   }
@@ -74,36 +75,41 @@ class _ClipShapeShadowPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(_ClipShapeShadowPainter oldDelegate) {
+    return oldDelegate.clipper != clipper || oldDelegate.shadows != shadows;
   }
 }
 
 class ClipInsetShadowPath extends StatelessWidget {
   final List<ShapeShadow>? shadows;
   final CustomClipper<Path> clipper;
-  final Widget child;
-  final Decoration decoration;
+  final Widget? child;
+  final Decoration? decoration;
 
   ClipInsetShadowPath({
     this.shadows,
     required this.clipper,
-    required this.child,
-    required this.decoration,
+    this.child,
+    this.decoration,
   });
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: decoration,
-      child: CustomPaint(
-        painter: _ClipInsetShapeShadowPainter(
-          clipper: this.clipper,
-          shadows: this.shadows,
-        ),
-        child: child,
-      ),
+    Widget rst = CustomPaint(
+      painter: this.shadows != null
+          ? _ClipInsetShapeShadowPainter(
+              clipper: this.clipper,
+              shadows: this.shadows,
+            )
+          : null,
+      child: child,
     );
+    return decoration != null
+        ? DecoratedBox(
+            decoration: decoration!,
+            child: rst,
+          )
+        : rst;
   }
 }
 
@@ -151,8 +157,8 @@ class _ClipInsetShapeShadowPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(_ClipInsetShapeShadowPainter oldDelegate) {
+    return oldDelegate.clipper != clipper || oldDelegate.shadows != shadows;
   }
 }
 
@@ -223,17 +229,10 @@ class DecoratedShadowedShape extends StatelessWidget {
       child: _ShapeBorderPaint(
         shape: shape,
         child: ClipInsetShadowPath(
-          decoration: decoration ?? BoxDecoration(),
-          clipper: clipper,
-          shadows: insetShadows,
-          child: child ??
-              LimitedBox(
-                maxWidth: 0.0,
-                maxHeight: 0.0,
-                child:
-                    ConstrainedBox(constraints: const BoxConstraints.expand()),
-              ),
-        ),
+            decoration: decoration,
+            clipper: clipper,
+            shadows: insetShadows,
+            child: child),
       ),
     );
   }

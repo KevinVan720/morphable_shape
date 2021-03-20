@@ -172,3 +172,11 @@ Shadow blur radius not negative
 ## [1.3.2] - 03.16.2021
 
 Support inset shadows
+
+## [1.3.3] - 03.16.2021
+
+Support decoration for animated shadowed shape
+
+## [1.3.4] - 03.20.2021
+
+Remove the arc shape, update the decorated shadowed shape class

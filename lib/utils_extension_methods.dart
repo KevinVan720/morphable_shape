@@ -71,6 +71,13 @@ extension ShapeCornerExtension on ShapeCorner {
   bool get isVerticalBottom {
     return this == ShapeCorner.leftBottom || this == ShapeCorner.rightBottom;
   }
+
+  bool isSameSide(ShapeCorner other) {
+    return (other.isBottom && this.isBottom) ||
+        (other.isTop && this.isTop) ||
+        (other.isLeft && this.isLeft) ||
+        (other.isRight && this.isRight);
+  }
 }
 
 extension OffsetExtension on Offset {

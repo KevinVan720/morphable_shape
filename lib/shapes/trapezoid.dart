@@ -42,6 +42,10 @@ class TrapezoidShape extends OutlinedShape {
     return rst;
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is TrapezoidShape;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 

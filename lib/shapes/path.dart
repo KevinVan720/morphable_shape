@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///A Shape made from a path with straight or cubic Bezier lines
@@ -30,6 +29,10 @@ class PathShape extends OutlinedShape {
     DynamicBorderSide? border,
   }) {
     return PathShape(path: path ?? this.path, border: border ?? this.border);
+  }
+
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is PathShape && this.path == shape.path;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

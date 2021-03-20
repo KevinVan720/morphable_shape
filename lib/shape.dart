@@ -13,6 +13,8 @@ abstract class Shape {
 
   EdgeInsetsGeometry get dimensions;
 
+  bool isSameMorphGeometry(Shape shape);
+
   DynamicPath generateOuterDynamicPath(Rect rect);
 
   DynamicPath generateInnerDynamicPath(Rect rect);

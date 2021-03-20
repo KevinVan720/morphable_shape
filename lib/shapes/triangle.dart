@@ -60,6 +60,10 @@ class TriangleShape extends OutlinedShape {
     );
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is TriangleShape;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 

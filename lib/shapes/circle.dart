@@ -1,8 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
-
+/*
 ///Circle shape with a start and sweep angle
 class CircleShape extends OutlinedShape {
   final double startAngle;
@@ -41,6 +37,12 @@ class CircleShape extends OutlinedShape {
     );
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is CircleShape &&
+        this.startAngle == shape.startAngle &&
+        this.sweepAngle == shape.sweepAngle;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
@@ -56,7 +58,8 @@ class CircleShape extends OutlinedShape {
           height: rect.height,
         ),
         startAngle,
-        sweepAngle);
+        sweepAngle,
+        splitTimes: 3);
     if (sweepAngle < 2 * pi) {
       nodes.add(DynamicNode(position: Offset(size.width / 2, size.height / 2)));
     }
@@ -64,3 +67,4 @@ class CircleShape extends OutlinedShape {
     return DynamicPath(nodes: nodes, size: size);
   }
 }
+*/

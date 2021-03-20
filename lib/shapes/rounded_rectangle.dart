@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///Rectangle shape with various corner style and radius for each corner
@@ -34,6 +33,10 @@ class RoundedRectangleShape extends FilledBorderShape {
     return RoundedRectangleShape(
         borders: borders ?? this.borders,
         borderRadius: borderRadius ?? this.borderRadius);
+  }
+
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is RectangleShape || shape is RoundedRectangleShape;
   }
 
   EdgeInsetsGeometry get dimensions => EdgeInsets.only(

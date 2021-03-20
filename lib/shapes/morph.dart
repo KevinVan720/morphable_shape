@@ -18,6 +18,10 @@ class MorphShape extends Shape {
     return this;
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return false;
+  }
+
   EdgeInsetsGeometry get dimensions =>
       EdgeInsetsGeometry.lerp(
           morphData.begin.dimensions, morphData.end.dimensions, t) ??

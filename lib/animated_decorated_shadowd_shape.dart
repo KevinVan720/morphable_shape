@@ -20,6 +20,7 @@ class AnimatedDecoratedShadowedShape extends ImplicitlyAnimatedWidget {
     this.child,
     this.shadows,
     this.insetShadows,
+    this.decoration,
     this.shape,
     this.method,
     Curve curve = Curves.linear,
@@ -30,6 +31,7 @@ class AnimatedDecoratedShadowedShape extends ImplicitlyAnimatedWidget {
   final Widget? child;
   final List<ShapeShadow>? shadows;
   final List<ShapeShadow>? insetShadows;
+  final Decoration? decoration;
   final ShapeBorder? shape;
   final MorphMethod? method;
 
@@ -42,6 +44,7 @@ class _AnimatedShadowedShapeState
   MorphableShapeBorderTween? _shapeBorderTween;
   ListShapeShadowTween? _listShadowTween;
   ListShapeShadowTween? _listInsetShadowTween;
+  DecorationTween? _decorationTween;
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
@@ -64,12 +67,16 @@ class _AnimatedShadowedShapeState
             (dynamic value) =>
                 ListShapeShadowTween(begin: value as List<ShapeShadow>))
         as ListShapeShadowTween?;
+    _decorationTween = visitor(_decorationTween, widget.decoration,
+            (dynamic value) => DecorationTween(begin: value as Decoration))
+        as DecorationTween;
   }
 
   @override
   Widget build(BuildContext context) {
     final Animation<double> animation = this.animation;
     return DecoratedShadowedShape(
+      decoration: _decorationTween?.evaluate(animation),
       shape: _shapeBorderTween?.evaluate(animation),
       shadows: _listShadowTween?.evaluate(animation),
       insetShadows: _listInsetShadowTween?.evaluate(animation),

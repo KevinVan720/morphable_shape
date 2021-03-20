@@ -71,6 +71,10 @@ class BubbleShape extends OutlinedShape {
     );
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is BubbleShape && this.corner.isSameSide(shape.corner);
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 

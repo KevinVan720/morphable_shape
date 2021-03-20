@@ -43,6 +43,10 @@ class RectangleShape extends OutlinedShape {
         borderRadius: borderRadius ?? this.borderRadius);
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is RectangleShape || shape is RoundedRectangleShape;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     Size size = rect.size;
     List<DynamicNode> nodes = [];

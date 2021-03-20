@@ -114,16 +114,6 @@ offers.
 
 ![round_rectangle](https://i.imgur.com/Gfh5zxu.png)
 
-### CircleShape
-CircleShape allows you to choose the start angle and sweep angle:
-```dart
-CircleShape(
-startAngle: 0,
-sweepAngle: 2*pi,
-)
-```
-![circle](https://i.imgur.com/AYWNWXQ.png)
-
 ### PolygonShape
 PolygonShape supports changing the number of sides as well as corner radius and corner style:
 ```dart
@@ -151,7 +141,7 @@ insetStyle: CornerStyle.rounded
 
 ## Shape Morphing
 
-Every shape in this package can be gracefully morphed into one another, including the border(s). Hence the name of this package. To morph between two shapes you first need to create a ShapeBorderTween:
+Every shape in this package can be morphed into one another, including the border(s). Hence the name of this package. To morph between two shapes you first need to create a ShapeBorderTween:
 ```dart
 MorphableShapeBorder startBorder = MorphableShapeBorder(shape: startShape);
 MorphableShapeBorder endBorder = MorphableShapeBorder(shape: endShape);
@@ -188,6 +178,8 @@ but do not use the length information. The MorphMethod.auto will choose either
 one of the aformentioned methods based on some geometric criteria to make the morphing
 process to look more natural. The auto method generally works well, but you can
 try other ones if the morphing looks weird.
+
+Shapes with the same geometry can be morphed faster and in a more consistent way. For example, rectangles and rounded rectangles, or polygons with the same number of sides. For other shapes, the morphing takes more time and may not look great especially for two very distinct shapes.
 
 ## Shape Serialization
 

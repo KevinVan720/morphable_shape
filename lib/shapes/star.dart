@@ -67,6 +67,10 @@ class StarShape extends OutlinedShape {
     );
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is StarShape && shape.corners == this.corners;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 

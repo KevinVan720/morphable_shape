@@ -47,6 +47,10 @@ class ArrowShape extends OutlinedShape {
         border: border ?? this.border);
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is ArrowShape && shape.side == this.side;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 

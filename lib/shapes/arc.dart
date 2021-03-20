@@ -49,6 +49,10 @@ class ArcShape extends OutlinedShape {
     );
   }
 
+  bool isSameMorphGeometry(Shape shape) {
+    return shape is ArcShape && shape.side == this.side;
+  }
+
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
