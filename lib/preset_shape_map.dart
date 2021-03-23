@@ -4,21 +4,16 @@ import 'package:morphable_shape/morphable_shape.dart';
 const Map<String, Map<String, Shape>> presetShapeMap = {
   "Rounded Rectangles": presetRoundedRectangleMap,
   "Rectangle Like": presetRectangleMap,
-  //"Arcs": presetCircleMap,
+  "Circle": presetCircleMap,
   "Polygons": presetPolygonMap,
   "Stars": presetStarMap,
   "Triangles": presetTriangleMap,
   "Others": presetOtherMap,
 };
-/*
+
 const Map<String, Shape> presetCircleMap = {
   "Circle": const CircleShape(),
-  "Circle90": const CircleShape(startAngle: 0, sweepAngle: pi),
-  "Circle180": const CircleShape(startAngle: pi, sweepAngle: pi),
-  "Circle270": const CircleShape(startAngle: 0, sweepAngle: 3 / 2 * pi),
-  "Circle270-2": const CircleShape(startAngle: pi, sweepAngle: 3 / 2 * pi),
 };
- */
 
 const Map<String, Shape> presetRoundedRectangleMap = {
   "RectangleAll0": const RoundedRectangleShape(
@@ -29,9 +24,6 @@ const Map<String, Shape> presetRoundedRectangleMap = {
   "RoundRectangleAll25": const RoundedRectangleShape(
       borderRadius: DynamicBorderRadius.all(const DynamicRadius.circular(
           const Length(25, unit: LengthUnit.percent)))),
-  "RoundRectangleAll50": const RoundedRectangleShape(
-      borderRadius: DynamicBorderRadius.all(const DynamicRadius.circular(
-          const Length(50, unit: LengthUnit.percent)))),
   "RoundRectangleTLBR25": const RoundedRectangleShape(
       borderRadius: DynamicBorderRadius.only(
           topLeft: const DynamicRadius.circular(
@@ -67,10 +59,6 @@ const Map<String, Shape> presetRectangleMap = {
       cornerStyles: RectangleCornerStyles.all(CornerStyle.rounded),
       borderRadius: DynamicBorderRadius.all(const DynamicRadius.circular(
           const Length(25, unit: LengthUnit.percent)))),
-  "RoundAll50": const RectangleShape(
-      cornerStyles: RectangleCornerStyles.all(CornerStyle.rounded),
-      borderRadius: DynamicBorderRadius.all(const DynamicRadius.circular(
-          const Length(50, unit: LengthUnit.percent)))),
   "CutCornerAll25": const RectangleShape(
       cornerStyles: RectangleCornerStyles.all(CornerStyle.straight),
       borderRadius: DynamicBorderRadius.all(const DynamicRadius.circular(

@@ -14,8 +14,8 @@ class LengthSlider extends StatefulWidget {
     this.max,
     this.divisions = 30,
     this.sliderColor = Colors.amber,
-    this.sliderValue,
-    @required this.valueChanged,
+    this.value,
+    @required this.onChanged,
     @required this.constraint,
     this.allowedUnits = const ["px"],
   });
@@ -25,10 +25,10 @@ class LengthSlider extends StatefulWidget {
   final int divisions;
   final Color sliderColor;
   final List<String> allowedUnits;
-  final Length sliderValue;
+  final Length value;
   final double constraint;
 
-  final ValueChanged valueChanged;
+  final ValueChanged onChanged;
 
   @override
   _LengthSlider createState() => _LengthSlider();
@@ -48,9 +48,9 @@ class _LengthSlider extends State<LengthSlider> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.sliderValue != null) {
-      _sliderValue = widget.sliderValue
-          .copyWith(value: widget.sliderValue.value.roundWithPrecision(1));
+    if (widget.value != null) {
+      _sliderValue = widget.value
+          .copyWith(value: widget.value.value.roundWithPrecision(1));
     } else {
       if (widget.min != null && widget.max != null) {
         _sliderValue = Length((widget.min + widget.max) / 2);
@@ -88,8 +88,8 @@ class _LengthSlider extends State<LengthSlider> {
                       value: (_sliderValue.value ?? 0).clamp(min, max),
                       onChanged: (newValue) {
                         setState(() {
-                          widget.valueChanged(
-                              widget.sliderValue.copyWith(value: newValue));
+                          widget.onChanged(
+                              widget.value.copyWith(value: newValue));
                         });
                       },
                     ),
@@ -115,10 +115,10 @@ class _LengthSlider extends State<LengthSlider> {
                           key: ObjectKey(_sliderValue.value),
                           initText: _sliderValue.value.toStringAsFixed(1),
                           onSubmitted: (value) {
-                            double newValue = double.tryParse(value) ??
-                                widget.sliderValue.value;
-                            widget.valueChanged(
-                                widget.sliderValue.copyWith(value: newValue));
+                            double newValue =
+                                double.tryParse(value) ?? widget.value.value;
+                            widget.onChanged(
+                                widget.value.copyWith(value: newValue));
                           },
                         ))
                     : Container(
@@ -156,7 +156,7 @@ class _LengthSlider extends State<LengthSlider> {
                             100;
                         LengthUnit newUnit =
                             lengthUnitMap[value] ?? LengthUnit.px;
-                        widget.valueChanged(_sliderValue.copyWith(
+                        widget.onChanged(_sliderValue.copyWith(
                             value: Length.fromPX(
                               oldPX,
                               newUnit,

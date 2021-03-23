@@ -1,8 +1,10 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'package:flutter_class_parser/to_json.dart';
+import 'package:morphable_shape/morphable_shape.dart';
 
 class DynamicBorderSide {
   const DynamicBorderSide({
@@ -10,13 +12,21 @@ class DynamicBorderSide {
     this.width = 1.0,
     this.style = BorderStyle.solid,
     this.gradient,
+    this.begin,
+    this.end,
+    this.shift,
   });
 
   DynamicBorderSide.fromJson(Map<String, dynamic> map)
       : color = parseColor(map["color"]) ?? Color(0xFF000000),
         gradient = parseGradient(map["gradient"]),
         width = map["width"].toDouble() ?? 1.0,
-        style = parseBorderStyle(map["style"]) ?? BorderStyle.solid;
+        style = parseBorderStyle(map["style"]) ?? BorderStyle.solid,
+        begin =
+            parseDimension(map["begin"]) ?? Length(0, unit: LengthUnit.percent),
+        end = parseDimension(map["end"]) ?? Length(0, unit: LengthUnit.percent),
+        shift =
+            parseDimension(map["shift"]) ?? Length(0, unit: LengthUnit.percent);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
@@ -24,6 +34,9 @@ class DynamicBorderSide {
     rst.updateNotNull("gradient", gradient?.toJson());
     rst["width"] = width;
     rst["style"] = style.toJson();
+    rst.updateNotNull("begin", begin?.toJson());
+    rst.updateNotNull("end", end?.toJson());
+    rst.updateNotNull("shift", end?.toJson());
     return rst;
   }
 
@@ -49,6 +62,10 @@ class DynamicBorderSide {
   /// painting the border, but the border still has a [width].
   final BorderStyle style;
 
+  final Dimension? begin;
+  final Dimension? end;
+  final Dimension? shift;
+
   /// A hairline black border that is not rendered.
   static const DynamicBorderSide none =
       DynamicBorderSide(width: 0.0, style: BorderStyle.none);
@@ -58,12 +75,18 @@ class DynamicBorderSide {
     Gradient? gradient,
     double? width,
     BorderStyle? style,
+    Dimension? begin,
+    Dimension? end,
+    Dimension? shift,
   }) {
     return DynamicBorderSide(
       color: color ?? this.color,
       gradient: gradient ?? this.gradient,
       width: width ?? this.width,
       style: style ?? this.style,
+      begin: begin ?? this.begin,
+      end: end ?? this.end,
+      shift: shift ?? this.shift,
     );
   }
 
@@ -73,6 +96,9 @@ class DynamicBorderSide {
       gradient: gradient?.scale(t),
       width: max(0.0, width * t),
       style: t <= 0.0 ? BorderStyle.none : style,
+      begin: begin,
+      end: end,
+      shift: shift,
     );
   }
 
@@ -80,7 +106,7 @@ class DynamicBorderSide {
       DynamicBorderSide a, DynamicBorderSide b, double t) {
     if (t == 0.0) return a;
     if (t == 1.0) return b;
-    final double width = Tween(begin: a.width, end: b.width).transform(t);
+    final double width = lerpDouble(a.width, b.width, t) ?? 0.0;
     if (width < 0.0) return DynamicBorderSide.none;
     if (a.style == b.style) {
       return DynamicBorderSide(
@@ -88,6 +114,12 @@ class DynamicBorderSide {
         gradient: Gradient.lerp(a.gradient, b.gradient, t),
         width: width,
         style: a.style, // == b.style
+        begin: Dimension.lerp(a.begin, b.begin, t),
+        end: a.end == null && b.end == null
+            ? null
+            : Dimension.lerp(
+                a.end ?? 100.toPercentLength, b.end ?? 100.toPercentLength, t),
+        shift: Dimension.lerp(a.shift, b.shift, t),
       );
     }
     Color colorA, colorB;
@@ -112,6 +144,12 @@ class DynamicBorderSide {
       gradient: Gradient.lerp(a.gradient, b.gradient, t),
       width: width,
       style: BorderStyle.solid,
+      begin: Dimension.lerp(a.begin, b.begin, t),
+      end: a.end == null && b.end == null
+          ? null
+          : Dimension.lerp(
+              a.end ?? 100.toPercentLength, b.end ?? 100.toPercentLength, t),
+      shift: Dimension.lerp(a.shift, b.shift, t),
     );
   }
 
@@ -123,9 +161,13 @@ class DynamicBorderSide {
         other.color == color &&
         other.gradient == gradient &&
         other.width == width &&
-        other.style == style;
+        other.style == style &&
+        other.begin == begin &&
+        other.end == end &&
+        other.shift == shift;
   }
 
   @override
-  int get hashCode => hashValues(color, gradient, width, style);
+  int get hashCode =>
+      hashValues(color, gradient, width, style, begin, end, shift);
 }

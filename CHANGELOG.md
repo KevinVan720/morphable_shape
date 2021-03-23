@@ -179,4 +179,8 @@ Support decoration for animated shadowed shape
 
 ## [1.3.4] - 03.20.2021
 
-Remove the arc shape, update the decorated shadowed shape class
+Update the decorated shadowed shape class
+
+## [1.3.5] - 03.23.2021
+
+Add support for trim border path

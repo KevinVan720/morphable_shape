@@ -84,6 +84,10 @@ You can make a triangle, a diamond, a trapezoid, or even an arrow shape by just 
 
 ![rectangle](https://i.imgur.com/I0jXJu2.png)
 
+### CircleShape
+
+Circle shape now does not support startAngle and endAngles.
+
 ## RoundedRectangleShape
 If you use the RoundedRectangleShape class, then the four border sides can be further configured individually. The four border sides can be styled independently or at once:
 

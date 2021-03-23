@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
@@ -65,9 +67,50 @@ abstract class OutlinedShape extends Shape {
       borderPaint.style = PaintingStyle.stroke;
       borderPaint.color = border.color;
       borderPaint.strokeWidth = 2 * border.width;
-      borderPaint.strokeMiterLimit = 0.0;
       borderPaint.shader = border.gradient?.createShader(rect);
-      canvas.drawPath(generateOuterPath(rect: rect), borderPaint);
+      drawBorderPath(
+          canvas, rect, borderPaint, generateOuterPath(rect: rect), border);
+    }
+  }
+
+  static void drawBorderPath(Canvas canvas, Rect rect, Paint borderPaint,
+      Path path, DynamicBorderSide border) {
+    if (border.begin != null || border.end != null) {
+      PathMetric metric = path.computeMetrics().first;
+
+      double beginPX = border.begin?.toPX(constraint: metric.length) ?? 0.0;
+      double endPX =
+          border.end?.toPX(constraint: metric.length) ?? metric.length;
+      double shiftPX = border.shift?.toPX(constraint: metric.length) ?? 0.0;
+      double temp = beginPX;
+      beginPX = beginPX > endPX ? endPX : beginPX;
+      endPX = beginPX == endPX ? temp : endPX;
+      beginPX = beginPX.clamp(0, metric.length);
+      endPX = endPX.clamp(0, metric.length);
+      shiftPX = shiftPX.clamp(0, metric.length);
+
+      path = metric.extractPath(
+        beginPX + shiftPX,
+        endPX + shiftPX,
+      );
+      if (beginPX + shiftPX < metric.length) {
+        canvas.drawPath(path, borderPaint);
+        if (endPX + shiftPX > metric.length) {
+          path = metric.extractPath(
+            0,
+            endPX + shiftPX - metric.length,
+          );
+          canvas.drawPath(path, borderPaint);
+        }
+      } else {
+        path = metric.extractPath(
+          beginPX + shiftPX - metric.length,
+          endPX + shiftPX - metric.length,
+        );
+        canvas.drawPath(path, borderPaint);
+      }
+    } else {
+      canvas.drawPath(path, borderPaint);
     }
   }
 }

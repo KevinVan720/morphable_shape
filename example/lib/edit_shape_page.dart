@@ -304,9 +304,9 @@ class EditShapePageState extends State<EditShapePage>
     if (currentShape is BubbleShape) {
       stackedComponents.addAll(buildBubbleEditingWidgets(currentShape));
     }
-    //if (currentShape is CircleShape) {
-    //  stackedComponents.addAll(buildCircleEditingWidgets(currentShape));
-    //}
+    if (currentShape is CircleShape) {
+      stackedComponents.addAll(buildCircleEditingWidgets(currentShape));
+    }
 
     if (currentShape is PathShape) {
       stackedComponents.addAll(buildPathEditingWidgets(currentShape));
@@ -447,9 +447,9 @@ class EditShapePageState extends State<EditShapePage>
       stackedComponents.addAll(buildBubbleEditingPanelWidget(currentShape));
     }
 
-    //if (currentShape is CircleShape) {
-    //  stackedComponents.addAll(buildCircleEditingPanelWidget(currentShape));
-    //}
+    if (currentShape is CircleShape) {
+      stackedComponents.addAll(buildCircleEditingPanelWidget(currentShape));
+    }
 
     if (currentShape is PathShape) {
       stackedComponents.addAll(buildPathEditingPanelWidget(currentShape));
@@ -951,57 +951,11 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  /*
   List<Widget> buildCircleEditingWidgets(CircleShape shape) {
     List<Widget> nodeControls = [];
 
-    Size size = shapeSize;
-
-    double startAngle = shape.startAngle.clamp(0.0, 2 * pi);
-    double sweepAngle = shape.sweepAngle.clamp(0.0, 2 * pi);
-
-    nodeControls.add(buildShapeEditingDragHandle(
-        position: Offset(size.width / 2 * (1 + cos(startAngle)),
-            size.height / 2 * (1 + sin(startAngle))),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            double startAngle = (currentShape as CircleShape).startAngle;
-            Offset delta = details.delta;
-            updateCurrentShape(shape.copyWith(
-                startAngle: (startAngle +
-                        (delta.dy * cos(startAngle) -
-                                delta.dx * sin(startAngle)) /
-                            (Offset(size.width / 2 * cos(startAngle),
-                                    size.height / 2 * sin(startAngle))
-                                .distance))
-                    .clamp(0.0, 2 * pi)));
-          });
-        }));
-
-    double endAngle = startAngle + sweepAngle;
-    nodeControls.add(buildShapeEditingDragHandle(
-        position: Offset(size.width / 2 * (1 + 1 / 2 * cos(endAngle)),
-            size.height / 2 * (1 + 1 / 2 * sin(endAngle))),
-        onDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            double sweepAngle = (currentShape as CircleShape).sweepAngle;
-            double endAngle =
-                (currentShape as CircleShape).startAngle + sweepAngle;
-            Offset delta = details.delta;
-            updateCurrentShape(shape.copyWith(
-                sweepAngle: (sweepAngle +
-                        (delta.dy * cos(endAngle) - delta.dx * sin(endAngle)) /
-                            (Offset(size.width / 4 * cos(endAngle),
-                                    size.height / 4 * sin(endAngle))
-                                .distance))
-                    .clamp(0.0, 2 * pi)));
-          });
-        }));
-
     return nodeControls;
   }
-
-   */
 
   List<Widget> buildBubbleEditingWidgets(BubbleShape shape) {
     List<Widget> nodeControls = [];
@@ -2151,8 +2105,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Arc Height",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.arcHeight,
-          valueChanged: (value) {
+          value: shape.arcHeight,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(arcHeight: value));
             });
@@ -2187,8 +2141,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Head Height",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.arrowHeight,
-          valueChanged: (value) {
+          value: shape.arrowHeight,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(arrowHeight: value));
             });
@@ -2203,8 +2157,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Tail Width",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.tailWidth,
-          valueChanged: (value) {
+          value: shape.tailWidth,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(tailWidth: value));
             });
@@ -2239,8 +2193,8 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Arrow Center",
         actionWidget: Expanded(
           child: LengthSlider(
-            sliderValue: shape.arrowCenterPosition,
-            valueChanged: (value) {
+            value: shape.arrowCenterPosition,
+            onChanged: (value) {
               setState(() {
                 updateCurrentShape(shape.copyWith(arrowCenterPosition: value));
               });
@@ -2254,8 +2208,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Arrow Head",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.arrowHeadPosition,
-          valueChanged: (value) {
+          value: shape.arrowHeadPosition,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(arrowHeadPosition: value));
             });
@@ -2270,8 +2224,8 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Arrow Height",
         actionWidget: Expanded(
           child: LengthSlider(
-            sliderValue: shape.arrowHeight,
-            valueChanged: (value) {
+            value: shape.arrowHeight,
+            onChanged: (value) {
               setState(() {
                 updateCurrentShape(shape.copyWith(arrowHeight: value));
               });
@@ -2285,8 +2239,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Arrow Width",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.arrowWidth,
-          valueChanged: (value) {
+          value: shape.arrowWidth,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(arrowWidth: value));
             });
@@ -2301,8 +2255,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Border Radius",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.borderRadius,
-          valueChanged: (value) {
+          value: shape.borderRadius,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(borderRadius: value));
             });
@@ -2316,44 +2270,10 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  /*
   List<Widget> buildCircleEditingPanelWidget(CircleShape shape) {
-    Size size = shapeSize;
     List<Widget> rst = [];
-
-    rst.add(buildRowWithHeaderText(
-        headerText: "Start Angle",
-        actionWidget: Slider(
-          value: shape.startAngle / pi * 180.clamp(0, 360),
-          min: 0,
-          max: 360,
-          divisions: 72,
-          label: (shape.startAngle / pi * 180.clamp(0, 360)).toStringAsFixed(0),
-          onChanged: (value) {
-            setState(() {
-              updateCurrentShape(shape.copyWith(startAngle: value / 180 * pi));
-            });
-          },
-        )));
-
-    rst.add(buildRowWithHeaderText(
-        headerText: "Sweep Angle",
-        actionWidget: Slider(
-          value: shape.sweepAngle / pi * 180.clamp(0, 360),
-          min: 0,
-          max: 360,
-          divisions: 72,
-          label: (shape.sweepAngle / pi * 180.clamp(0, 360)).toStringAsFixed(0),
-          onChanged: (value) {
-            setState(() {
-              updateCurrentShape(shape.copyWith(sweepAngle: value / 180 * pi));
-            });
-          },
-        )));
-
     return rst;
   }
-  */
 
   List<Widget> buildPolygonEditingPanelWidget(PolygonShape shape) {
     Size size = shapeSize;
@@ -2395,8 +2315,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Corner Radius",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.cornerRadius,
-          valueChanged: (value) {
+          value: shape.cornerRadius,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(cornerRadius: value));
             });
@@ -2442,8 +2362,8 @@ class EditShapePageState extends State<EditShapePage>
           headerText: "X",
           actionWidget: Expanded(
             child: LengthSlider(
-              sliderValue: shape.borderRadius.topLeft.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.topLeft.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2460,8 +2380,8 @@ class EditShapePageState extends State<EditShapePage>
           headerText: "Y",
           actionWidget: Expanded(
             child: LengthSlider(
-              sliderValue: shape.borderRadius.topLeft.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.topLeft.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2506,8 +2426,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.green,
-              sliderValue: shape.borderRadius.topRight.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.topRight.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2525,8 +2445,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.green,
-              sliderValue: shape.borderRadius.topRight.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.topRight.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2571,8 +2491,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.blue,
-              sliderValue: shape.borderRadius.bottomLeft.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomLeft.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2590,8 +2510,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.blue,
-              sliderValue: shape.borderRadius.bottomLeft.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomLeft.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2636,8 +2556,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.red,
-              sliderValue: shape.borderRadius.bottomRight.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomRight.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2655,8 +2575,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.red,
-              sliderValue: shape.borderRadius.bottomRight.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomRight.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2693,8 +2613,8 @@ class EditShapePageState extends State<EditShapePage>
           headerText: "X",
           actionWidget: Expanded(
             child: LengthSlider(
-              sliderValue: shape.borderRadius.topLeft.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.topLeft.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2711,8 +2631,8 @@ class EditShapePageState extends State<EditShapePage>
           headerText: "Y",
           actionWidget: Expanded(
             child: LengthSlider(
-              sliderValue: shape.borderRadius.topLeft.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.topLeft.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2742,8 +2662,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.green,
-              sliderValue: shape.borderRadius.topRight.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.topRight.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2761,8 +2681,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.green,
-              sliderValue: shape.borderRadius.topRight.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.topRight.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2792,8 +2712,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.blue,
-              sliderValue: shape.borderRadius.bottomLeft.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomLeft.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2811,8 +2731,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.blue,
-              sliderValue: shape.borderRadius.bottomLeft.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomLeft.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2842,8 +2762,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.red,
-              sliderValue: shape.borderRadius.bottomRight.x,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomRight.x,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2861,8 +2781,8 @@ class EditShapePageState extends State<EditShapePage>
           actionWidget: Expanded(
             child: LengthSlider(
               sliderColor: Colors.red,
-              sliderValue: shape.borderRadius.bottomRight.y,
-              valueChanged: (value) {
+              value: shape.borderRadius.bottomRight.y,
+              onChanged: (value) {
                 setState(() {
                   updateCurrentShape(shape.copyWith(
                       borderRadius: shape.borderRadius.copyWith(
@@ -2916,8 +2836,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Corner Radius",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.cornerRadius,
-          valueChanged: (value) {
+          value: shape.cornerRadius,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(cornerRadius: value));
             });
@@ -2932,8 +2852,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Inset",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.inset,
-          valueChanged: (value) {
+          value: shape.inset,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(inset: value));
             });
@@ -2961,8 +2881,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Inset Radius",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.insetRadius,
-          valueChanged: (value) {
+          value: shape.insetRadius,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(insetRadius: value));
             });
@@ -2997,8 +2917,8 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Inset",
       actionWidget: Expanded(
         child: LengthSlider(
-          sliderValue: shape.inset,
-          valueChanged: (value) {
+          value: shape.inset,
+          onChanged: (value) {
             setState(() {
               updateCurrentShape(shape.copyWith(inset: value));
             });
@@ -3150,6 +3070,60 @@ class EditShapePageState extends State<EditShapePage>
             min: 0,
             max: 20,
             divisions: 20,
+          ),
+        )));
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Border Begin",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            value: border.begin ?? Length(0, unit: LengthUnit.percent),
+            onChanged: (value) {
+              setState(() {
+                updateCurrentShape(
+                    shape.copyWith(border: border.copyWith(begin: value)));
+              });
+            },
+            min: 0,
+            max: 100,
+            divisions: 20,
+            allowedUnits: ["%"],
+          ),
+        )));
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Border End",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            value: border.end ?? Length(100, unit: LengthUnit.percent),
+            onChanged: (value) {
+              setState(() {
+                updateCurrentShape(
+                    shape.copyWith(border: border.copyWith(end: value)));
+              });
+            },
+            min: 0,
+            max: 100,
+            divisions: 20,
+            allowedUnits: ["%"],
+          ),
+        )));
+
+    rst.add(buildRowWithHeaderText(
+        headerText: "Border Shift",
+        actionWidget: Expanded(
+          child: LengthSlider(
+            value: border.shift ?? Length(0, unit: LengthUnit.percent),
+            onChanged: (value) {
+              setState(() {
+                updateCurrentShape(
+                    shape.copyWith(border: border.copyWith(shift: value)));
+              });
+            },
+            min: 0,
+            max: 100,
+            divisions: 20,
+            allowedUnits: ["%"],
           ),
         )));
 
