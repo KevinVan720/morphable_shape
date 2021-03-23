@@ -35,8 +35,9 @@ class BlockShapePicker extends StatefulWidget {
         shape: shape,
       ),
       child: Container(
-        color:
-            isCurrentShape ? Colors.black.withOpacity(0.7) : Colors.black.withOpacity(0.1),
+        color: isCurrentShape
+            ? Colors.black.withOpacity(0.7)
+            : Colors.black.withOpacity(0.1),
         child: InkWell(
           onTap: changeShape,
           radius: 60,
@@ -55,7 +56,7 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
 
   @override
   void initState() {
-    _currentShape = presetRoundedRectangleMap["RectangleAll0"];
+    _currentShape = presetRoundedRectangleShapeMap["RectangleAll0"];
     super.initState();
   }
 
@@ -69,36 +70,42 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
   @override
   Widget build(BuildContext context) {
     Orientation orientation = MediaQuery.of(context).orientation;
-    Size screenSize=MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
 
     return Container(
-        width: min(screenSize.width*0.8,360.0),
-        height: min(screenSize.height*0.8,360.0),
+        width: min(screenSize.width * 0.8, 360.0),
+        height: min(screenSize.height * 0.8, 360.0),
         child: ListView(
           children: presetShapeMap.keys
               .map((category) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(left: 3,top: 1, bottom: 1),
-                      //color: Colors.grey.withOpacity(0.2),
-                      child: Text(category, style: TextStyle(fontWeight: FontWeight.bold),)),
-                  GridView.count(
-            physics: NeverScrollableScrollPhysics(),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.only(left: 3, top: 1, bottom: 1),
+                          //color: Colors.grey.withOpacity(0.2),
+                          child: Text(
+                            category,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )),
+                      GridView.count(
+                        physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        crossAxisCount: (min(screenSize.width*0.8,360.0)/50).floor(),
+                        crossAxisCount:
+                            (min(screenSize.width * 0.8, 360.0) / 50).floor(),
                         crossAxisSpacing: 15.0,
                         mainAxisSpacing: 15.0,
-                        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                        children: presetShapeMap[category].keys.map((String name) {
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                        children:
+                            presetShapeMap[category].keys.map((String name) {
                           Shape shape = presetShapeMap[category][name];
-                          return widget.itemBuilder(shape, shape == _currentShape,
-                              () => changeShape(shape));
+                          return widget.itemBuilder(shape,
+                              shape == _currentShape, () => changeShape(shape));
                         }).toList(),
                       ),
-                ],
-              ))
+                    ],
+                  ))
               .toList(),
         ));
   }

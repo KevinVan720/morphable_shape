@@ -2,20 +2,20 @@ import 'package:dimension/dimension.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 const Map<String, Map<String, Shape>> presetShapeMap = {
-  "Rounded Rectangles": presetRoundedRectangleMap,
-  "Rectangle Like": presetRectangleMap,
-  "Circle": presetCircleMap,
-  "Polygons": presetPolygonMap,
-  "Stars": presetStarMap,
-  "Triangles": presetTriangleMap,
-  "Others": presetOtherMap,
+  "Rounded Rectangles": presetRoundedRectangleShapeMap,
+  "Rectangle Like": presetRectangleShapeMap,
+  "Circle": presetCircleShapeMap,
+  "Polygons": presetPolygonShapeMap,
+  "Stars": presetStarShapeMap,
+  "Triangles": presetTriangleShapeMap,
+  "Others": presetOtherShapeMap,
 };
 
-const Map<String, Shape> presetCircleMap = {
+const Map<String, Shape> presetCircleShapeMap = {
   "Circle": const CircleShape(),
 };
 
-const Map<String, Shape> presetRoundedRectangleMap = {
+const Map<String, Shape> presetRoundedRectangleShapeMap = {
   "RectangleAll0": const RoundedRectangleShape(
       borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
   "RoundRectangleAll10": const RoundedRectangleShape(
@@ -54,7 +54,7 @@ const Map<String, Shape> presetRoundedRectangleMap = {
               const Length(50, unit: LengthUnit.percent)))),
 };
 
-const Map<String, Shape> presetRectangleMap = {
+const Map<String, Shape> presetRectangleShapeMap = {
   "RoundAll25": const RectangleShape(
       cornerStyles: RectangleCornerStyles.all(CornerStyle.rounded),
       borderRadius: DynamicBorderRadius.all(const DynamicRadius.circular(
@@ -123,7 +123,7 @@ const Map<String, Shape> presetRectangleMap = {
               Length(50, unit: LengthUnit.percent)))),
 };
 
-const Map<String, Shape> presetPolygonMap = {
+const Map<String, Shape> presetPolygonShapeMap = {
   "Polygon3": const PolygonShape(sides: 3),
   "Polygon5": const PolygonShape(sides: 5),
   "Polygon6": const PolygonShape(sides: 6),
@@ -149,7 +149,7 @@ const Map<String, Shape> presetPolygonMap = {
       cornerRadius: Length(50, unit: LengthUnit.percent)),
 };
 
-const Map<String, Shape> presetStarMap = {
+const Map<String, Shape> presetStarShapeMap = {
   "Star4": const StarShape(corners: 4),
   "Star5": const StarShape(corners: 5),
   "Star6": const StarShape(corners: 6),
@@ -169,7 +169,7 @@ const Map<String, Shape> presetStarMap = {
       insetRadius: Length(10, unit: LengthUnit.percent)),
 };
 
-const Map<String, Shape> presetTriangleMap = {
+const Map<String, Shape> presetTriangleShapeMap = {
   "Triangle": const TriangleShape(),
   "TriangleBottom": const TriangleShape(
       point1: const DynamicOffset(const Length(50, unit: LengthUnit.percent),
@@ -194,7 +194,7 @@ const Map<String, Shape> presetTriangleMap = {
           const Length(100, unit: LengthUnit.percent))),
 };
 
-const Map<String, Shape> presetOtherMap = {
+const Map<String, Shape> presetOtherShapeMap = {
   "BubbleTopLeft": const BubbleShape(
       corner: ShapeCorner.topLeft,
       borderRadius: Length(20, unit: LengthUnit.percent)),
