@@ -136,6 +136,8 @@ class DynamicBorderSide {
             : Dimension.lerp(
                 a.end ?? 100.toPercentLength, b.end ?? 100.toPercentLength, t),
         shift: Dimension.lerp(a.shift, b.shift, t),
+        strokeCap: t < 0.5 ? a.strokeCap : b.strokeCap,
+        strokeJoin: t < 0.5 ? a.strokeJoin : b.strokeJoin,
       );
     }
     Color colorA, colorB;

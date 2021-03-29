@@ -190,3 +190,23 @@ Add support for trim border path
 Add support for stroke join, stroke cap
 Round rect border fill update
 Support ShapeDecoration
+
+## [1.3.7] - 03.29.2021
+
+Fix a clamp offset issue
+
+## [1.3.8] - 03.29.2021
+
+Fix a clamp offset issue
+
+## [1.3.9] - 03.29.2021
+
+Fix a border lerp bug
+
+## [1.4.0] - 03.29.2021
+
+Fix a clamp offset issue
+
+## [1.4.1] - 03.29.2021
+
+Round rect border fill update

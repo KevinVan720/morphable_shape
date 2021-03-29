@@ -253,32 +253,13 @@ class RoundedRectangleShape extends FilledBorderShape {
     double r1, r2, sweep1;
     var centerRect;
 
-    List<double> splits = [];
-
-    r1 = max(0.0000001, 2 * topRightRadius - 2 * rightSideWidth);
-    r2 = max(0.0000001, 2 * rightTopRadius - 2 * topSideWidth);
-
-    splits.add(r1 / (r1 + r2) * pi / 2);
-
-    r1 = max(0.0000001, 2 * bottomRightRadius - 2 * rightSideWidth);
-    r2 = max(0.0000001, 2 * rightBottomRadius - 2 * bottomSideWidth);
-    splits.add(r2 / (r1 + r2 + 0.0000001) * pi / 2);
-
-    r1 = max(0.0000001, 2 * bottomLeftRadius - 2 * leftSideWidth);
-    r2 = max(0.0000001, 2 * leftBottomRadius - 2 * bottomSideWidth);
-    splits.add(r1 / (r1 + r2 + 0.0000001) * pi / 2);
-
-    r1 = max(0.0000001, 2 * topLeftRadius - 2 * leftSideWidth);
-    r2 = max(0.0000001, 2 * leftTopRadius - 2 * topSideWidth);
-    splits.add(r2 / (r1 + r2 + 0.0000001) * pi / 2);
-
     r1 = 2 * topRightRadius;
     r2 = 2 * rightTopRadius;
     centerRect = Rect.fromCenter(
         center: Offset(right - topRightRadius, top + rightTopRadius),
         width: r1,
         height: r2);
-    sweep1 = splits[0];
+    sweep1 = r1 / (r1 + r2 + 0.0000001) * pi / 2;
     nodes.addArc(centerRect, -pi / 2, sweep1, splitTimes: 0);
     List<Offset> points = arcToCubicBezier(
         centerRect, -pi / 2 + sweep1, pi / 2 - sweep1,
@@ -293,7 +274,7 @@ class RoundedRectangleShape extends FilledBorderShape {
         center: Offset(right - bottomRightRadius, bottom - rightBottomRadius),
         width: r1,
         height: r2);
-    sweep1 = splits[1];
+    sweep1 = r2 / (r1 + r2 + 0.0000001) * pi / 2;
     nodes.addArc(centerRect, 0, sweep1, splitTimes: 0);
     points = arcToCubicBezier(centerRect, 0 + sweep1, pi / 2 - sweep1,
         splitTimes: 0);
@@ -307,7 +288,7 @@ class RoundedRectangleShape extends FilledBorderShape {
         center: Offset(left + bottomLeftRadius, bottom - leftBottomRadius),
         width: r1,
         height: r2);
-    sweep1 = splits[2];
+    sweep1 = r1 / (r1 + r2 + 0.0000001) * pi / 2;
     nodes.addArc(centerRect, pi / 2, sweep1, splitTimes: 0);
     points = arcToCubicBezier(centerRect, pi / 2 + sweep1, pi / 2 - sweep1,
         splitTimes: 0);
@@ -321,7 +302,7 @@ class RoundedRectangleShape extends FilledBorderShape {
         center: Offset(left + topLeftRadius, top + leftTopRadius),
         width: r1,
         height: r2);
-    sweep1 = splits[3];
+    sweep1 = r2 / (r1 + r2 + 0.0000001) * pi / 2;
     nodes.addArc(centerRect, pi, sweep1, splitTimes: 0);
     points = arcToCubicBezier(centerRect, pi + sweep1, pi / 2 - sweep1,
         splitTimes: 0);

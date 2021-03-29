@@ -223,23 +223,23 @@ class DynamicPath {
   void moveNodeBy(int index, Offset offset,
       {NodeControlMode mode = NodeControlMode.none}) {
     DynamicNode node = nodes[index];
-    Offset avalOffset = ((node.position + offset)
-                .clamp(Offset.zero, Offset(size.width, size.height)) -
+    Offset avalOffset = ((node.position + offset).clamp(
+                Offset.zero, Offset(size.width, size.height) + Offset.zero) -
             node.position)
         .roundWithPrecision(defaultPointPrecision);
     node.position += avalOffset;
-    node.position =
-        node.position.clamp(Offset.zero, Offset(size.width, size.height));
+    node.position = node.position
+        .clamp(Offset.zero, Offset(size.width, size.height) + Offset.zero);
 
     if (node.prev != null) {
       node.prev = node.prev! + avalOffset;
-      node.prev =
-          node.prev!.clamp(Offset.zero, Offset(size.width, size.height));
+      node.prev = node.prev!
+          .clamp(Offset.zero, Offset(size.width, size.height) + Offset.zero);
     }
     if (node.next != null) {
       node.next = node.next! + avalOffset;
-      node.next =
-          node.next!.clamp(Offset.zero, Offset(size.width, size.height));
+      node.next = node.next!
+          .clamp(Offset.zero, Offset(size.width, size.height) + Offset.zero);
     }
   }
 

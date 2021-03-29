@@ -126,7 +126,8 @@ class _ClipInsetShapeShadowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     shadows?.forEach((element) {
       Rect rect = Rect.fromLTRB(0, 0, size.width, size.height)
-          .deflate(element.spreadRadius);
+          .deflate(element.spreadRadius)
+          .expandToInclude(Rect.zero);
 
       Rect outerRect = Rect.fromLTRB(0, 0, size.width, size.height)
           .inflate(element.blurRadius);

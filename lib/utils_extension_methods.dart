@@ -82,8 +82,8 @@ extension ShapeCornerExtension on ShapeCorner {
 
 extension OffsetExtension on Offset {
   Offset clamp(Offset lower, Offset upper) {
-    return Offset(
-        this.dx.clamp(lower.dx, upper.dx), this.dy.clamp(lower.dy, upper.dy));
+    return Offset(this.dx.clamp(lower.dx, max(upper.dx, lower.dx)),
+        this.dy.clamp(lower.dy, max(upper.dy, lower.dy)));
   }
 
   Offset rotateAround({Offset pivot = Offset.zero, double angle = 0.0}) {
