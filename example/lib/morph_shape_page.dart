@@ -74,6 +74,8 @@ class _MorphShapePageState extends State<MorphShapePage>
       shapeHeight = shapeWidth;
     }
 
+    print(shapeWidth.toString() + "," + shapeHeight.toString());
+
     MorphableShapeBorder startBorder;
     MorphableShapeBorder endBorder;
 
@@ -117,48 +119,50 @@ class _MorphShapePageState extends State<MorphShapePage>
         ),
         body: Stack(
           children: [
-            Container(
-                color: Colors.black54,
-                child: AnimatedBuilder(
-                    animation: animation,
-                    builder: (BuildContext context, Widget child) {
-                      double t = animation.value;
-                      return Center(
-                          child: Stack(
-                        children: [
-                          DecoratedShadowedShape(
-                            decoration:
-                                BoxDecoration(color: Colors.amberAccent),
-                            shape: shapeBorderTween.lerp(t),
-                            child: Container(
-                              width: shapeWidth,
-                              height: shapeHeight,
+            Center(
+              child: Container(
+                  color: Colors.black54,
+                  child: AnimatedBuilder(
+                      animation: animation,
+                      builder: (BuildContext context, Widget child) {
+                        double t = animation.value;
+                        return Center(
+                            child: Stack(
+                          children: [
+                            DecoratedShadowedShape(
+                              decoration:
+                                  BoxDecoration(color: Colors.amberAccent),
+                              shape: shapeBorderTween.lerp(t),
+                              child: Container(
+                                width: shapeWidth,
+                                height: shapeHeight,
+                              ),
                             ),
-                          ),
-                          showControl
-                              ? CustomPaint(
-                                  painter: MorphControlPointsPainter(
-                                      DynamicPathMorph.lerpPaths(
-                                              t,
-                                              shapeBorderTween
-                                                  .data.beginOuterPath,
-                                              shapeBorderTween
-                                                  .data.endOuterPath)
-                                          .nodes
-                                          .map((e) => e.position)
-                                          .toList()),
-                                  child: Container(
+                            showControl
+                                ? CustomPaint(
+                                    painter: MorphControlPointsPainter(
+                                        DynamicPathMorph.lerpPaths(
+                                                t,
+                                                shapeBorderTween
+                                                    .data.beginOuterPath,
+                                                shapeBorderTween
+                                                    .data.endOuterPath)
+                                            .nodes
+                                            .map((e) => e.position)
+                                            .toList()),
+                                    child: Container(
+                                      width: shapeWidth,
+                                      height: shapeHeight,
+                                    ),
+                                  )
+                                : Container(
                                     width: shapeWidth,
                                     height: shapeHeight,
                                   ),
-                                )
-                              : Container(
-                                  width: shapeWidth,
-                                  height: shapeHeight,
-                                ),
-                        ],
-                      ));
-                    })),
+                          ],
+                        ));
+                      })),
+            ),
             Positioned(
                 right: 20,
                 top: 20,

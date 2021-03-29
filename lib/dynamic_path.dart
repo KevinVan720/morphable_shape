@@ -330,6 +330,7 @@ class DynamicPath {
       }
     }
 
+    path.close();
     return path;
   }
 

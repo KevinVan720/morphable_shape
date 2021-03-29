@@ -31,7 +31,6 @@ class PolygonShape extends OutlinedShape {
     rst["sides"] = sides;
     rst["cornerRadius"] = cornerRadius.toJson();
     rst["cornerStyle"] = cornerStyle.toJson();
-    //rst["border"] = border.toJson();
     return rst;
   }
 

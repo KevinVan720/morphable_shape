@@ -241,4 +241,16 @@ class RectangleShape extends OutlinedShape {
 
     return DynamicPath(size: rect.size, nodes: nodes);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType != runtimeType) return false;
+    return other is RectangleShape &&
+        other.border == border &&
+        other.cornerStyles == cornerStyles &&
+        other.borderRadius == borderRadius;
+  }
+
+  @override
+  int get hashCode => hashValues(border, cornerStyles, borderRadius);
 }

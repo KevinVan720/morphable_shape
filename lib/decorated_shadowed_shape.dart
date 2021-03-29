@@ -223,11 +223,11 @@ class DecoratedShadowedShape extends StatelessWidget {
       shape: shape ?? MorphableShapeBorder(shape: RectangleShape()),
       textDirection: Directionality.maybeOf(context),
     );
-    return ClipShadowPath(
-      clipper: clipper,
-      shadows: shadows,
-      child: _ShapeBorderPaint(
-        shape: shape,
+    return _ShapeBorderPaint(
+      shape: shape,
+      child: ClipShadowPath(
+        clipper: clipper,
+        shadows: shadows,
         child: ClipInsetShadowPath(
             decoration: decoration,
             clipper: clipper,

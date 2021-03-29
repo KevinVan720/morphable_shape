@@ -184,3 +184,9 @@ Update the decorated shadowed shape class
 ## [1.3.5] - 03.23.2021
 
 Add support for trim border path
+
+## [1.3.6] - 03.29.2021
+
+Add support for stroke join, stroke cap
+Round rect border fill update
+Support ShapeDecoration

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'package:flutter_class_parser/to_json.dart';
@@ -15,6 +16,8 @@ class DynamicBorderSide {
     this.begin,
     this.end,
     this.shift,
+    this.strokeJoin = StrokeJoin.miter,
+    this.strokeCap = StrokeCap.square,
   });
 
   DynamicBorderSide.fromJson(Map<String, dynamic> map)
@@ -26,7 +29,9 @@ class DynamicBorderSide {
             parseDimension(map["begin"]) ?? Length(0, unit: LengthUnit.percent),
         end = parseDimension(map["end"]) ?? Length(0, unit: LengthUnit.percent),
         shift =
-            parseDimension(map["shift"]) ?? Length(0, unit: LengthUnit.percent);
+            parseDimension(map["shift"]) ?? Length(0, unit: LengthUnit.percent),
+        strokeCap = parseStrokeCap(map["strokeCap"]) ?? StrokeCap.square,
+        strokeJoin = parseStrokeJoin(map["strokeJoin"]) ?? StrokeJoin.miter;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {};
@@ -37,6 +42,8 @@ class DynamicBorderSide {
     rst.updateNotNull("begin", begin?.toJson());
     rst.updateNotNull("end", end?.toJson());
     rst.updateNotNull("shift", end?.toJson());
+    rst.updateNotNull("strokeCap", strokeCap.toJson());
+    rst.updateNotNull("strokeJoin", strokeJoin.toJson());
     return rst;
   }
 
@@ -66,6 +73,9 @@ class DynamicBorderSide {
   final Dimension? end;
   final Dimension? shift;
 
+  final StrokeJoin strokeJoin;
+  final StrokeCap strokeCap;
+
   /// A hairline black border that is not rendered.
   static const DynamicBorderSide none =
       DynamicBorderSide(width: 0.0, style: BorderStyle.none);
@@ -78,6 +88,8 @@ class DynamicBorderSide {
     Dimension? begin,
     Dimension? end,
     Dimension? shift,
+    StrokeJoin? strokeJoin,
+    StrokeCap? strokeCap,
   }) {
     return DynamicBorderSide(
       color: color ?? this.color,
@@ -87,6 +99,8 @@ class DynamicBorderSide {
       begin: begin ?? this.begin,
       end: end ?? this.end,
       shift: shift ?? this.shift,
+      strokeCap: strokeCap ?? this.strokeCap,
+      strokeJoin: strokeJoin ?? this.strokeJoin,
     );
   }
 
@@ -99,6 +113,8 @@ class DynamicBorderSide {
       begin: begin,
       end: end,
       shift: shift,
+      strokeJoin: strokeJoin,
+      strokeCap: strokeCap,
     );
   }
 
@@ -150,6 +166,8 @@ class DynamicBorderSide {
           : Dimension.lerp(
               a.end ?? 100.toPercentLength, b.end ?? 100.toPercentLength, t),
       shift: Dimension.lerp(a.shift, b.shift, t),
+      strokeCap: t < 0.5 ? a.strokeCap : b.strokeCap,
+      strokeJoin: t < 0.5 ? a.strokeJoin : b.strokeJoin,
     );
   }
 
@@ -164,10 +182,12 @@ class DynamicBorderSide {
         other.style == style &&
         other.begin == begin &&
         other.end == end &&
-        other.shift == shift;
+        other.shift == shift &&
+        other.strokeCap == strokeCap &&
+        other.strokeJoin == strokeJoin;
   }
 
   @override
-  int get hashCode =>
-      hashValues(color, gradient, width, style, begin, end, shift);
+  int get hashCode => hashValues(
+      color, gradient, width, style, begin, end, shift, strokeJoin, strokeCap);
 }

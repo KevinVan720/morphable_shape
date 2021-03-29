@@ -22,15 +22,15 @@ abstract class Shape {
   DynamicPath generateInnerDynamicPath(Rect rect);
 
   Path generateOuterPath({required Rect rect}) {
-    DynamicPath path = generateOuterDynamicPath(rect);
+    DynamicPath path = generateOuterDynamicPath(Offset.zero & rect.size);
     path.removeOverlappingNodes();
-    return path.getPath(rect.size);
+    return path.getPath(rect.size).shift(rect.topLeft);
   }
 
   Path generateInnerPath({required Rect rect}) {
-    DynamicPath path = generateInnerDynamicPath(rect);
+    DynamicPath path = generateInnerDynamicPath(Offset.zero & rect.size);
     path.removeOverlappingNodes();
-    return path.getPath(rect.size);
+    return path.getPath(rect.size).shift(rect.topLeft);
   }
 
   void drawBorder(Canvas canvas, Rect rect);
@@ -66,8 +66,10 @@ abstract class OutlinedShape extends Shape {
       borderPaint.isAntiAlias = true;
       borderPaint.style = PaintingStyle.stroke;
       borderPaint.color = border.color;
-      borderPaint.strokeWidth = 2 * border.width;
+      borderPaint.strokeWidth = border.width;
       borderPaint.shader = border.gradient?.createShader(rect);
+      borderPaint.strokeCap = border.strokeCap;
+      borderPaint.strokeJoin = border.strokeJoin;
       drawBorderPath(
           canvas, rect, borderPaint, generateOuterPath(rect: rect), border);
     }
@@ -89,21 +91,24 @@ abstract class OutlinedShape extends Shape {
       endPX = endPX.clamp(0, metric.length);
       shiftPX = shiftPX.clamp(0, metric.length);
 
-      path = metric.extractPath(
+      path = extractPath(
+        metric,
         beginPX + shiftPX,
         endPX + shiftPX,
       );
       if (beginPX + shiftPX < metric.length) {
         canvas.drawPath(path, borderPaint);
         if (endPX + shiftPX > metric.length) {
-          path = metric.extractPath(
-            0,
+          path = extractPath(
+            metric,
+            0.0,
             endPX + shiftPX - metric.length,
           );
           canvas.drawPath(path, borderPaint);
         }
       } else {
-        path = metric.extractPath(
+        path = extractPath(
+          metric,
           beginPX + shiftPX - metric.length,
           endPX + shiftPX - metric.length,
         );
@@ -112,6 +117,19 @@ abstract class OutlinedShape extends Shape {
     } else {
       canvas.drawPath(path, borderPaint);
     }
+  }
+
+  static Path extractPath(PathMetric metric, double begin, double end) {
+    if (begin <= 0.0 && end >= metric.length) {
+      return metric.extractPath(
+        begin,
+        end,
+      )..close();
+    }
+    return metric.extractPath(
+      begin,
+      end,
+    );
   }
 }
 
@@ -163,7 +181,7 @@ abstract class FilledBorderShape extends Shape {
       borderPaint.style = PaintingStyle.fill;
       borderPaint.color = finalColors[i];
       borderPaint.shader = finalGradients[i]?.createShader(rect);
-      borderPaint.strokeWidth = 2;
+      borderPaint.strokeWidth = 1;
       borderPaint.strokeMiterLimit = 0.0;
       canvas.drawPath(finalPaths[i], borderPaint);
     }

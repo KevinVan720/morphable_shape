@@ -3,6 +3,7 @@ import 'dart:ui' as ui show Shadow, lerpDouble;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_class_parser/flutter_class_parser.dart';
 
 class ShapeShadow extends ui.Shadow {
   /// Creates a box shadow.
@@ -16,6 +17,25 @@ class ShapeShadow extends ui.Shadow {
     this.spreadRadius = 0.0,
     this.gradient,
   }) : super(color: color, offset: offset, blurRadius: blurRadius);
+
+  factory ShapeShadow.fromBoxShadow(BoxShadow source) {
+    return ShapeShadow(
+      color: source.color,
+      offset: source.offset,
+      blurRadius: source.blurRadius,
+      spreadRadius: source.spreadRadius,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> rst = {};
+    rst.updateNotNull("color", color.toJson());
+    rst.updateNotNull("offset", offset.toJson());
+    rst.updateNotNull("blurRadius", blurRadius);
+    rst.updateNotNull("gradient", gradient?.toJson());
+    rst.updateNotNull("spreadRadius", spreadRadius);
+    return rst;
+  }
 
   /// The amount the box should be inflated prior to applying the blur.
   final double spreadRadius;

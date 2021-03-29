@@ -100,10 +100,8 @@ class EditShapePageState extends State<EditShapePage>
         Positioned(
           left: nodeSize,
           top: nodeSize,
-          child: Material(
+          child: DecoratedShadowedShape(
             shape: shapeBorder,
-            clipBehavior: Clip.antiAlias,
-            animationDuration: Duration.zero,
             child: Container(
               width: shapeSize.width,
               height: shapeSize.height,
@@ -3057,6 +3055,36 @@ class EditShapePageState extends State<EditShapePage>
     ));
 
     rst.add(buildRowWithHeaderText(
+      headerText: "Stroke Join",
+      actionWidget: DropdownButton<StrokeJoin>(
+          value: border.strokeJoin,
+          onChanged: (StrokeJoin newStyle) {
+            setState(() {
+              updateCurrentShape(shape.copyWith(
+                  border: border.copyWith(strokeJoin: newStyle)));
+            });
+          },
+          items: StrokeJoin.values
+              .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
+              .toList()),
+    ));
+
+    rst.add(buildRowWithHeaderText(
+      headerText: "Stroke Cap",
+      actionWidget: DropdownButton<StrokeCap>(
+          value: border.strokeCap,
+          onChanged: (StrokeCap newStyle) {
+            setState(() {
+              updateCurrentShape(
+                  shape.copyWith(border: border.copyWith(strokeCap: newStyle)));
+            });
+          },
+          items: StrokeCap.values
+              .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
+              .toList()),
+    ));
+
+    rst.add(buildRowWithHeaderText(
         headerText: "Border Width",
         actionWidget: Expanded(
           child: Slider(
@@ -3164,6 +3192,8 @@ class EditShapePageState extends State<EditShapePage>
     Size size = shapeSize;
     List<Widget> rst = [];
 
+    double max = size.longestSide.roundWithNumber(20);
+
     rst.add(Column(
       children: [
         Align(
@@ -3186,7 +3216,7 @@ class EditShapePageState extends State<EditShapePage>
                   });
                 },
                 min: 0,
-                max: 20,
+                max: max,
                 divisions: 20,
               ),
             )),
@@ -3247,7 +3277,7 @@ class EditShapePageState extends State<EditShapePage>
                   });
                 },
                 min: 0,
-                max: 20,
+                max: max,
                 divisions: 20,
               ),
             )),
@@ -3308,7 +3338,7 @@ class EditShapePageState extends State<EditShapePage>
                   });
                 },
                 min: 0,
-                max: 20,
+                max: max,
                 divisions: 20,
               ),
             )),
@@ -3368,7 +3398,7 @@ class EditShapePageState extends State<EditShapePage>
                   });
                 },
                 min: 0,
-                max: 20,
+                max: max,
                 divisions: 20,
               ),
             )),

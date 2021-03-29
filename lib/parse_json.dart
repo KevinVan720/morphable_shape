@@ -92,6 +92,22 @@ DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
   }
 }
 
+ShapeShadow? parseShapeShadow(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  Color color = parseColor(map["color"]) ?? Colors.transparent;
+  Offset offset = parseOffset(map["offset"]) ?? Offset.zero;
+  double blurRadius = (map["blurRadius"] ?? 0.0).toDouble();
+  double spreadRadius = (map["spreadRadius"] ?? 0.0).toDouble();
+  Gradient? gradient = parseGradient(map["gradient"]);
+
+  return ShapeShadow(
+      color: color,
+      offset: offset,
+      blurRadius: blurRadius,
+      spreadRadius: spreadRadius,
+      gradient: gradient);
+}
+
 Shape? parseShape(Map<String, dynamic>? map) {
   if (map == null || map["type"] == null) return null;
 

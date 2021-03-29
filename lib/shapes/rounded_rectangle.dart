@@ -72,18 +72,6 @@ class RoundedRectangleShape extends FilledBorderShape {
     double topSideWidth = this.borders.top.width;
     double bottomSideWidth = this.borders.bottom.width;
 
-    if (leftSideWidth + rightSideWidth > size.width) {
-      double ratio = leftSideWidth / (leftSideWidth + rightSideWidth);
-      leftSideWidth = size.width * ratio;
-      rightSideWidth = size.width * (1 - ratio);
-    }
-
-    if (topSideWidth + bottomSideWidth > size.height) {
-      double ratio = topSideWidth / (topSideWidth + bottomSideWidth);
-      topSideWidth = size.height * ratio;
-      bottomSideWidth = size.height * (1 - ratio);
-    }
-
     BorderRadius borderRadius = this.borderRadius.toBorderRadius(size: size);
 
     double topLeftRadius = borderRadius.topLeft.x;
@@ -136,45 +124,69 @@ class RoundedRectangleShape extends FilledBorderShape {
 
     List<DynamicNode> nodes = [];
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center: Offset(right - max(topRightRadius, rightSideWidth),
-                top + max(rightTopRadius, topSideWidth)),
-            width: max(0, 2 * topRightRadius - 2 * rightSideWidth),
-            height: max(0, 2 * rightTopRadius - 2 * topSideWidth)),
-        -pi / 2,
-        pi / 2,
-        splitTimes: 1);
+    double r1, r2, sweep1;
+    var centerRect;
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center: Offset(right - max(bottomRightRadius, rightSideWidth),
-                bottom - max(rightBottomRadius, bottomSideWidth)),
-            width: max(0, 2 * bottomRightRadius - 2 * rightSideWidth),
-            height: max(0, 2 * rightBottomRadius - 2 * bottomSideWidth)),
-        0,
-        pi / 2,
-        splitTimes: 1);
+    r1 = max(0.0000001, 2 * topRightRadius - 2 * rightSideWidth);
+    r2 = max(0.0000001, 2 * rightTopRadius - 2 * topSideWidth);
+    centerRect = Rect.fromCenter(
+        center: Offset(right - max(topRightRadius, rightSideWidth),
+            top + max(rightTopRadius, topSideWidth)),
+        width: r1,
+        height: r2);
+    sweep1 = r1 / (r1 + r2) * pi / 2;
+    nodes.addArc(centerRect, -pi / 2, sweep1, splitTimes: 0);
+    List<Offset> points = arcToCubicBezier(
+        centerRect, -pi / 2 + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center: Offset(left + max(leftSideWidth, bottomLeftRadius),
-                bottom - max(bottomSideWidth, leftBottomRadius)),
-            width: max(0, 2 * bottomLeftRadius - 2 * leftSideWidth),
-            height: max(0, 2 * leftBottomRadius - 2 * bottomSideWidth)),
-        pi / 2,
-        pi / 2,
-        splitTimes: 1);
+    r1 = max(0.0000001, 2 * bottomRightRadius - 2 * rightSideWidth);
+    r2 = max(0.0000001, 2 * rightBottomRadius - 2 * bottomSideWidth);
+    centerRect = Rect.fromCenter(
+        center: Offset(right - max(bottomRightRadius, rightSideWidth),
+            bottom - max(rightBottomRadius, bottomSideWidth)),
+        width: r1,
+        height: r2);
+    sweep1 = r2 / (r1 + r2) * pi / 2;
+    nodes.addArc(centerRect, 0, sweep1, splitTimes: 0);
+    points = arcToCubicBezier(centerRect, 0 + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center: Offset(left + max(leftSideWidth, topLeftRadius),
-                top + max(topSideWidth, leftTopRadius)),
-            width: max(0, 2 * topLeftRadius - 2 * leftSideWidth),
-            height: max(0, 2 * leftTopRadius - 2 * topSideWidth)),
-        pi,
-        pi / 2,
-        splitTimes: 1);
+    r1 = max(0.0000001, 2 * bottomLeftRadius - 2 * leftSideWidth);
+    r2 = max(0.0000001, 2 * leftBottomRadius - 2 * bottomSideWidth);
+    centerRect = Rect.fromCenter(
+        center: Offset(left + max(leftSideWidth, bottomLeftRadius),
+            bottom - max(bottomSideWidth, leftBottomRadius)),
+        width: r1,
+        height: r2);
+    sweep1 = r1 / (r1 + r2) * pi / 2;
+    nodes.addArc(centerRect, pi / 2, sweep1, splitTimes: 0);
+    points = arcToCubicBezier(centerRect, pi / 2 + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
+
+    r1 = max(0.0000001, 2 * topLeftRadius - 2 * leftSideWidth);
+    r2 = max(0.0000001, 2 * leftTopRadius - 2 * topSideWidth);
+    centerRect = Rect.fromCenter(
+        center: Offset(left + max(leftSideWidth, topLeftRadius),
+            top + max(topSideWidth, leftTopRadius)),
+        width: r1,
+        height: r2);
+    sweep1 = r2 / (r1 + r2) * pi / 2;
+    nodes.addArc(centerRect, pi, sweep1, splitTimes: 0);
+    points = arcToCubicBezier(centerRect, pi + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
 
     return DynamicPath(size: rect.size, nodes: nodes);
   }
@@ -187,6 +199,11 @@ class RoundedRectangleShape extends FilledBorderShape {
     final double top = rect.top;
     final double bottom = rect.bottom;
     final double right = rect.right;
+
+    double leftSideWidth = this.borders.left.width;
+    double rightSideWidth = this.borders.right.width;
+    double topSideWidth = this.borders.top.width;
+    double bottomSideWidth = this.borders.bottom.width;
 
     BorderRadius borderRadius = this.borderRadius.toBorderRadius(size: size);
 
@@ -202,10 +219,16 @@ class RoundedRectangleShape extends FilledBorderShape {
     double rightTopRadius = borderRadius.topRight.y;
     double rightBottomRadius = borderRadius.bottomRight.y;
 
-    double topTotal = topLeftRadius + topRightRadius;
-    double bottomTotal = bottomLeftRadius + bottomRightRadius;
-    double leftTotal = leftTopRadius + leftBottomRadius;
-    double rightTotal = rightTopRadius + rightBottomRadius;
+    ///Handling the case when either the border with or
+    ///corner radius is too big
+    double topTotal =
+        max(topLeftRadius, leftSideWidth) + max(topRightRadius, rightSideWidth);
+    double bottomTotal = max(bottomLeftRadius, leftSideWidth) +
+        max(bottomRightRadius, rightSideWidth);
+    double leftTotal = max(leftTopRadius, topSideWidth) +
+        max(leftBottomRadius, bottomSideWidth);
+    double rightTotal = max(rightTopRadius, topSideWidth) +
+        max(rightBottomRadius, bottomSideWidth);
 
     if (max(topTotal, bottomTotal) > size.width ||
         max(leftTotal, rightTotal) > size.height) {
@@ -216,50 +239,107 @@ class RoundedRectangleShape extends FilledBorderShape {
       topRightRadius *= resizeRatio;
       bottomLeftRadius *= resizeRatio;
       bottomRightRadius *= resizeRatio;
+      leftSideWidth *= resizeRatio;
+      rightSideWidth *= resizeRatio;
 
       leftTopRadius *= resizeRatio;
       rightTopRadius *= resizeRatio;
       leftBottomRadius *= resizeRatio;
       rightBottomRadius *= resizeRatio;
+      topSideWidth *= resizeRatio;
+      bottomSideWidth *= resizeRatio;
     }
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center: Offset(right - topRightRadius, top + rightTopRadius),
-            width: 2 * topRightRadius,
-            height: 2 * rightTopRadius),
-        -pi / 2,
-        pi / 2,
-        splitTimes: 1);
+    double r1, r2, sweep1;
+    var centerRect;
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center:
-                Offset(right - bottomRightRadius, bottom - rightBottomRadius),
-            width: 2 * bottomRightRadius,
-            height: 2 * rightBottomRadius),
-        0,
-        pi / 2,
-        splitTimes: 1);
+    List<double> splits = [];
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center: Offset(left + bottomLeftRadius, bottom - leftBottomRadius),
-            width: 2 * bottomLeftRadius,
-            height: 2 * leftBottomRadius),
-        pi / 2,
-        pi / 2,
-        splitTimes: 1);
+    r1 = max(0.0000001, 2 * topRightRadius - 2 * rightSideWidth);
+    r2 = max(0.0000001, 2 * rightTopRadius - 2 * topSideWidth);
 
-    nodes.addArc(
-        Rect.fromCenter(
-            center: Offset(left + topLeftRadius, top + leftTopRadius),
-            width: 2 * topLeftRadius,
-            height: 2 * leftTopRadius),
-        pi,
-        pi / 2,
-        splitTimes: 1);
+    splits.add(r1 / (r1 + r2) * pi / 2);
+
+    r1 = max(0.0000001, 2 * bottomRightRadius - 2 * rightSideWidth);
+    r2 = max(0.0000001, 2 * rightBottomRadius - 2 * bottomSideWidth);
+    splits.add(r2 / (r1 + r2 + 0.0000001) * pi / 2);
+
+    r1 = max(0.0000001, 2 * bottomLeftRadius - 2 * leftSideWidth);
+    r2 = max(0.0000001, 2 * leftBottomRadius - 2 * bottomSideWidth);
+    splits.add(r1 / (r1 + r2 + 0.0000001) * pi / 2);
+
+    r1 = max(0.0000001, 2 * topLeftRadius - 2 * leftSideWidth);
+    r2 = max(0.0000001, 2 * leftTopRadius - 2 * topSideWidth);
+    splits.add(r2 / (r1 + r2 + 0.0000001) * pi / 2);
+
+    r1 = 2 * topRightRadius;
+    r2 = 2 * rightTopRadius;
+    centerRect = Rect.fromCenter(
+        center: Offset(right - topRightRadius, top + rightTopRadius),
+        width: r1,
+        height: r2);
+    sweep1 = splits[0];
+    nodes.addArc(centerRect, -pi / 2, sweep1, splitTimes: 0);
+    List<Offset> points = arcToCubicBezier(
+        centerRect, -pi / 2 + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
+
+    r1 = 2 * bottomRightRadius;
+    r2 = 2 * rightBottomRadius;
+    centerRect = Rect.fromCenter(
+        center: Offset(right - bottomRightRadius, bottom - rightBottomRadius),
+        width: r1,
+        height: r2);
+    sweep1 = splits[1];
+    nodes.addArc(centerRect, 0, sweep1, splitTimes: 0);
+    points = arcToCubicBezier(centerRect, 0 + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
+
+    r1 = 2 * bottomLeftRadius;
+    r2 = 2 * leftBottomRadius;
+    centerRect = Rect.fromCenter(
+        center: Offset(left + bottomLeftRadius, bottom - leftBottomRadius),
+        width: r1,
+        height: r2);
+    sweep1 = splits[2];
+    nodes.addArc(centerRect, pi / 2, sweep1, splitTimes: 0);
+    points = arcToCubicBezier(centerRect, pi / 2 + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
+
+    r1 = 2 * topLeftRadius;
+    r2 = 2 * leftTopRadius;
+    centerRect = Rect.fromCenter(
+        center: Offset(left + topLeftRadius, top + leftTopRadius),
+        width: r1,
+        height: r2);
+    sweep1 = splits[3];
+    nodes.addArc(centerRect, pi, sweep1, splitTimes: 0);
+    points = arcToCubicBezier(centerRect, pi + sweep1, pi / 2 - sweep1,
+        splitTimes: 0);
+    for (int i = 0; i < points.length; i += 4) {
+      nodes.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+    }
 
     return DynamicPath(size: rect.size, nodes: nodes);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType != runtimeType) return false;
+    return other is RoundedRectangleShape &&
+        other.borders == borders &&
+        other.borderRadius == borderRadius;
+  }
+
+  @override
+  int get hashCode => hashValues(borders, borderRadius);
 }

@@ -139,7 +139,7 @@ class MorphShape extends Shape {
           borderPaint.style = PaintingStyle.fill;
           borderPaint.color = finalColors[i];
           borderPaint.shader = finalGradients[i]?.createShader(rect);
-          borderPaint.strokeWidth = 2;
+          borderPaint.strokeWidth = 1;
           canvas.drawPath(finalPaths[i], borderPaint);
         }
       } else {
@@ -149,7 +149,9 @@ class MorphShape extends Shape {
         borderPaint.color = border.color;
         borderPaint.shader = border.gradient?.createShader(rect);
         borderPaint.strokeWidth =
-            2 * Tween(begin: 0.0, end: border.width).transform(t);
+            Tween(begin: 0.0, end: border.width).transform(t);
+        borderPaint.strokeCap = border.strokeCap;
+        borderPaint.strokeJoin = border.strokeJoin;
         if (border.style != BorderStyle.none) {
           Path path = generateOuterPath(rect: rect);
           OutlinedShape.drawBorderPath(canvas, rect, borderPaint, path, border);
@@ -189,7 +191,7 @@ class MorphShape extends Shape {
           borderPaint.style = PaintingStyle.fill;
           borderPaint.color = finalColors[i];
           borderPaint.shader = finalGradients[i]?.createShader(rect);
-          borderPaint.strokeWidth = 2;
+          borderPaint.strokeWidth = 1;
           canvas.drawPath(finalPaths[i], borderPaint);
         }
       }
@@ -203,7 +205,9 @@ class MorphShape extends Shape {
         borderPaint.color = border.color;
         borderPaint.shader = border.gradient?.createShader(rect);
         borderPaint.strokeWidth =
-            2 * Tween(begin: border.width, end: 0.0).transform(t);
+            Tween(begin: border.width, end: 0.0).transform(t);
+        borderPaint.strokeCap = border.strokeCap;
+        borderPaint.strokeJoin = border.strokeJoin;
         if (border.style != BorderStyle.none) {
           Path path = generateOuterPath(rect: rect);
           OutlinedShape.drawBorderPath(canvas, rect, borderPaint, path, border);
@@ -247,7 +251,7 @@ class MorphShape extends Shape {
           borderPaint.style = PaintingStyle.fill;
           borderPaint.color = finalColors[i];
           borderPaint.shader = finalGradients[i]?.createShader(rect);
-          borderPaint.strokeWidth = 2;
+          borderPaint.strokeWidth = 1;
           canvas.drawPath(finalPaths[i], borderPaint);
         }
       } else {
@@ -269,7 +273,9 @@ class MorphShape extends Shape {
                 (morphData.begin as OutlinedShape).border.color,
                 (morphData.end as OutlinedShape).border.color)
             ?.createShader(rect);
-        borderPaint.strokeWidth = 2 * morphBorder.width;
+        borderPaint.strokeWidth = morphBorder.width;
+        borderPaint.strokeCap = morphBorder.strokeCap;
+        borderPaint.strokeJoin = morphBorder.strokeJoin;
         if (morphBorder.style != BorderStyle.none) {
           Path path = generateOuterPath(rect: rect);
           OutlinedShape.drawBorderPath(

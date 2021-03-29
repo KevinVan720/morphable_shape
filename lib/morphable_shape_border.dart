@@ -6,6 +6,9 @@ import 'package:morphable_shape/shapes/rectangle.dart';
 
 ///ShapeBorder with various customizable shapes
 ///can smoothly tween between any two instances of this class
+///
+///The reason the Shape class exist is to distinguish between this package
+///and the Flutter built-in shapes
 class MorphableShapeBorder extends ShapeBorder {
   final Shape shape;
 
@@ -19,8 +22,6 @@ class MorphableShapeBorder extends ShapeBorder {
     return rst;
   }
 
-  ///for complex/responsive shapes, there is no way to determine the dimensions of the shape
-  ///without knowing the constraints
   @override
   EdgeInsetsGeometry get dimensions {
     return this.shape.dimensions;
@@ -32,6 +33,24 @@ class MorphableShapeBorder extends ShapeBorder {
   ShapeBorder scale(double t) {
     return this;
   }
+
+/*
+  @override
+  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
+    if (a is MorphableShapeBorder && a.shape.isSameMorphGeometry(this.shape)) {
+      return MorphableShapeBorderTween(begin: a, end: this).lerp(t);
+    }
+    return super.lerpFrom(a, t);
+  }
+
+  @override
+  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
+    if (b is MorphableShapeBorder && b.shape.isSameMorphGeometry(this.shape)) {
+      return MorphableShapeBorderTween(begin: this, end: b).lerp(t);
+    }
+    return super.lerpTo(b, t);
+  }
+ */
 
   @override
   Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
