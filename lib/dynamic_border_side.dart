@@ -17,7 +17,7 @@ class DynamicBorderSide {
     this.end,
     this.shift,
     this.strokeJoin = StrokeJoin.miter,
-    this.strokeCap = StrokeCap.square,
+    this.strokeCap = StrokeCap.butt,
   });
 
   DynamicBorderSide.fromJson(Map<String, dynamic> map)

@@ -210,3 +210,11 @@ Fix a clamp offset issue
 ## [1.4.1] - 03.29.2021
 
 Round rect border fill update
+
+## [1.4.2] - 03.29.2021
+
+Change default StrokeCap
+
+## [1.4.3] - 03.30.2021
+
+Dependence update
