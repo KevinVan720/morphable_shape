@@ -156,11 +156,11 @@ extension addDynamicNodeExtension on List<DynamicNode> {
     }
     if (style == CornerStyle.concave) {
       Offset newCenter = center +
-          Offset.fromDirection((startAngle + sweepAngle / 2).clampAngle(),
+          Offset.fromDirection((startAngle + sweepAngle / 2).clampAngleWithin(),
               radius / cos(sweepAngle / 2));
-      double newSweep = (-(pi - sweepAngle)).clampAngle();
-      double newStart =
-          -(pi - (startAngle + sweepAngle / 2) + newSweep / 2).clampAngle();
+      double newSweep = (-(pi - sweepAngle)).clampAngleWithin();
+      double newStart = -(pi - (startAngle + sweepAngle / 2) + newSweep / 2)
+          .clampAngleWithin();
       this.addArc(
           Rect.fromCircle(
               center: newCenter, radius: radius * tan(sweepAngle / 2)),
@@ -176,20 +176,6 @@ extension addDynamicNodeExtension on List<DynamicNode> {
   }
 }
 
-extension extendColorListExtension on List<Color> {
-  List<Color> extendColorsToLength(int length) {
-    if (this.length >= length) {
-      return this.sublist(0, length);
-    } else {
-      List<Color> rst = [];
-      for (int i = 0; i < length; i++) {
-        rst.add(this[i % this.length]);
-      }
-      return rst;
-    }
-  }
-}
-
 extension angleDoubleExtension on double {
   double toRadian() {
     return this / 180 * pi;
@@ -199,7 +185,7 @@ extension angleDoubleExtension on double {
     return this / pi * 180;
   }
 
-  double clampAngle() {
+  double clampAngleWithin() {
     if (this > pi) return this - 2 * pi;
     if (this < -pi) return this + 2 * pi;
     return this;

@@ -167,11 +167,11 @@ class StarShape extends OutlinedShape {
               r = scale - inset;
               Offset center = Offset(
                   (r * cos(omega)) + centerX, (r * sin(omega)) + centerY);
-              double newSweep = ((pi - sweepAngle)).clampAngle();
+              double newSweep = ((pi - sweepAngle)).clampAngleWithin();
               double newStart =
                   ((omega + sweepAngle / 2 + pi + sweepAngle / 2) +
                           newSweep / 2)
-                      .clampAngle();
+                      .clampAngleWithin();
               nodes.addArc(
                   Rect.fromCircle(
                       center: center,
