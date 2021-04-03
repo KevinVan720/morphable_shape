@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/dynamic_path_morph.dart';
+import 'package:morphable_shape/dynamic_path/dynamic_path_morph.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 import 'value_pickers.dart';
 
 class MorphShapePage extends StatefulWidget {
-  Shape shape;
+  MorphableShapeBorder shape;
 
   MorphShapePage({this.shape});
 
@@ -17,8 +17,8 @@ class MorphShapePage extends StatefulWidget {
 
 class _MorphShapePageState extends State<MorphShapePage>
     with SingleTickerProviderStateMixin {
-  Shape startShape;
-  Shape endShape;
+  MorphableShapeBorder beginShapeBorder;
+  MorphableShapeBorder endShapeBorder;
 
   AnimationController controller;
   Animation animation;
@@ -34,9 +34,9 @@ class _MorphShapePageState extends State<MorphShapePage>
   void initState() {
     super.initState();
 
-    startShape = widget.shape;
+    beginShapeBorder = widget.shape;
 
-    endShape = RectangleShape(
+    endShapeBorder = RectangleShapeBorder(
         border: DynamicBorderSide(
             width: 20,
             color: Colors.red,
@@ -76,14 +76,8 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     print(shapeWidth.toString() + "," + shapeHeight.toString());
 
-    MorphableShapeBorder startBorder;
-    MorphableShapeBorder endBorder;
-
-    startBorder = MorphableShapeBorder(shape: startShape);
-    endBorder = MorphableShapeBorder(shape: endShape);
-
     MorphableShapeBorderTween shapeBorderTween = MorphableShapeBorderTween(
-        begin: startBorder, end: endBorder, method: method);
+        begin: beginShapeBorder, end: endShapeBorder, method: method);
 
     return Scaffold(
         appBar: AppBar(
@@ -112,7 +106,7 @@ class _MorphShapePageState extends State<MorphShapePage>
           actions: [
             BottomSheetShapePicker(valueChanged: (shape) {
               setState(() {
-                endShape = shape;
+                endShapeBorder = shape;
               });
             })
           ],

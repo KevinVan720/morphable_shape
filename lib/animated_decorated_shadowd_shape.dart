@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/dynamic_path_morph.dart';
+import 'package:morphable_shape/dynamic_path/dynamic_path_morph.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 class ListShapeShadowTween extends Tween<List<ShapeShadow>?> {

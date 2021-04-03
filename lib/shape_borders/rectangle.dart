@@ -5,19 +5,19 @@ import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/ui_data_classes/dynamic_rectangle_styles.dart';
 
 ///Rectangle shape with various corner style and radius for each corner
-class RectangleShape extends OutlinedShape {
+class RectangleShapeBorder extends OutlinedShapeBorder {
   final RectangleCornerStyles cornerStyles;
 
   final DynamicBorderRadius borderRadius;
 
-  const RectangleShape({
+  const RectangleShapeBorder({
     this.borderRadius =
         const DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
     this.cornerStyles = const RectangleCornerStyles.all(CornerStyle.rounded),
     border = DynamicBorderSide.none,
   }) : super(border: border);
 
-  RectangleShape.fromJson(Map<String, dynamic> map)
+  RectangleShapeBorder.fromJson(Map<String, dynamic> map)
       : borderRadius = parseDynamicBorderRadius(map["borderRadius"]) ??
             DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
         this.cornerStyles = parseRectangleCornerStyle(map["cornerStyles"]) ??
@@ -34,18 +34,19 @@ class RectangleShape extends OutlinedShape {
     return rst;
   }
 
-  RectangleShape copyWith(
+  RectangleShapeBorder copyWith(
       {RectangleCornerStyles? cornerStyles,
       DynamicBorderSide? border,
       DynamicBorderRadius? borderRadius}) {
-    return RectangleShape(
+    return RectangleShapeBorder(
         cornerStyles: cornerStyles ?? this.cornerStyles,
         border: border ?? this.border,
         borderRadius: borderRadius ?? this.borderRadius);
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is RectangleShape || shape is RoundedRectangleShape;
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is RectangleShapeBorder ||
+        shape is RoundedRectangleShapeBorder;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
@@ -246,7 +247,7 @@ class RectangleShape extends OutlinedShape {
   @override
   bool operator ==(Object other) {
     if (other.runtimeType != runtimeType) return false;
-    return other is RectangleShape &&
+    return other is RectangleShapeBorder &&
         other.border == border &&
         other.cornerStyles == cornerStyles &&
         other.borderRadius == borderRadius;

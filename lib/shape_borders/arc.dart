@@ -5,22 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///A rectangle with one side replaced by an arc with a certain height
-class ArcShape extends OutlinedShape {
+class ArcShapeBorder extends OutlinedShapeBorder {
   final ShapeSide side;
-  final Length arcHeight;
+  final Dimension arcHeight;
   final bool isOutward;
 
-  const ArcShape({
+  const ArcShapeBorder({
     DynamicBorderSide border = DynamicBorderSide.none,
     this.side = ShapeSide.bottom,
     this.isOutward = true,
     this.arcHeight = const Length(20),
   }) : super(border: border);
 
-  ArcShape.fromJson(Map<String, dynamic> map)
+  ArcShapeBorder.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
         isOutward = map["isOutward"],
-        arcHeight = Length.fromJson(map["arcHeight"]) ?? Length(20),
+        arcHeight = parseDimension(map["arcHeight"]) ?? Length(20),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
@@ -35,13 +35,13 @@ class ArcShape extends OutlinedShape {
     return rst;
   }
 
-  ArcShape copyWith({
+  ArcShapeBorder copyWith({
     ShapeSide? side,
     bool? isOutward,
-    Length? arcHeight,
+    Dimension? arcHeight,
     DynamicBorderSide? border,
   }) {
-    return ArcShape(
+    return ArcShapeBorder(
       side: side ?? this.side,
       isOutward: isOutward ?? this.isOutward,
       arcHeight: arcHeight ?? this.arcHeight,
@@ -49,8 +49,8 @@ class ArcShape extends OutlinedShape {
     );
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is ArcShape && shape.side == this.side;
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is ArcShapeBorder && shape.side == this.side;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

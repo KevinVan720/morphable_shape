@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///Bubble shape, with a triangular tip and equal radius rounded corner
-class BubbleShape extends OutlinedShape {
+///The corner parameter is where the tip calculates its positions
+class BubbleShapeBorder extends OutlinedShapeBorder {
   final ShapeCorner corner;
 
-  final Length borderRadius;
-  final Length arrowHeight;
-  final Length arrowWidth;
+  final Dimension borderRadius;
+  final Dimension arrowHeight;
+  final Dimension arrowWidth;
 
-  final Length arrowCenterPosition;
-  final Length arrowHeadPosition;
+  final Dimension arrowCenterPosition;
+  final Dimension arrowHeadPosition;
 
-  const BubbleShape({
+  const BubbleShapeBorder({
     DynamicBorderSide border = DynamicBorderSide.none,
     this.corner = ShapeCorner.bottomRight,
     this.borderRadius = const Length(6),
@@ -24,16 +25,16 @@ class BubbleShape extends OutlinedShape {
     this.arrowHeadPosition = const Length(50, unit: LengthUnit.percent),
   }) : super(border: border);
 
-  BubbleShape.fromJson(Map<String, dynamic> map)
+  BubbleShapeBorder.fromJson(Map<String, dynamic> map)
       : corner = parseShapeCorner(map["corner"]) ?? ShapeCorner.bottomRight,
-        borderRadius = Length.fromJson(map["borderRadius"]) ?? Length(6),
+        borderRadius = parseDimension(map["borderRadius"]) ?? Length(6),
         arrowHeight =
-            Length.fromJson(map["arrowHeight"]) ?? 20.0.toPercentLength,
-        arrowWidth = Length.fromJson(map["arrowWidth"]) ?? 30.0.toPercentLength,
+            parseDimension(map["arrowHeight"]) ?? 20.0.toPercentLength,
+        arrowWidth = parseDimension(map["arrowWidth"]) ?? 30.0.toPercentLength,
         arrowCenterPosition =
-            Length.fromJson(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
+            parseDimension(map["arrowCenterPosition"]) ?? 50.0.toPercentLength,
         arrowHeadPosition =
-            Length.fromJson(map["arrowHeadPosition"]) ?? 50.0.toPercentLength,
+            parseDimension(map["arrowHeadPosition"]) ?? 50.0.toPercentLength,
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
@@ -51,16 +52,16 @@ class BubbleShape extends OutlinedShape {
     return rst;
   }
 
-  BubbleShape copyWith({
+  BubbleShapeBorder copyWith({
     ShapeCorner? corner,
-    Length? borderRadius,
-    Length? arrowHeight,
-    Length? arrowWidth,
-    Length? arrowCenterPosition,
-    Length? arrowHeadPosition,
+    Dimension? borderRadius,
+    Dimension? arrowHeight,
+    Dimension? arrowWidth,
+    Dimension? arrowCenterPosition,
+    Dimension? arrowHeadPosition,
     DynamicBorderSide? border,
   }) {
-    return BubbleShape(
+    return BubbleShapeBorder(
       border: border ?? this.border,
       corner: corner ?? this.corner,
       borderRadius: borderRadius ?? this.borderRadius,
@@ -71,8 +72,8 @@ class BubbleShape extends OutlinedShape {
     );
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is BubbleShape && this.corner.isSameSide(shape.corner);
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is BubbleShapeBorder && this.corner.isSameSide(shape.corner);
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

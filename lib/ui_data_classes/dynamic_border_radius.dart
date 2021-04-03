@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:dimension/dimension.dart';
+import 'package:flutter/material.dart';
 
 class DynamicRadius {
   const DynamicRadius.circular(Length radius) : this.elliptical(radius, radius);
@@ -10,8 +10,8 @@ class DynamicRadius {
   static const DynamicRadius zero = DynamicRadius.circular(const Length(0));
 
   DynamicRadius.fromJson(Map<String, dynamic> map)
-      : x = Length.fromJson(map["x"]) ?? 0.toPXLength,
-        y = Length.fromJson(map["y"]) ?? 0.toPXLength;
+      : x = parseDimension(map["x"]) ?? 0.toPXLength,
+        y = parseDimension(map["y"]) ?? 0.toPXLength;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {};
@@ -21,14 +21,14 @@ class DynamicRadius {
   }
 
   /// The radius value on the horizontal axis.
-  final Length x;
+  final Dimension x;
 
   /// The radius value on the vertical axis.
-  final Length y;
+  final Dimension y;
 
   DynamicRadius copyWith({
-    Length? x,
-    Length? y,
+    Dimension? x,
+    Dimension? y,
   }) {
     return DynamicRadius.elliptical(
       x ?? this.x,

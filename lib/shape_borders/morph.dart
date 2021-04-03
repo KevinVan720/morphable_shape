@@ -1,26 +1,26 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/dynamic_path_morph.dart';
+import 'package:morphable_shape/dynamic_path/dynamic_path_morph.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///this class should only be called by a morphShapeTween
 ///Use PathMorph to morph between two shapes
-class MorphShape extends Shape {
+class MorphShapeBorder extends MorphableShapeBorder {
   final double t;
   final MorphShapeData morphData;
 
-  MorphShape({required this.t, required this.morphData});
+  MorphShapeBorder({required this.t, required this.morphData});
 
   Map<String, dynamic> toJson() {
     return {};
   }
 
-  Shape copyWith() {
+  MorphableShapeBorder copyWith() {
     return this;
   }
 
-  bool isSameMorphGeometry(Shape shape) {
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
     return false;
   }
 
@@ -46,8 +46,8 @@ class MorphShape extends Shape {
       morphData.boundingBox = rect;
       DynamicPathMorph.sampleBorderPathsFromShape(morphData);
     }
-    if (morphData.begin is FilledBorderShape) {
-      if (morphData.end is FilledBorderShape) {
+    if (morphData.begin is FilledBorderShapeBorder) {
+      if (morphData.end is FilledBorderShapeBorder) {
         return DynamicPathMorph.lerpPaths(
             t, morphData.beginPaths!.inner, morphData.endPaths!.inner)
           ..resize(rect.size);
@@ -57,7 +57,7 @@ class MorphShape extends Shape {
           ..resize(rect.size);
       }
     } else {
-      if (morphData.end is FilledBorderShape) {
+      if (morphData.end is FilledBorderShapeBorder) {
         return DynamicPathMorph.lerpPaths(
             t, morphData.beginOuterPath, morphData.endPaths!.inner)
           ..resize(rect.size);
@@ -99,10 +99,10 @@ class MorphShape extends Shape {
   }
 
   @override
-  void drawBorder(Canvas canvas, Rect rect) {
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
     Paint borderPaint = Paint();
-    if (morphData.begin is FilledBorderShape) {
-      if (morphData.end is FilledBorderShape) {
+    if (morphData.begin is FilledBorderShapeBorder) {
+      if (morphData.end is FilledBorderShapeBorder) {
         List<Color> beginBorderColors = morphData.beginPaths!.fillColors;
         List<Color> endBorderColors = morphData.endPaths!.fillColors;
         List<Gradient?> beginBorderGradients =
@@ -143,9 +143,10 @@ class MorphShape extends Shape {
           canvas.drawPath(finalPaths[i], borderPaint);
         }
       } else {
-        assert(morphData.end is OutlinedShape);
+        assert(morphData.end is OutlinedShapeBorder);
         borderPaint.style = PaintingStyle.stroke;
-        DynamicBorderSide border = (morphData.end as OutlinedShape).border;
+        DynamicBorderSide border =
+            (morphData.end as OutlinedShapeBorder).border;
         borderPaint.color = border.color;
         borderPaint.shader = border.gradient?.createShader(rect);
         borderPaint.strokeWidth =
@@ -153,8 +154,9 @@ class MorphShape extends Shape {
         borderPaint.strokeCap = border.strokeCap;
         borderPaint.strokeJoin = border.strokeJoin;
         if (border.style != BorderStyle.none) {
-          Path path = generateOuterPath(rect: rect);
-          OutlinedShape.drawBorderPath(canvas, rect, borderPaint, path, border);
+          Path path = getOuterPath(rect);
+          OutlinedShapeBorder.drawBorderPath(
+              canvas, rect, borderPaint, path, border);
         }
 
         List<Color> beginBorderColors = morphData.beginPaths!.fillColors;
@@ -196,11 +198,12 @@ class MorphShape extends Shape {
         }
       }
     } else {
-      assert(morphData.begin is OutlinedShape);
-      if (morphData.end is FilledBorderShape) {
+      assert(morphData.begin is OutlinedShapeBorder);
+      if (morphData.end is FilledBorderShapeBorder) {
         Paint borderPaint = Paint();
 
-        DynamicBorderSide border = (morphData.begin as OutlinedShape).border;
+        DynamicBorderSide border =
+            (morphData.begin as OutlinedShapeBorder).border;
         borderPaint.style = PaintingStyle.stroke;
         borderPaint.color = border.color;
         borderPaint.shader = border.gradient?.createShader(rect);
@@ -209,8 +212,9 @@ class MorphShape extends Shape {
         borderPaint.strokeCap = border.strokeCap;
         borderPaint.strokeJoin = border.strokeJoin;
         if (border.style != BorderStyle.none) {
-          Path path = generateOuterPath(rect: rect);
-          OutlinedShape.drawBorderPath(canvas, rect, borderPaint, path, border);
+          Path path = getOuterPath(rect);
+          OutlinedShapeBorder.drawBorderPath(
+              canvas, rect, borderPaint, path, border);
         }
         List<Color> endBorderColors = morphData.endPaths!.fillColors;
         List<Gradient?> endBorderGradients = morphData.endPaths!.fillGradients;
@@ -225,9 +229,9 @@ class MorphShape extends Shape {
         List<Gradient?> borderGradients = endBorderGradients
             .mapIndexed((e, i) => lerpGradient(
                 t,
-                (morphData.begin as OutlinedShape).border.gradient,
+                (morphData.begin as OutlinedShapeBorder).border.gradient,
                 e,
-                (morphData.begin as OutlinedShape).border.color,
+                (morphData.begin as OutlinedShapeBorder).border.color,
                 endBorderColors[i]))
             .toList();
 
@@ -255,30 +259,30 @@ class MorphShape extends Shape {
           canvas.drawPath(finalPaths[i], borderPaint);
         }
       } else {
-        assert(morphData.end is OutlinedShape);
+        assert(morphData.end is OutlinedShapeBorder);
         Paint borderPaint = Paint();
         borderPaint.isAntiAlias = true;
         borderPaint.style = PaintingStyle.stroke;
 
         DynamicBorderSide morphBorder = DynamicBorderSide.lerp(
-            (morphData.begin as OutlinedShape).border,
-            (morphData.end as OutlinedShape).border,
+            (morphData.begin as OutlinedShapeBorder).border,
+            (morphData.end as OutlinedShapeBorder).border,
             t);
 
         borderPaint.color = morphBorder.color;
         borderPaint.shader = lerpGradient(
                 t,
-                (morphData.begin as OutlinedShape).border.gradient,
-                (morphData.end as OutlinedShape).border.gradient,
-                (morphData.begin as OutlinedShape).border.color,
-                (morphData.end as OutlinedShape).border.color)
+                (morphData.begin as OutlinedShapeBorder).border.gradient,
+                (morphData.end as OutlinedShapeBorder).border.gradient,
+                (morphData.begin as OutlinedShapeBorder).border.color,
+                (morphData.end as OutlinedShapeBorder).border.color)
             ?.createShader(rect);
         borderPaint.strokeWidth = morphBorder.width;
         borderPaint.strokeCap = morphBorder.strokeCap;
         borderPaint.strokeJoin = morphBorder.strokeJoin;
         if (morphBorder.style != BorderStyle.none) {
-          Path path = generateOuterPath(rect: rect);
-          OutlinedShape.drawBorderPath(
+          Path path = getOuterPath(rect);
+          OutlinedShapeBorder.drawBorderPath(
               canvas, rect, borderPaint, path, morphBorder);
         }
       }

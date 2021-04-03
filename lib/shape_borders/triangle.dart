@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///triangle shape defined by the three vertices
-///vertices should only use the percent length unit
-class TriangleShape extends OutlinedShape {
+class TriangleShapeBorder extends OutlinedShapeBorder {
   final DynamicOffset point1;
   final DynamicOffset point2;
   final DynamicOffset point3;
 
-  const TriangleShape(
+  const TriangleShapeBorder(
       {this.point1 = const DynamicOffset(
           const Length(0, unit: LengthUnit.percent),
           const Length(0, unit: LengthUnit.percent)),
@@ -23,7 +22,7 @@ class TriangleShape extends OutlinedShape {
       DynamicBorderSide border = DynamicBorderSide.none})
       : super(border: border);
 
-  TriangleShape.fromJson(Map<String, dynamic> map)
+  TriangleShapeBorder.fromJson(Map<String, dynamic> map)
       : point1 = parseDynamicOffset(map["point1"]) ??
             DynamicOffset(const Length(0, unit: LengthUnit.percent),
                 const Length(0, unit: LengthUnit.percent)),
@@ -46,13 +45,13 @@ class TriangleShape extends OutlinedShape {
     return rst;
   }
 
-  TriangleShape copyWith({
+  TriangleShapeBorder copyWith({
     DynamicOffset? point1,
     DynamicOffset? point2,
     DynamicOffset? point3,
     DynamicBorderSide? border,
   }) {
-    return TriangleShape(
+    return TriangleShapeBorder(
       point1: point1 ?? this.point1,
       point2: point2 ?? this.point2,
       point3: point3 ?? this.point3,
@@ -60,8 +59,8 @@ class TriangleShape extends OutlinedShape {
     );
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is TriangleShape;
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is TriangleShapeBorder;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

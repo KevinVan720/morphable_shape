@@ -221,7 +221,7 @@ class DecoratedShadowedShape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CustomClipper<Path> clipper = CustomShapeBorderClipper(
-      shape: shape ?? MorphableShapeBorder(shape: RectangleShape()),
+      shape: shape ?? RectangleShapeBorder(),
       textDirection: Directionality.maybeOf(context),
     );
     return _ShapeBorderPaint(

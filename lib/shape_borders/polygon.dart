@@ -3,12 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
-class PolygonShape extends OutlinedShape {
+///Polygon shape with different number of sides, corner radius and corner style
+class PolygonShapeBorder extends OutlinedShapeBorder {
   final int sides;
-  final Length cornerRadius;
+  final Dimension cornerRadius;
   final CornerStyle cornerStyle;
 
-  const PolygonShape(
+  const PolygonShapeBorder(
       {this.sides = 5,
       this.cornerStyle = CornerStyle.rounded,
       this.cornerRadius = const Length(0),
@@ -16,10 +17,10 @@ class PolygonShape extends OutlinedShape {
       : assert(sides >= 3),
         super(border: border);
 
-  PolygonShape.fromJson(Map<String, dynamic> map)
+  PolygonShapeBorder.fromJson(Map<String, dynamic> map)
       : cornerStyle =
             parseCornerStyle(map["cornerStyle"]) ?? CornerStyle.rounded,
-        cornerRadius = Length.fromJson(map["cornerRadius"]) ?? Length(0),
+        cornerRadius = parseDimension(map["cornerRadius"]) ?? Length(0),
         sides = map["sides"] ?? 5,
         super(
             border: parseDynamicBorderSide(map["border"]) ??
@@ -34,13 +35,13 @@ class PolygonShape extends OutlinedShape {
     return rst;
   }
 
-  PolygonShape copyWith({
+  PolygonShapeBorder copyWith({
     CornerStyle? cornerStyle,
-    Length? cornerRadius,
+    Dimension? cornerRadius,
     int? sides,
     DynamicBorderSide? border,
   }) {
-    return PolygonShape(
+    return PolygonShapeBorder(
       border: border ?? this.border,
       cornerStyle: cornerStyle ?? this.cornerStyle,
       sides: sides ?? this.sides,
@@ -48,8 +49,8 @@ class PolygonShape extends OutlinedShape {
     );
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is PolygonShape && this.sides == shape.sides;
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is PolygonShapeBorder && this.sides == shape.sides;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

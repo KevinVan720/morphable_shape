@@ -215,6 +215,6 @@ Round rect border fill update
 
 Change default StrokeCap
 
-## [1.4.3] - 03.30.2021
+## [1.4.3] - 04.03.2021
 
-Dependence update
+Remove the Shape class, now you should use ShapeBorder directly

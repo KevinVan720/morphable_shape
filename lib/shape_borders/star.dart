@@ -3,15 +3,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
-class StarShape extends OutlinedShape {
+///Star shape, with different corner radius & style, inset radius & style.
+class StarShapeBorder extends OutlinedShapeBorder {
   final int corners;
-  final Length inset;
-  final Length cornerRadius;
-  final Length insetRadius;
+  final Dimension inset;
+  final Dimension cornerRadius;
+  final Dimension insetRadius;
   final CornerStyle cornerStyle;
   final CornerStyle insetStyle;
 
-  const StarShape({
+  const StarShapeBorder({
     this.corners = 4,
     this.inset = const Length(50, unit: LengthUnit.percent),
     this.cornerRadius = const Length(0),
@@ -22,15 +23,15 @@ class StarShape extends OutlinedShape {
   })  : assert(corners >= 3),
         super(border: border);
 
-  StarShape.fromJson(Map<String, dynamic> map)
+  StarShapeBorder.fromJson(Map<String, dynamic> map)
       : cornerStyle =
             parseCornerStyle(map["cornerStyle"]) ?? CornerStyle.rounded,
         insetStyle = parseCornerStyle(map["insetStyle"]) ?? CornerStyle.rounded,
         corners = map["corners"] ?? 4,
-        inset = Length.fromJson(map['inset']) ??
+        inset = parseDimension(map['inset']) ??
             Length(50, unit: LengthUnit.percent),
-        cornerRadius = Length.fromJson(map["cornerRadius"]) ?? Length(0),
-        insetRadius = Length.fromJson(map["insetRadius"]) ?? Length(0),
+        cornerRadius = parseDimension(map["cornerRadius"]) ?? Length(0),
+        insetRadius = parseDimension(map["insetRadius"]) ?? Length(0),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
@@ -47,16 +48,16 @@ class StarShape extends OutlinedShape {
     return rst;
   }
 
-  StarShape copyWith({
+  StarShapeBorder copyWith({
     int? corners,
-    Length? inset,
-    Length? cornerRadius,
-    Length? insetRadius,
+    Dimension? inset,
+    Dimension? cornerRadius,
+    Dimension? insetRadius,
     CornerStyle? cornerStyle,
     CornerStyle? insetStyle,
     DynamicBorderSide? border,
   }) {
-    return StarShape(
+    return StarShapeBorder(
       corners: corners ?? this.corners,
       inset: inset ?? this.inset,
       cornerRadius: cornerRadius ?? this.cornerRadius,
@@ -67,8 +68,8 @@ class StarShape extends OutlinedShape {
     );
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is StarShape && shape.corners == this.corners;
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is StarShapeBorder && shape.corners == this.corners;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

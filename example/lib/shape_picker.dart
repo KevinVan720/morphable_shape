@@ -7,11 +7,11 @@ bool useWhiteForeground(Color color) {
   return 1.05 / (color.computeLuminance() + 0.05) > 4.5;
 }
 
-typedef PickerLayoutBuilder = Widget Function(
-    BuildContext context, List<Shape> allShape, PickerItem child);
-typedef PickerItem = Widget Function(Shape shape);
+typedef PickerLayoutBuilder = Widget Function(BuildContext context,
+    List<MorphableShapeBorder> allShape, PickerItem child);
+typedef PickerItem = Widget Function(MorphableShapeBorder shape);
 typedef PickerItemBuilder = Widget Function(
-  Shape shape,
+  MorphableShapeBorder shape,
   bool isCurrentShape,
   void Function() changeShape,
 );
@@ -25,15 +25,13 @@ class BlockShapePicker extends StatefulWidget {
   final Function onShapeChanged;
   final PickerItemBuilder itemBuilder;
 
-  static Widget defaultItemBuilder(
-      Shape shape, bool isCurrentShape, void Function() changeShape) {
+  static Widget defaultItemBuilder(MorphableShapeBorder shape,
+      bool isCurrentShape, void Function() changeShape) {
     return Material(
       clipBehavior: Clip.antiAlias,
       type: MaterialType.canvas,
       elevation: 1,
-      shape: MorphableShapeBorder(
-        shape: shape,
-      ),
+      shape: shape,
       child: Container(
         color: isCurrentShape
             ? Colors.black.withOpacity(0.7)
@@ -52,7 +50,7 @@ class BlockShapePicker extends StatefulWidget {
 }
 
 class _BlockShapePickerState extends State<BlockShapePicker> {
-  Shape _currentShape;
+  MorphableShapeBorder _currentShape;
 
   @override
   void initState() {
@@ -60,7 +58,7 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
     super.initState();
   }
 
-  void changeShape(Shape shape) {
+  void changeShape(MorphableShapeBorder shape) {
     setState(() {
       _currentShape = shape;
     });
@@ -99,7 +97,8 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
                             EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                         children:
                             presetShapeMap[category].keys.map((String name) {
-                          Shape shape = presetShapeMap[category][name];
+                          MorphableShapeBorder shape =
+                              presetShapeMap[category][name];
                           return widget.itemBuilder(shape,
                               shape == _currentShape, () => changeShape(shape));
                         }).toList(),
@@ -119,7 +118,7 @@ class BottomSheetShapePicker extends StatefulWidget {
   });
 
   final String headText;
-  final Shape currentShape;
+  final MorphableShapeBorder currentShape;
   final ValueChanged valueChanged;
 
   @override
@@ -127,15 +126,15 @@ class BottomSheetShapePicker extends StatefulWidget {
 }
 
 class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
-  Shape currentShape;
+  MorphableShapeBorder currentShape;
 
   @override
   void initState() {
-    currentShape = widget.currentShape ?? RectangleShape();
+    currentShape = widget.currentShape ?? RectangleShapeBorder();
     super.initState();
   }
 
-  void changeShape(Shape shape) {
+  void changeShape(MorphableShapeBorder shape) {
     setState(() => currentShape = shape);
   }
 

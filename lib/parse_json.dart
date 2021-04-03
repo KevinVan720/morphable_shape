@@ -80,6 +80,13 @@ DynamicBorderRadius? parseDynamicBorderRadius(Map<String, dynamic>? map) {
   return DynamicBorderRadius.fromJson(map);
 }
 
+DynamicOffset? parseDynamicOffset(Map<String, dynamic>? map) {
+  if (map == null) return null;
+  Dimension dx = parseDimension(map['dx']) ?? Length(0);
+  Dimension dy = parseDimension(map['dy']) ?? Length(0);
+  return DynamicOffset(dx, dy);
+}
+
 DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
   if (map == null) return null;
   Size? size = parseSize(map["size"]);
@@ -108,43 +115,34 @@ ShapeShadow? parseShapeShadow(Map<String, dynamic>? map) {
       gradient: gradient);
 }
 
-Shape? parseShape(Map<String, dynamic>? map) {
+MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
   if (map == null || map["type"] == null) return null;
 
   String shapeName = map["type"];
   switch (shapeName) {
     case "ArcShape":
-      return ArcShape.fromJson(map);
+      return ArcShapeBorder.fromJson(map);
     case "ArrowShape":
-      return ArrowShape.fromJson(map);
+      return ArrowShapeBorder.fromJson(map);
     case "BubbleShape":
-      return BubbleShape.fromJson(map);
+      return BubbleShapeBorder.fromJson(map);
     case "CircleShape":
-      return CircleShape.fromJson(map);
+      return CircleShapeBorder.fromJson(map);
     case "PolygonShape":
-      return PolygonShape.fromJson(map);
+      return PolygonShapeBorder.fromJson(map);
     case "RectangleShape":
-      return RectangleShape.fromJson(map);
+      return RectangleShapeBorder.fromJson(map);
     case "RoundedRectangleShape":
-      return RoundedRectangleShape.fromJson(map);
+      return RoundedRectangleShapeBorder.fromJson(map);
     case "StarShape":
-      return StarShape.fromJson(map);
+      return StarShapeBorder.fromJson(map);
     case "TrapezoidShape":
-      return TrapezoidShape.fromJson(map);
+      return TrapezoidShapeBorder.fromJson(map);
     case "TriangleShape":
-      return TriangleShape.fromJson(map);
+      return TriangleShapeBorder.fromJson(map);
     case "PathShape":
-      return PathShape.fromJson(map);
+      return PathShapeBorder.fromJson(map);
     default:
       return null;
   }
-}
-
-MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
-  if (map == null) return null;
-  return MorphableShapeBorder(
-    shape: parseShape(map["shape"]) ??
-        RectangleShape(
-            borderRadius: DynamicBorderRadius.all(DynamicRadius.zero)),
-  );
 }

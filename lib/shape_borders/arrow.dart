@@ -2,24 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///An arrow shape with a head and a tail
-
-class ArrowShape extends OutlinedShape {
+class ArrowShapeBorder extends OutlinedShapeBorder {
   final ShapeSide side;
-  final Length arrowHeight;
-  final Length tailWidth;
+  final Dimension arrowHeight;
+  final Dimension tailWidth;
 
-  const ArrowShape(
+  const ArrowShapeBorder(
       {this.side = ShapeSide.right,
       this.arrowHeight = const Length(25, unit: LengthUnit.percent),
       this.tailWidth = const Length(40, unit: LengthUnit.percent),
       DynamicBorderSide border = DynamicBorderSide.none})
       : super(border: border);
 
-  ArrowShape.fromJson(Map<String, dynamic> map)
+  ArrowShapeBorder.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
-        arrowHeight = Length.fromJson(map['arrowHeight']) ??
+        arrowHeight = parseDimension(map['arrowHeight']) ??
             Length(25, unit: LengthUnit.percent),
-        tailWidth = Length.fromJson(map['tailWidth']) ??
+        tailWidth = parseDimension(map['tailWidth']) ??
             Length(40, unit: LengthUnit.percent),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
@@ -34,21 +33,21 @@ class ArrowShape extends OutlinedShape {
     return rst;
   }
 
-  ArrowShape copyWith({
+  ArrowShapeBorder copyWith({
     ShapeSide? side,
-    Length? arrowHeight,
-    Length? tailWidth,
+    Dimension? arrowHeight,
+    Dimension? tailWidth,
     DynamicBorderSide? border,
   }) {
-    return ArrowShape(
+    return ArrowShapeBorder(
         side: side ?? this.side,
         arrowHeight: arrowHeight ?? this.arrowHeight,
         tailWidth: tailWidth ?? this.tailWidth,
         border: border ?? this.border);
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is ArrowShape && shape.side == this.side;
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is ArrowShapeBorder && shape.side == this.side;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {

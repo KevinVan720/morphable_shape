@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
-import 'package:morphable_shape/morphable_shape_border.dart';
 
 import 'how_to_use_text.dart';
 import 'morph_shape_page.dart';
@@ -25,7 +24,7 @@ class EditShapePageState extends State<EditShapePage>
   static int gridCount = 10;
   static double shapeMinimumSize = 20;
 
-  Shape currentShape;
+  MorphableShapeBorder currentShapeBorder;
 
   ///trying to implement undo/redo, but each drag incurs too many
   ///changes, not making much sense
@@ -47,7 +46,7 @@ class EditShapePageState extends State<EditShapePage>
   @override
   void initState() {
     super.initState();
-    currentShape = RectangleShape();
+    currentShapeBorder = RectangleShapeBorder();
     _tabController = TabController(vsync: this, length: 1);
   }
 
@@ -78,9 +77,7 @@ class EditShapePageState extends State<EditShapePage>
 
       MorphableShapeBorder shapeBorder;
 
-      shapeBorder = MorphableShapeBorder(
-        shape: currentShape,
-      );
+      shapeBorder = currentShapeBorder;
 
       List<Widget> stackedComponents = [
         Container(
@@ -114,7 +111,7 @@ class EditShapePageState extends State<EditShapePage>
       ];
 
       if (isEditingPath) {
-        if (currentShape is PathShape && showGrid) {
+        if (currentShapeBorder is PathShapeBorder && showGrid) {
           stackedComponents.add(Positioned(
               left: nodeSize,
               top: nodeSize,
@@ -162,7 +159,7 @@ class EditShapePageState extends State<EditShapePage>
                       context,
                       MaterialPageRoute(
                           builder: (context) => MorphShapePage(
-                                shape: currentShape,
+                                shape: currentShapeBorder,
                               )));
                 }),
             actions: <Widget>[
@@ -286,52 +283,54 @@ class EditShapePageState extends State<EditShapePage>
     });
   }
 
-  void updateCurrentShape(Shape newShape) {
-    currentShape = newShape;
+  void updateCurrentShape(MorphableShapeBorder newShape) {
+    currentShapeBorder = newShape;
     //shapeHistory.addLast(currentShape.toJson());
   }
 
   List<Widget> buildEditingShapeControlWidgets() {
     List<Widget> stackedComponents = [];
-    if (currentShape is ArcShape) {
-      stackedComponents.addAll(buildArcEditingWidgets(currentShape));
+    if (currentShapeBorder is ArcShapeBorder) {
+      stackedComponents.addAll(buildArcEditingWidgets(currentShapeBorder));
     }
-    if (currentShape is ArrowShape) {
-      stackedComponents.addAll(buildArrowEditingWidgets(currentShape));
+    if (currentShapeBorder is ArrowShapeBorder) {
+      stackedComponents.addAll(buildArrowEditingWidgets(currentShapeBorder));
     }
-    if (currentShape is BubbleShape) {
-      stackedComponents.addAll(buildBubbleEditingWidgets(currentShape));
+    if (currentShapeBorder is BubbleShapeBorder) {
+      stackedComponents.addAll(buildBubbleEditingWidgets(currentShapeBorder));
     }
-    if (currentShape is CircleShape) {
-      stackedComponents.addAll(buildCircleEditingWidgets(currentShape));
-    }
-
-    if (currentShape is PathShape) {
-      stackedComponents.addAll(buildPathEditingWidgets(currentShape));
-    }
-    if (currentShape is PolygonShape) {
-      stackedComponents.addAll(buildPolygonEditingWidgets(currentShape));
+    if (currentShapeBorder is CircleShapeBorder) {
+      stackedComponents.addAll(buildCircleEditingWidgets(currentShapeBorder));
     }
 
-    if (currentShape is RectangleShape) {
-      stackedComponents.addAll(buildRectangleEditingWidgets(currentShape));
+    if (currentShapeBorder is PathShapeBorder) {
+      stackedComponents.addAll(buildPathEditingWidgets(currentShapeBorder));
+    }
+    if (currentShapeBorder is PolygonShapeBorder) {
+      stackedComponents.addAll(buildPolygonEditingWidgets(currentShapeBorder));
     }
 
-    if (currentShape is RoundedRectangleShape) {
+    if (currentShapeBorder is RectangleShapeBorder) {
       stackedComponents
-          .addAll(buildRoundedRectangleEditingWidgets(currentShape));
+          .addAll(buildRectangleEditingWidgets(currentShapeBorder));
     }
 
-    if (currentShape is StarShape) {
-      stackedComponents.addAll(buildStarEditingWidgets(currentShape));
+    if (currentShapeBorder is RoundedRectangleShapeBorder) {
+      stackedComponents
+          .addAll(buildRoundedRectangleEditingWidgets(currentShapeBorder));
     }
 
-    if (currentShape is TrapezoidShape) {
-      stackedComponents.addAll(buildTrapezoidEditingWidgets(currentShape));
+    if (currentShapeBorder is StarShapeBorder) {
+      stackedComponents.addAll(buildStarEditingWidgets(currentShapeBorder));
     }
 
-    if (currentShape is TriangleShape) {
-      stackedComponents.addAll(buildTriangleEditingWidgets(currentShape));
+    if (currentShapeBorder is TrapezoidShapeBorder) {
+      stackedComponents
+          .addAll(buildTrapezoidEditingWidgets(currentShapeBorder));
+    }
+
+    if (currentShapeBorder is TriangleShapeBorder) {
+      stackedComponents.addAll(buildTriangleEditingWidgets(currentShapeBorder));
     }
 
     return stackedComponents;
@@ -355,7 +354,7 @@ class EditShapePageState extends State<EditShapePage>
                 },
                 constraintSize: MediaQuery.of(context).size)));
 
-    if (!(currentShape is PathShape)) {
+    if (!(currentShapeBorder is PathShapeBorder)) {
       stackedComponents.add(buildRowWithHeaderText(
           headerText: "To Bezier",
           actionWidget: Container(
@@ -364,8 +363,8 @@ class EditShapePageState extends State<EditShapePage>
                 child: Text('CONVERT'),
                 onPressed: () {
                   setState(() {
-                    updateCurrentShape(PathShape(
-                        path: currentShape.generateOuterDynamicPath(
+                    updateCurrentShape(PathShapeBorder(
+                        path: currentShapeBorder.generateOuterDynamicPath(
                             Rect.fromLTRB(
                                 0, 0, shapeSize.width, shapeSize.height))
                           ..removeOverlappingNodes()));
@@ -379,7 +378,7 @@ class EditShapePageState extends State<EditShapePage>
         actionWidget: Container(
           padding: EdgeInsets.only(right: 5),
           child: BottomSheetShapePicker(
-            currentShape: currentShape,
+            currentShape: currentShapeBorder,
             valueChanged: (value) {
               setState(() {
                 updateCurrentShape(value);
@@ -404,7 +403,7 @@ class EditShapePageState extends State<EditShapePage>
                               width: min(
                                   MediaQuery.of(context).size.width * 0.8, 400),
                               child: SelectableText(
-                                  json.encode(currentShape.toJson()))),
+                                  json.encode(currentShapeBorder.toJson()))),
                         ),
                         actions: <Widget>[
                           TextButton(
@@ -433,49 +432,56 @@ class EditShapePageState extends State<EditShapePage>
   List<Widget> buildEditingShapePanelWidgets() {
     List<Widget> stackedComponents = [];
 
-    if (currentShape is ArcShape) {
-      stackedComponents.addAll(buildArcEditingPanelWidget(currentShape));
+    if (currentShapeBorder is ArcShapeBorder) {
+      stackedComponents.addAll(buildArcEditingPanelWidget(currentShapeBorder));
     }
 
-    if (currentShape is ArrowShape) {
-      stackedComponents.addAll(buildArrowEditingPanelWidget(currentShape));
-    }
-
-    if (currentShape is BubbleShape) {
-      stackedComponents.addAll(buildBubbleEditingPanelWidget(currentShape));
-    }
-
-    if (currentShape is CircleShape) {
-      stackedComponents.addAll(buildCircleEditingPanelWidget(currentShape));
-    }
-
-    if (currentShape is PathShape) {
-      stackedComponents.addAll(buildPathEditingPanelWidget(currentShape));
-    }
-
-    if (currentShape is PolygonShape) {
-      stackedComponents.addAll(buildPolygonEditingPanelWidget(currentShape));
-    }
-
-    if (currentShape is RectangleShape) {
-      stackedComponents.addAll(buildRectangleEditingPanelWidget(currentShape));
-    }
-
-    if (currentShape is RoundedRectangleShape) {
+    if (currentShapeBorder is ArrowShapeBorder) {
       stackedComponents
-          .addAll(buildRoundedRectangleEditingPanelWidget(currentShape));
+          .addAll(buildArrowEditingPanelWidget(currentShapeBorder));
     }
 
-    if (currentShape is StarShape) {
-      stackedComponents.addAll(buildStarEditingPanelWidget(currentShape));
+    if (currentShapeBorder is BubbleShapeBorder) {
+      stackedComponents
+          .addAll(buildBubbleEditingPanelWidget(currentShapeBorder));
     }
 
-    if (currentShape is TrapezoidShape) {
-      stackedComponents.addAll(buildTrapezoidEditingPanelWidget(currentShape));
+    if (currentShapeBorder is CircleShapeBorder) {
+      stackedComponents
+          .addAll(buildCircleEditingPanelWidget(currentShapeBorder));
     }
 
-    if (currentShape is TriangleShape) {
-      stackedComponents.addAll(buildTriangleEditingPanelWidget(currentShape));
+    if (currentShapeBorder is PathShapeBorder) {
+      stackedComponents.addAll(buildPathEditingPanelWidget(currentShapeBorder));
+    }
+
+    if (currentShapeBorder is PolygonShapeBorder) {
+      stackedComponents
+          .addAll(buildPolygonEditingPanelWidget(currentShapeBorder));
+    }
+
+    if (currentShapeBorder is RectangleShapeBorder) {
+      stackedComponents
+          .addAll(buildRectangleEditingPanelWidget(currentShapeBorder));
+    }
+
+    if (currentShapeBorder is RoundedRectangleShapeBorder) {
+      stackedComponents
+          .addAll(buildRoundedRectangleEditingPanelWidget(currentShapeBorder));
+    }
+
+    if (currentShapeBorder is StarShapeBorder) {
+      stackedComponents.addAll(buildStarEditingPanelWidget(currentShapeBorder));
+    }
+
+    if (currentShapeBorder is TrapezoidShapeBorder) {
+      stackedComponents
+          .addAll(buildTrapezoidEditingPanelWidget(currentShapeBorder));
+    }
+
+    if (currentShapeBorder is TriangleShapeBorder) {
+      stackedComponents
+          .addAll(buildTriangleEditingPanelWidget(currentShapeBorder));
     }
 
     List<Widget> withDividerWidgets = [];
@@ -492,14 +498,14 @@ class EditShapePageState extends State<EditShapePage>
   List<Widget> buildEditingShapeBorderPanelWidgets() {
     List<Widget> stackedComponents = [];
 
-    if (currentShape is OutlinedShape) {
+    if (currentShapeBorder is OutlinedShapeBorder) {
       stackedComponents
-          .addAll(buildOutlinedBorderEditingPanelWidget(currentShape));
+          .addAll(buildOutlinedBorderEditingPanelWidget(currentShapeBorder));
     }
 
-    if (currentShape is RoundedRectangleShape) {
-      stackedComponents
-          .addAll(buildRoundedRectangleBorderEditingPanelWidget(currentShape));
+    if (currentShapeBorder is RoundedRectangleShapeBorder) {
+      stackedComponents.addAll(
+          buildRoundedRectangleBorderEditingPanelWidget(currentShapeBorder));
     }
 
     List<Widget> withDividerWidgets = [];
@@ -513,7 +519,7 @@ class EditShapePageState extends State<EditShapePage>
     return withDividerWidgets;
   }
 
-  Widget buildAddControlPointButton(PathShape shape, int index) {
+  Widget buildAddControlPointButton(PathShapeBorder shape, int index) {
     DynamicPath path = shape.path;
     int nextIndex = (index + 1) % path.nodes.length;
     List<Offset> controlPoints = path.getNextPathControlPointsAt(index);
@@ -565,7 +571,7 @@ class EditShapePageState extends State<EditShapePage>
     );
   }
 
-  List<Widget> buildPathEditingWidgets(PathShape shape) {
+  List<Widget> buildPathEditingWidgets(PathShapeBorder shape) {
     DynamicPath path = shape.path;
     path.resize(shapeSize);
     List<Widget> nodeControls = [];
@@ -798,7 +804,7 @@ class EditShapePageState extends State<EditShapePage>
             constraint: constraint));
   }
 
-  List<Widget> buildArcEditingWidgets(ArcShape shape) {
+  List<Widget> buildArcEditingWidgets(ArcShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -848,7 +854,8 @@ class EditShapePageState extends State<EditShapePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             updateCurrentShape(shape.copyWith(
-                arcHeight: updateLength((currentShape as ArcShape).arcHeight,
+                arcHeight: updateLength(
+                    (currentShapeBorder as ArcShapeBorder).arcHeight,
                     constraint:
                         shape.side.isHorizontal ? size.height : size.width,
                     maximumSize: maximumSize,
@@ -860,7 +867,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  List<Widget> buildArrowEditingWidgets(ArrowShape shape) {
+  List<Widget> buildArrowEditingWidgets(ArrowShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -921,7 +928,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 arrowHeight: updateLength(
-                    (currentShape as ArrowShape).arrowHeight,
+                    (currentShapeBorder as ArrowShapeBorder).arrowHeight,
                     constraint:
                         shape.side.isHorizontal ? size.width : size.height,
                     maximumSize:
@@ -936,7 +943,8 @@ class EditShapePageState extends State<EditShapePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             updateCurrentShape(shape.copyWith(
-                tailWidth: updateLength((currentShape as ArrowShape).tailWidth,
+                tailWidth: updateLength(
+                    (currentShapeBorder as ArrowShapeBorder).tailWidth,
                     constraint:
                         shape.side.isHorizontal ? size.height : size.width,
                     maximumSize:
@@ -949,13 +957,13 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  List<Widget> buildCircleEditingWidgets(CircleShape shape) {
+  List<Widget> buildCircleEditingWidgets(CircleShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     return nodeControls;
   }
 
-  List<Widget> buildBubbleEditingWidgets(BubbleShape shape) {
+  List<Widget> buildBubbleEditingWidgets(BubbleShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -1180,14 +1188,15 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 arrowHeight: updateLength(
-                    (currentShape as BubbleShape).arrowHeight,
+                    (currentShapeBorder as BubbleShapeBorder).arrowHeight,
                     constraint:
                         shape.corner.isHorizontal ? size.height : size.width,
                     maximumSize: arrowHeightBound,
                     offset: details.delta,
                     offsetToDelta: arrowCenterDragUpdateVertical),
                 arrowCenterPosition: updateLength(
-                    (currentShape as BubbleShape).arrowCenterPosition,
+                    (currentShapeBorder as BubbleShapeBorder)
+                        .arrowCenterPosition,
                     constraint:
                         shape.corner.isHorizontal ? size.width : size.height,
                     maximumSize: arrowCenterPositionBound,
@@ -1201,7 +1210,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 arrowWidth: updateLength(
-                    (currentShape as BubbleShape).arrowWidth,
+                    (currentShapeBorder as BubbleShapeBorder).arrowWidth,
                     constraint:
                         shape.corner.isHorizontal ? size.width : size.height,
                     maximumSize: arrowWidthBound,
@@ -1215,7 +1224,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 arrowHeadPosition: updateLength(
-                    (currentShape as BubbleShape).arrowHeadPosition,
+                    (currentShapeBorder as BubbleShapeBorder).arrowHeadPosition,
                     constraint:
                         shape.corner.isHorizontal ? size.width : size.height,
                     maximumSize: arrowHeadPositionBound,
@@ -1229,7 +1238,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 borderRadius: updateLength(
-                    (currentShape as BubbleShape).borderRadius,
+                    (currentShapeBorder as BubbleShapeBorder).borderRadius,
                     constraint: min(size.width, size.height),
                     maximumSize: radiusBound,
                     offset: details.delta,
@@ -1240,7 +1249,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  List<Widget> buildRectangleEditingWidgets(RectangleShape shape) {
+  List<Widget> buildRectangleEditingWidgets(RectangleShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -1265,7 +1274,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
                 x: updateLength(
-                    (currentShape as RectangleShape).borderRadius.topLeft.x,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .topLeft
+                        .x,
                     constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
@@ -1283,7 +1295,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
                 x: updateLength(
-                    (currentShape as RectangleShape).borderRadius.topRight.x,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .topRight
+                        .x,
                     constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
@@ -1302,7 +1317,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 x: updateLength(
-                    (currentShape as RectangleShape).borderRadius.bottomLeft.x,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .bottomLeft
+                        .x,
                     constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
@@ -1321,7 +1339,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 x: updateLength(
-                    (currentShape as RectangleShape).borderRadius.bottomRight.x,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .bottomRight
+                        .x,
                     constraint: size.width,
                     maximumSize: size.width,
                     offset: details.delta,
@@ -1339,7 +1360,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
                 y: updateLength(
-                    (currentShape as RectangleShape).borderRadius.topLeft.y,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .topLeft
+                        .y,
                     constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
@@ -1357,7 +1381,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
                 y: updateLength(
-                    (currentShape as RectangleShape).borderRadius.topRight.y,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .topRight
+                        .y,
                     constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
@@ -1376,7 +1403,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 y: updateLength(
-                    (currentShape as RectangleShape).borderRadius.bottomLeft.y,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .bottomLeft
+                        .y,
                     constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
@@ -1395,7 +1425,10 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 y: updateLength(
-                    (currentShape as RectangleShape).borderRadius.bottomRight.y,
+                    (currentShapeBorder as RectangleShapeBorder)
+                        .borderRadius
+                        .bottomRight
+                        .y,
                     constraint: size.height,
                     maximumSize: size.height,
                     offset: details.delta,
@@ -1411,7 +1444,7 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   List<Widget> buildRoundedRectangleEditingWidgets(
-      RoundedRectangleShape shape) {
+      RoundedRectangleShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -1436,7 +1469,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
                 x: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .topLeft
                         .x,
@@ -1457,7 +1490,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
                 x: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .topRight
                         .x,
@@ -1479,7 +1512,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 x: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .bottomLeft
                         .x,
@@ -1501,7 +1534,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 x: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .bottomRight
                         .x,
@@ -1522,7 +1555,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topLeft.copyWith(
                 y: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .topLeft
                         .y,
@@ -1543,7 +1576,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.topRight.copyWith(
                 y: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .topRight
                         .y,
@@ -1565,7 +1598,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomLeft.copyWith(
                 y: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .bottomLeft
                         .y,
@@ -1587,7 +1620,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             DynamicRadius newRadius = shape.borderRadius.bottomRight.copyWith(
                 y: updateLength(
-                    (currentShape as RoundedRectangleShape)
+                    (currentShapeBorder as RoundedRectangleShapeBorder)
                         .borderRadius
                         .bottomRight
                         .y,
@@ -1605,7 +1638,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  List<Widget> buildPolygonEditingWidgets(PolygonShape shape) {
+  List<Widget> buildPolygonEditingWidgets(PolygonShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -1644,7 +1677,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 cornerRadius: updateLength(
-                    (currentShape as PolygonShape).cornerRadius,
+                    (currentShapeBorder as PolygonShapeBorder).cornerRadius,
                     constraint: scale,
                     maximumSize: scale * cos(alpha / 2),
                     offset: details.delta,
@@ -1655,7 +1688,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  List<Widget> buildStarEditingWidgets(StarShape shape) {
+  List<Widget> buildStarEditingWidgets(StarShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -1705,7 +1738,7 @@ class EditShapePageState extends State<EditShapePage>
           setState(() {
             updateCurrentShape(shape.copyWith(
                 cornerRadius: updateLength(
-                    (currentShape as StarShape).cornerRadius,
+                    (currentShapeBorder as StarShapeBorder).cornerRadius,
                     constraint: scale,
                     maximumSize: sideLength * tan(beta),
                     offset: details.delta,
@@ -1720,7 +1753,8 @@ class EditShapePageState extends State<EditShapePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             updateCurrentShape(shape.copyWith(
-                inset: updateLength((currentShape as StarShape).inset,
+                inset: updateLength(
+                    (currentShapeBorder as StarShapeBorder).inset,
                     constraint: radius,
                     maximumSize: radius * 0.99,
                     offset: details.delta,
@@ -1746,7 +1780,7 @@ class EditShapePageState extends State<EditShapePage>
             setState(() {
               updateCurrentShape(shape.copyWith(
                   insetRadius: updateLength(
-                      (currentShape as StarShape).insetRadius,
+                      (currentShapeBorder as StarShapeBorder).insetRadius,
                       constraint: scale,
                       maximumSize: avalSideLength * tan(gamma),
                       offset: details.delta,
@@ -1772,7 +1806,7 @@ class EditShapePageState extends State<EditShapePage>
             setState(() {
               updateCurrentShape(shape.copyWith(
                   insetRadius: updateLength(
-                      (currentShape as StarShape).insetRadius,
+                      (currentShapeBorder as StarShapeBorder).insetRadius,
                       constraint: scale,
                       maximumSize: avalSideLength * tan(pi - gamma),
                       offset: details.delta,
@@ -1787,7 +1821,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  List<Widget> buildTrapezoidEditingWidgets(TrapezoidShape shape) {
+  List<Widget> buildTrapezoidEditingWidgets(TrapezoidShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -1829,7 +1863,8 @@ class EditShapePageState extends State<EditShapePage>
       onDragUpdate: (DragUpdateDetails details) {
         setState(() {
           updateCurrentShape(shape.copyWith(
-              inset: updateLength((currentShape as TrapezoidShape).inset,
+              inset: updateLength(
+                  (currentShapeBorder as TrapezoidShapeBorder).inset,
                   constraint:
                       shape.side.isHorizontal ? size.width : size.height,
                   maximumSize: shape.side.isHorizontal
@@ -1844,7 +1879,7 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  List<Widget> buildTriangleEditingWidgets(TriangleShape shape) {
+  List<Widget> buildTriangleEditingWidgets(TriangleShapeBorder shape) {
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
@@ -1867,12 +1902,14 @@ class EditShapePageState extends State<EditShapePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicOffset newOffset = shape.point3.copyWith(
-                dx: updateLength((currentShape as TriangleShape).point3.dx,
+                dx: updateLength(
+                    (currentShapeBorder as TriangleShapeBorder).point3.dx,
                     constraint: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
-                dy: updateLength((currentShape as TriangleShape).point3.dy,
+                dy: updateLength(
+                    (currentShapeBorder as TriangleShapeBorder).point3.dy,
                     constraint: height,
                     maximumSize: height,
                     offset: details.delta,
@@ -1885,12 +1922,14 @@ class EditShapePageState extends State<EditShapePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicOffset newOffset = shape.point2.copyWith(
-                dx: updateLength((currentShape as TriangleShape).point2.dx,
+                dx: updateLength(
+                    (currentShapeBorder as TriangleShapeBorder).point2.dx,
                     constraint: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
-                dy: updateLength((currentShape as TriangleShape).point2.dy,
+                dy: updateLength(
+                    (currentShapeBorder as TriangleShapeBorder).point2.dy,
                     constraint: height,
                     maximumSize: height,
                     offset: details.delta,
@@ -1904,12 +1943,14 @@ class EditShapePageState extends State<EditShapePage>
         onDragUpdate: (DragUpdateDetails details) {
           setState(() {
             DynamicOffset newOffset = shape.point1.copyWith(
-                dx: updateLength((currentShape as TriangleShape).point1.dx,
+                dx: updateLength(
+                    (currentShapeBorder as TriangleShapeBorder).point1.dx,
                     constraint: width,
                     maximumSize: width,
                     offset: details.delta,
                     offsetToDelta: (o) => (o.dx)),
-                dy: updateLength((currentShape as TriangleShape).point1.dy,
+                dy: updateLength(
+                    (currentShapeBorder as TriangleShapeBorder).point1.dy,
                     constraint: height,
                     maximumSize: height,
                     offset: details.delta,
@@ -1943,7 +1984,7 @@ class EditShapePageState extends State<EditShapePage>
     );
   }
 
-  List<Widget> buildPathEditingPanelWidget(PathShape shape) {
+  List<Widget> buildPathEditingPanelWidget(PathShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2071,7 +2112,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildArcEditingPanelWidget(ArcShape shape) {
+  List<Widget> buildArcEditingPanelWidget(ArcShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2118,7 +2159,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildArrowEditingPanelWidget(ArrowShape shape) {
+  List<Widget> buildArrowEditingPanelWidget(ArrowShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2170,7 +2211,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildBubbleEditingPanelWidget(BubbleShape shape) {
+  List<Widget> buildBubbleEditingPanelWidget(BubbleShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2268,12 +2309,12 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildCircleEditingPanelWidget(CircleShape shape) {
+  List<Widget> buildCircleEditingPanelWidget(CircleShapeBorder shape) {
     List<Widget> rst = [];
     return rst;
   }
 
-  List<Widget> buildPolygonEditingPanelWidget(PolygonShape shape) {
+  List<Widget> buildPolygonEditingPanelWidget(PolygonShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2328,7 +2369,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildRectangleEditingPanelWidget(RectangleShape shape) {
+  List<Widget> buildRectangleEditingPanelWidget(RectangleShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2594,7 +2635,7 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   List<Widget> buildRoundedRectangleEditingPanelWidget(
-      RoundedRectangleShape shape) {
+      RoundedRectangleShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2799,7 +2840,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildStarEditingPanelWidget(StarShape shape) {
+  List<Widget> buildStarEditingPanelWidget(StarShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2894,7 +2935,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildTrapezoidEditingPanelWidget(TrapezoidShape shape) {
+  List<Widget> buildTrapezoidEditingPanelWidget(TrapezoidShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -2930,7 +2971,7 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildTriangleEditingPanelWidget(TriangleShape shape) {
+  List<Widget> buildTriangleEditingPanelWidget(TriangleShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -3033,7 +3074,8 @@ class EditShapePageState extends State<EditShapePage>
     return rst;
   }
 
-  List<Widget> buildOutlinedBorderEditingPanelWidget(OutlinedShape shape) {
+  List<Widget> buildOutlinedBorderEditingPanelWidget(
+      OutlinedShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 
@@ -3188,7 +3230,7 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   List<Widget> buildRoundedRectangleBorderEditingPanelWidget(
-      RoundedRectangleShape shape) {
+      RoundedRectangleShapeBorder shape) {
     Size size = shapeSize;
     List<Widget> rst = [];
 

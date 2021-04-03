@@ -4,19 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/ui_data_classes/dynamic_rectangle_styles.dart';
 
-///Rectangle shape with various corner style and radius for each corner
-class RoundedRectangleShape extends FilledBorderShape {
+///Rectangle shape with various border radius and width for each corner
+///This class is similar to what CSS box does, you can configure different border
+///radius and border width
+class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
   final RectangleBorders borders;
-
   final DynamicBorderRadius borderRadius;
 
-  const RoundedRectangleShape({
+  const RoundedRectangleShapeBorder({
     this.borderRadius =
         const DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
     this.borders = const RectangleBorders.all(DynamicBorderSide.none),
   });
 
-  RoundedRectangleShape.fromJson(Map<String, dynamic> map)
+  RoundedRectangleShapeBorder.fromJson(Map<String, dynamic> map)
       : borderRadius = parseDynamicBorderRadius(map["borderRadius"]) ??
             DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
         this.borders = parseRectangleBorderSide(map["borders"]) ??
@@ -29,15 +30,16 @@ class RoundedRectangleShape extends FilledBorderShape {
     return rst;
   }
 
-  RoundedRectangleShape copyWith(
+  RoundedRectangleShapeBorder copyWith(
       {RectangleBorders? borders, DynamicBorderRadius? borderRadius}) {
-    return RoundedRectangleShape(
+    return RoundedRectangleShapeBorder(
         borders: borders ?? this.borders,
         borderRadius: borderRadius ?? this.borderRadius);
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is RectangleShape || shape is RoundedRectangleShape;
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is RectangleShapeBorder ||
+        shape is RoundedRectangleShapeBorder;
   }
 
   EdgeInsetsGeometry get dimensions => EdgeInsets.only(
@@ -317,7 +319,7 @@ class RoundedRectangleShape extends FilledBorderShape {
   @override
   bool operator ==(Object other) {
     if (other.runtimeType != runtimeType) return false;
-    return other is RoundedRectangleShape &&
+    return other is RoundedRectangleShapeBorder &&
         other.borders == borders &&
         other.borderRadius == borderRadius;
   }

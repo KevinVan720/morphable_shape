@@ -17,8 +17,8 @@ enum MorphMethod {
 ///initialized when the morphing first starts and does not change afterwards
 ///even if the bounding box changes size.
 class MorphShapeData {
-  Shape begin;
-  Shape end;
+  MorphableShapeBorder begin;
+  MorphableShapeBorder end;
 
   ///outer path of the shapes, used to calculate the morphing
   late DynamicPath beginOuterPath;
@@ -77,13 +77,13 @@ class DynamicPathMorph {
     bool isSameMorphGeometry = data.begin.isSameMorphGeometry(data.end);
 
     DynamicPath path1 = data.begin.generateOuterDynamicPath(data.boundingBox);
-    if (data.begin is FilledBorderShape) {
+    if (data.begin is FilledBorderShapeBorder) {
       DynamicPath outer = path1;
       DynamicPath inner = data.begin.generateInnerDynamicPath(data.boundingBox);
       List<Color> borderColors =
-          (data.begin as FilledBorderShape).borderFillColors();
+          (data.begin as FilledBorderShapeBorder).borderFillColors();
       List<Gradient?> borderGradients =
-          (data.begin as FilledBorderShape).borderFillGradients();
+          (data.begin as FilledBorderShapeBorder).borderFillGradients();
 
       BorderPaths borderPaths = BorderPaths(
           outer: outer,
@@ -98,14 +98,14 @@ class DynamicPathMorph {
       if (!isSameMorphGeometry) path1.removeOverlappingNodes();
     }
     DynamicPath path2 = data.end.generateOuterDynamicPath(data.boundingBox);
-    if (data.end is FilledBorderShape) {
+    if (data.end is FilledBorderShapeBorder) {
       DynamicPath outer = path2;
       DynamicPath inner = data.end.generateInnerDynamicPath(data.boundingBox);
       List<Color> borderColors =
-          (data.end as FilledBorderShape).borderFillColors();
+          (data.end as FilledBorderShapeBorder).borderFillColors();
 
       List<Gradient?> borderGradients =
-          (data.end as FilledBorderShape).borderFillGradients();
+          (data.end as FilledBorderShapeBorder).borderFillGradients();
 
       BorderPaths borderPaths = BorderPaths(
           outer: outer,
@@ -206,7 +206,7 @@ class DynamicPathMorph {
       data.minimumShift = rst[4];
     }
 
-    if (data.begin is FilledBorderShape) {
+    if (data.begin is FilledBorderShapeBorder) {
       BorderPaths borderPaths = data.beginPaths!;
       borderPaths.outer = data.beginOuterPath;
       borderPaths.inner = supplyPoints(borderPaths.inner, data.supplyCounts1!);
@@ -225,7 +225,7 @@ class DynamicPathMorph {
               as List<Gradient?>;
     }
 
-    if (data.end is FilledBorderShape) {
+    if (data.end is FilledBorderShapeBorder) {
       BorderPaths borderPaths = data.endPaths!;
 
       borderPaths.outer = data.endOuterPath;

@@ -1,34 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
-///A trapezoid shape, can be achieved from a rectangle
-///may remove in the future
-
-class TrapezoidShape extends OutlinedShape {
+///A trapezoid shape
+class TrapezoidShapeBorder extends OutlinedShapeBorder {
   final ShapeSide side;
-  final Length inset;
+  final Dimension inset;
 
-  const TrapezoidShape(
+  const TrapezoidShapeBorder(
       {this.side = ShapeSide.bottom,
       this.inset = const Length(20, unit: LengthUnit.percent),
       DynamicBorderSide border = DynamicBorderSide.none})
       : super(border: border);
 
-  TrapezoidShape copyWith({
-    ShapeSide? side,
-    Length? inset,
-    DynamicBorderSide? border,
-  }) {
-    return TrapezoidShape(
-      side: side ?? this.side,
-      inset: inset ?? this.inset,
-      border: border ?? this.border,
-    );
-  }
-
-  TrapezoidShape.fromJson(Map<String, dynamic> map)
+  TrapezoidShapeBorder.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
-        inset = Length.fromJson(map['inset']) ??
+        inset = parseDimension(map['inset']) ??
             Length(20, unit: LengthUnit.percent),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
@@ -42,8 +28,20 @@ class TrapezoidShape extends OutlinedShape {
     return rst;
   }
 
-  bool isSameMorphGeometry(Shape shape) {
-    return shape is TrapezoidShape;
+  TrapezoidShapeBorder copyWith({
+    ShapeSide? side,
+    Dimension? inset,
+    DynamicBorderSide? border,
+  }) {
+    return TrapezoidShapeBorder(
+      side: side ?? this.side,
+      inset: inset ?? this.inset,
+      border: border ?? this.border,
+    );
+  }
+
+  bool isSameMorphGeometry(MorphableShapeBorder shape) {
+    return shape is TrapezoidShapeBorder;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
