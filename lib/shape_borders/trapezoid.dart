@@ -21,7 +21,7 @@ class TrapezoidShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "TrapezoidShape"};
+    Map<String, dynamic> rst = {"type": "Trapezoid"};
     rst.addAll(super.toJson());
     rst["inset"] = inset.toJson();
     rst["side"] = side.toJson();

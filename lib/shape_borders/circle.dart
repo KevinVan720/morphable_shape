@@ -16,7 +16,7 @@ class CircleShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "CircleShape"};
+    Map<String, dynamic> rst = {"type": "Circle"};
     rst.addAll(super.toJson());
     return rst;
   }

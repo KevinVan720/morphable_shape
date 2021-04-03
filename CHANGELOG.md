@@ -222,3 +222,7 @@ Remove the Shape class, now you should use ShapeBorder directly
 ## [1.4.4] - 04.03.2021
 
 Update README
+
+## [1.4.5] - 04.03.2021
+
+Simplify type name in parsing

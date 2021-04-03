@@ -24,7 +24,7 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
             RectangleBorders.all(DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "RoundedRectangleShape"};
+    Map<String, dynamic> rst = {"type": "RoundedRectangle"};
     rst["borderRadius"] = borderRadius.toJson();
     rst["borders"] = borders.toJson();
     return rst;

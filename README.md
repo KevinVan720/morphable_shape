@@ -51,11 +51,11 @@ Widget widget = DecoratedShadowedShape(
 
 You can run the example app to create a local shape editing tool to see the various shapes supported by this package (also hosted online at [https://fluttershape.com/](https://fluttershape.com/)).
 
-##DynamicBorderSide
+## DynamicBorderSide
 
 The DynamicBorderSide is an extension to the built-in BorderSide class. It supports gradient in addtion to color. It also supports painting partially by specifing the begin, end and offset parameters. You can also change the strokeJoin and strokeCap paramter.
 
-This class is used to configure how the borders are painted with different shapes.  
+This class is used to configure how the borders are painted with different shapes.
 
 ```dart
 DynamicBorderSide(

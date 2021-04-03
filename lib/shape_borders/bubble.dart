@@ -40,7 +40,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "BubbleShape"};
+    Map<String, dynamic> rst = {"type": "Bubble"};
     rst.addAll(super.toJson());
     rst["corner"] = corner.toJson();
     rst["borderRadius"] = borderRadius.toJson();

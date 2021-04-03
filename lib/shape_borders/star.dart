@@ -37,7 +37,7 @@ class StarShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "StarShape"};
+    Map<String, dynamic> rst = {"type": "Star"};
     rst.addAll(super.toJson());
     rst["corners"] = corners;
     rst["inset"] = inset.toJson();

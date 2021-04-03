@@ -37,7 +37,7 @@ class TriangleShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "TriangleShape"};
+    Map<String, dynamic> rst = {"type": "Triangle"};
     rst.addAll(super.toJson());
     rst["point1"] = point1.toJson();
     rst["point2"] = point2.toJson();

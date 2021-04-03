@@ -120,27 +120,27 @@ MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {
 
   String shapeName = map["type"];
   switch (shapeName) {
-    case "ArcShape":
+    case "Arc":
       return ArcShapeBorder.fromJson(map);
-    case "ArrowShape":
+    case "Arrow":
       return ArrowShapeBorder.fromJson(map);
-    case "BubbleShape":
+    case "Bubble":
       return BubbleShapeBorder.fromJson(map);
-    case "CircleShape":
+    case "Circle":
       return CircleShapeBorder.fromJson(map);
-    case "PolygonShape":
+    case "Polygon":
       return PolygonShapeBorder.fromJson(map);
-    case "RectangleShape":
+    case "Rectangle":
       return RectangleShapeBorder.fromJson(map);
-    case "RoundedRectangleShape":
+    case "RoundedRectangle":
       return RoundedRectangleShapeBorder.fromJson(map);
-    case "StarShape":
+    case "Star":
       return StarShapeBorder.fromJson(map);
-    case "TrapezoidShape":
+    case "Trapezoid":
       return TrapezoidShapeBorder.fromJson(map);
-    case "TriangleShape":
+    case "Triangle":
       return TriangleShapeBorder.fromJson(map);
-    case "PathShape":
+    case "Path":
       return PathShapeBorder.fromJson(map);
     default:
       return null;

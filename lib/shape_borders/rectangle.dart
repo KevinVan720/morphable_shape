@@ -27,7 +27,7 @@ class RectangleShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "RectangleShape"};
+    Map<String, dynamic> rst = {"type": "Rectangle"};
     rst.addAll(super.toJson());
     rst["borderRadius"] = borderRadius.toJson();
     rst["cornerStyles"] = cornerStyles.toJson();

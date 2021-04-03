@@ -27,7 +27,7 @@ class PolygonShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "PolygonShape"};
+    Map<String, dynamic> rst = {"type": "Polygon"};
     rst.addAll(super.toJson());
     rst["sides"] = sides;
     rst["cornerRadius"] = cornerRadius.toJson();

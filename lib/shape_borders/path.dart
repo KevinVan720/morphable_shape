@@ -18,7 +18,7 @@ class PathShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "PathShape"};
+    Map<String, dynamic> rst = {"type": "Path"};
     rst.addAll(super.toJson());
     rst["path"] = path.toJson();
     return rst;

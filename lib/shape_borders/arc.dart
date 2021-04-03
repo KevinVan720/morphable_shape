@@ -26,7 +26,7 @@ class ArcShapeBorder extends OutlinedShapeBorder {
                 DynamicBorderSide.none);
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> rst = {"type": "ArcShape"};
+    Map<String, dynamic> rst = {"type": "Arc"};
     rst.addAll(super.toJson());
     rst["arcHeight"] = arcHeight.toJson();
     rst["isOutward"] = isOutward;
