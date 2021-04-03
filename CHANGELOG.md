@@ -218,3 +218,7 @@ Change default StrokeCap
 ## [1.4.3] - 04.03.2021
 
 Remove the Shape class, now you should use ShapeBorder directly
+
+## [1.4.4] - 04.03.2021
+
+Update README
