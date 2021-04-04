@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///A Shape made from a path with straight or cubic Bezier lines
 ///possible for future implementation of freeform lines or import shapes from SVG

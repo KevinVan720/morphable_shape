@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/dynamic_path/dynamic_path_morph.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
+import 'package:morphable_shape/src/shape_borders/morph.dart';
 
 ///Why is there no shapeTween?
 ///Because to morph shape we need to know the rect at every time step,

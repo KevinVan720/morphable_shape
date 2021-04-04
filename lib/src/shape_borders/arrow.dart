@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///An arrow shape with a head and a tail
 class ArrowShapeBorder extends OutlinedShapeBorder {

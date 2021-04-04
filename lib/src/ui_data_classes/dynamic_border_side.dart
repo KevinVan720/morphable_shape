@@ -1,11 +1,6 @@
-import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_class_parser/flutter_class_parser.dart';
-import 'package:flutter_class_parser/to_json.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 class DynamicBorderSide {
   const DynamicBorderSide({

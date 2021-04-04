@@ -1,8 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///A rectangle with one side replaced by an arc with a certain height
 class ArcShapeBorder extends OutlinedShapeBorder {

@@ -2,8 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui show Shadow, lerpDouble;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_class_parser/flutter_class_parser.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 class ShapeShadow extends ui.Shadow {
   /// Creates a box shadow.

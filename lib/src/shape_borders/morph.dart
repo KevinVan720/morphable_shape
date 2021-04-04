@@ -1,8 +1,7 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/dynamic_path/dynamic_path_morph.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
+import 'package:morphable_shape/src/dynamic_path/dynamic_path_morph.dart';
 
 ///this class should only be called by a morphShapeTween
 ///Use PathMorph to morph between two shapes

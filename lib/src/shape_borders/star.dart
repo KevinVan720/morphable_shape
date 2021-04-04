@@ -1,7 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///Star shape, with different corner radius & style, inset radius & style.
 class StarShapeBorder extends OutlinedShapeBorder {

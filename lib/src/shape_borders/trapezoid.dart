@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///A trapezoid shape
 class TrapezoidShapeBorder extends OutlinedShapeBorder {

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///A widget that contains a decoration, shadows, inset shadows and clipped by a shape border
 

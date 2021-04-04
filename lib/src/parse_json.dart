@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_class_parser/parse_json.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 CornerStyle? parseCornerStyle(String? string) {
   if (string == null) return null;

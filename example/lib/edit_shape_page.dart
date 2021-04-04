@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:dimension/dimension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 import 'how_to_use_text.dart';

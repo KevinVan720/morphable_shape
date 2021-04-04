@@ -1,7 +1,27 @@
-import 'dart:math';
+import 'package:morphable_shape/src/common_includes.dart';
 
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+///represent a shape feature at one of the four side of a rectangle
+enum ShapeSide { bottom, top, left, right }
+
+///represent a shape feature at one of the four side of a rectangle
+///plus one of the four corners of the rectangle
+enum ShapeCorner {
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
+  leftTop,
+  leftBottom,
+  rightTop,
+  rightBottom
+}
+
+enum CornerStyle {
+  rounded,
+  concave,
+  straight,
+  cutout,
+}
 
 extension CornerStyleExtension on CornerStyle {
   String toJson() {

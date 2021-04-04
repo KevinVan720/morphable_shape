@@ -1,29 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-
-///represent a shape feature at one of the four side of a rectangle
-enum ShapeSide { bottom, top, left, right }
-
-///represent a shape feature at one of the four side of a rectangle
-///plus one of the four corners of the rectangle
-enum ShapeCorner {
-  topLeft,
-  topRight,
-  bottomLeft,
-  bottomRight,
-  leftTop,
-  leftBottom,
-  rightTop,
-  rightBottom
-}
-
-enum CornerStyle {
-  rounded,
-  concave,
-  straight,
-  cutout,
-}
+import 'package:morphable_shape/src/common_includes.dart';
 
 int lcm(int a, int b) => (a * b) ~/ gcd(a, b);
 

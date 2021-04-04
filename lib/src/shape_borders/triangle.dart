@@ -1,7 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///triangle shape defined by the three vertices
 class TriangleShapeBorder extends OutlinedShapeBorder {

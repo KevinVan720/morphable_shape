@@ -1,7 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///Bubble shape, with a triangular tip and equal radius rounded corner
 ///The corner parameter is where the tip calculates its positions

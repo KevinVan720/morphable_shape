@@ -1,4 +1,4 @@
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 class RectangleCornerStyles {
   final CornerStyle topLeft;

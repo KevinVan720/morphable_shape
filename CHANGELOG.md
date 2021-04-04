@@ -226,3 +226,7 @@ Update README
 ## [1.4.5] - 04.03.2021
 
 Simplify type name in parsing
+
+## [1.4.6] - 04.04.2021
+
+Code restructure

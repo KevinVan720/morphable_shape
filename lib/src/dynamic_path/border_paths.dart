@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/dynamic_path/dynamic_path.dart';
 
 ///border paths for a FilledBorderShape
 ///has an outer path, an inner path and

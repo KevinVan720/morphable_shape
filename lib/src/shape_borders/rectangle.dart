@@ -1,8 +1,5 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
-import 'package:morphable_shape/ui_data_classes/dynamic_rectangle_styles.dart';
+import 'package:morphable_shape/src/common_includes.dart';
+import 'package:morphable_shape/src/ui_data_classes/dynamic_rectangle_styles.dart';
 
 ///Rectangle shape with various corner style and radius for each corner
 class RectangleShapeBorder extends OutlinedShapeBorder {

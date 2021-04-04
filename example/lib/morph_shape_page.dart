@@ -1,7 +1,8 @@
 import 'dart:math';
 
+import 'package:dimension/dimension.dart';
 import 'package:flutter/material.dart';
-import 'package:morphable_shape/dynamic_path/dynamic_path_morph.dart';
+import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 import 'value_pickers.dart';

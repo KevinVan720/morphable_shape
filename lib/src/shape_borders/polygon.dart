@@ -1,7 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
 
 ///Polygon shape with different number of sides, corner radius and corner style
 class PolygonShapeBorder extends OutlinedShapeBorder {

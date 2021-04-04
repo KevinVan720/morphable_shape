@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-import 'package:morphable_shape/morphable_shape.dart';
+import 'package:morphable_shape/src/common_includes.dart';
+import 'package:morphable_shape/src/dynamic_path/border_paths.dart';
 
 ///The base class for various shape borders implemented in this package
 ///should be serializable/deserializable
