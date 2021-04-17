@@ -5,10 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:morphable_shape/src/common_includes.dart';
 
 class ShapeShadow extends ui.Shadow {
-  /// Creates a box shadow.
+  /// Creates a shape shadow.
   ///
   /// By default, the shadow is solid black with zero [offset], [blurRadius],
   /// and [spreadRadius].
+  /// If gradient is not null, the gradient will be used.
   const ShapeShadow({
     Color color = const Color(0xFF000000),
     Offset offset = Offset.zero,

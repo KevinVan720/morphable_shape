@@ -1,10 +1,5 @@
 import 'package:morphable_shape/src/common_includes.dart';
 
-///Maybe used in the future to help editing DynamicPath
-enum NodeControlMode {
-  none,
-}
-
 ///A single point with two possible control points
 class DynamicNode {
   Offset position;
@@ -28,6 +23,9 @@ class DynamicNode {
 }
 
 ///A Bezier path with either straight line or cubic Bezier line
+///This is the key component of this package, especially for morphing
+///Instead of constructing a Path object directly like others do, we construct a DynamicPath
+///instead, which remembers all its control points.
 class DynamicPath {
   static double boxBoundingTolerance = 0.001;
   static int defaultPointPrecision = 3;
@@ -217,8 +215,7 @@ class DynamicPath {
     }
   }
 
-  void moveNodeBy(int index, Offset offset,
-      {NodeControlMode mode = NodeControlMode.none}) {
+  void moveNodeBy(int index, Offset offset) {
     DynamicNode node = nodes[index];
     Offset avalOffset = ((node.position + offset).clamp(
                 Offset.zero, Offset(size.width, size.height) + Offset.zero) -
@@ -258,8 +255,7 @@ class DynamicPath {
   */
 
   ///move either one of the control point of the node to offset
-  void moveNodeControlTo(int index, bool prev, Offset offset,
-      {NodeControlMode mode = NodeControlMode.none}) {
+  void moveNodeControlTo(int index, bool prev, Offset offset) {
     DynamicNode node = nodes[index];
     if (prev) {
       node.prev = offset.roundWithPrecision(defaultPointPrecision);

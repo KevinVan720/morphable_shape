@@ -2,6 +2,10 @@ import 'dart:ui';
 
 import 'package:morphable_shape/src/common_includes.dart';
 
+///An enhanced BorderSide class.
+///Supports gradient, different strokeJoin and strokeCap
+///Also supports partial drawing by changing the begin, end, and shift
+
 class DynamicBorderSide {
   const DynamicBorderSide({
     this.color = const Color(0xFF000000),
@@ -22,7 +26,8 @@ class DynamicBorderSide {
         style = parseBorderStyle(map["style"]) ?? BorderStyle.solid,
         begin =
             parseDimension(map["begin"]) ?? Length(0, unit: LengthUnit.percent),
-        end = parseDimension(map["end"]) ?? Length(0, unit: LengthUnit.percent),
+        end =
+            parseDimension(map["end"]) ?? Length(100, unit: LengthUnit.percent),
         shift =
             parseDimension(map["shift"]) ?? Length(0, unit: LengthUnit.percent),
         strokeCap = parseStrokeCap(map["strokeCap"]) ?? StrokeCap.square,

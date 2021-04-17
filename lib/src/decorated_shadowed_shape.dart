@@ -29,12 +29,12 @@ class CustomShapeBorderClipper extends CustomClipper<Path> {
   }
 }
 
-class ClipShadowPath extends StatelessWidget {
+class ClipPathShadow extends StatelessWidget {
   final List<ShapeShadow>? shadows;
   final CustomClipper<Path> clipper;
   final Widget? child;
 
-  ClipShadowPath({
+  ClipPathShadow({
     this.shadows,
     required this.clipper,
     this.child,
@@ -79,13 +79,13 @@ class _ClipShapeShadowPainter extends CustomPainter {
   }
 }
 
-class ClipInsetShadowPath extends StatelessWidget {
+class ClipPathInsetShadow extends StatelessWidget {
   final List<ShapeShadow>? shadows;
   final CustomClipper<Path> clipper;
   final Widget? child;
   final Decoration? decoration;
 
-  ClipInsetShadowPath({
+  ClipPathInsetShadow({
     this.shadows,
     required this.clipper,
     this.child,
@@ -225,10 +225,10 @@ class DecoratedShadowedShape extends StatelessWidget {
     );
     return _ShapeBorderPaint(
       shape: shape,
-      child: ClipShadowPath(
+      child: ClipPathShadow(
         clipper: clipper,
         shadows: shadows,
-        child: ClipInsetShadowPath(
+        child: ClipPathInsetShadow(
             decoration: decoration,
             clipper: clipper,
             shadows: insetShadows,

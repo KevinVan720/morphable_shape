@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:morphable_shape/src/dynamic_path/dynamic_path.dart';
 
 ///border paths for a FilledBorderShape
-///has an outer path, an inner path and
-///a list of fill colors.
+///has an outer dynamic path, an inner dynamic path and
+///a list of fill colors/gradients.
 ///Returns a list of closed paths constructed
 ///from each pair of points on the outer and inner
-///path and the fill color
+///path and a fill color/gradient
 class BorderPaths {
   static double tolerancePercent = 0.001;
 

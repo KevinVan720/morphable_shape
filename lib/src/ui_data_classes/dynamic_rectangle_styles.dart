@@ -1,5 +1,6 @@
 import 'package:morphable_shape/src/common_includes.dart';
 
+///classes for configuring the border and corner of a rectangle
 class RectangleCornerStyles {
   final CornerStyle topLeft;
   final CornerStyle bottomLeft;

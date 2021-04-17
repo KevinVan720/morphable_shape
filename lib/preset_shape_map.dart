@@ -1,6 +1,8 @@
 import 'package:dimension/dimension.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
+///A collection of predefined shapes, grouped into maps
+
 const Map<String, Map<String, MorphableShapeBorder>> presetShapeMap = {
   "Rounded Rectangles": presetRoundedRectangleShapeMap,
   "Rectangle Like": presetRectangleShapeMap,

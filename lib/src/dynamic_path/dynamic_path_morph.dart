@@ -63,7 +63,6 @@ class MorphShapeData {
 /// not be the best looking, but since at least one of the shapes is pretty complicated, this method saves
 /// time and gives generally acceptable results (I don't think there is a good way to morph a rounded
 /// rectangle into a 30 corner star without some weird shape in between).
-
 class DynamicPathMorph {
   static void sampleBorderPathsFromShape(
     MorphShapeData data, {

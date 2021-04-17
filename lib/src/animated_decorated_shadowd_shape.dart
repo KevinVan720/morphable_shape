@@ -14,6 +14,8 @@ class ListShapeShadowTween extends Tween<List<ShapeShadow>?> {
   }
 }
 
+///An implicitly animated version of the DecoratedShadowedShape widget
+
 class AnimatedDecoratedShadowedShape extends ImplicitlyAnimatedWidget {
   AnimatedDecoratedShadowedShape({
     Key? key,

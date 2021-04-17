@@ -85,6 +85,7 @@ abstract class OutlinedShapeBorder extends MorphableShapeBorder {
     }
   }
 
+  ///draw the border with a optional begin, end, and offset
   static void drawBorderPath(Canvas canvas, Rect rect, Paint borderPaint,
       Path path, DynamicBorderSide border) {
     if (border.begin != null || border.end != null) {

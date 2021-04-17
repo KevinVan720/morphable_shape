@@ -230,3 +230,7 @@ Simplify type name in parsing
 ## [1.4.6] - 04.04.2021
 
 Code restructure
+
+## [1.4.7] - 04.17.2021
+
+Update comment

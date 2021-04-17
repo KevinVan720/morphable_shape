@@ -1,5 +1,7 @@
 import 'package:morphable_shape/src/common_includes.dart';
 
+///An offset with two Dimension instance
+
 class DynamicOffset {
   /// Constructs an elliptical radius with the given radii.
   const DynamicOffset(this.dx, this.dy);
