@@ -197,17 +197,15 @@ const Map<String, MorphableShapeBorder> presetTriangleShapeMap = {
 };
 
 const Map<String, MorphableShapeBorder> presetOtherShapeMap = {
-  "BubbleTopLeft": const BubbleShapeBorder(
-      corner: ShapeCorner.topLeft,
+  "BubbleTop": const BubbleShapeBorder(
+      side: ShapeSide.top, borderRadius: Length(20, unit: LengthUnit.percent)),
+  "BubbleBottom": const BubbleShapeBorder(
+      side: ShapeSide.bottom,
       borderRadius: Length(20, unit: LengthUnit.percent)),
-  "BubbleBottomRight": const BubbleShapeBorder(
-      corner: ShapeCorner.bottomRight,
-      borderRadius: Length(20, unit: LengthUnit.percent)),
-  "BubbleLeftTop": const BubbleShapeBorder(
-      corner: ShapeCorner.leftTop,
-      borderRadius: Length(20, unit: LengthUnit.percent)),
-  "BubbleRightBottom": const BubbleShapeBorder(
-      corner: ShapeCorner.rightBottom,
+  "BubbleLeft": const BubbleShapeBorder(
+      side: ShapeSide.left, borderRadius: Length(20, unit: LengthUnit.percent)),
+  "BubbleRight": const BubbleShapeBorder(
+      side: ShapeSide.right,
       borderRadius: Length(20, unit: LengthUnit.percent)),
   "ArcTop": const ArcShapeBorder(
       side: ShapeSide.top, arcHeight: Length(20, unit: LengthUnit.percent)),

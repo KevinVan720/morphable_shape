@@ -1,28 +1,5 @@
 import 'package:morphable_shape/src/common_includes.dart';
 
-///represent a shape feature at one of the four side of a rectangle
-enum ShapeSide { bottom, top, left, right }
-
-///represent a shape feature at one of the four side of a rectangle
-///plus one of the four corners of the rectangle
-enum ShapeCorner {
-  topLeft,
-  topRight,
-  bottomLeft,
-  bottomRight,
-  leftTop,
-  leftBottom,
-  rightTop,
-  rightBottom
-}
-
-enum CornerStyle {
-  rounded,
-  concave,
-  straight,
-  cutout,
-}
-
 extension CornerStyleExtension on CornerStyle {
   String toJson() {
     return this.toString().stripFirstDot();
@@ -44,59 +21,6 @@ extension ShapeSideExtension on ShapeSide {
 
   bool get isVertical {
     return !this.isHorizontal;
-  }
-}
-
-extension ShapeCornerExtension on ShapeCorner {
-  String toJson() {
-    return this.toString().stripFirstDot();
-  }
-
-  bool get isTop {
-    return this == ShapeCorner.topLeft || this == ShapeCorner.topRight;
-  }
-
-  bool get isBottom {
-    return this == ShapeCorner.bottomLeft || this == ShapeCorner.bottomRight;
-  }
-
-  bool get isLeft {
-    return this == ShapeCorner.leftTop || this == ShapeCorner.leftBottom;
-  }
-
-  bool get isRight {
-    return this == ShapeCorner.rightTop || this == ShapeCorner.rightBottom;
-  }
-
-  bool get isHorizontal {
-    return this.isTop || this.isBottom;
-  }
-
-  bool get isVertical {
-    return this.isLeft || this.isRight;
-  }
-
-  bool get isHorizontalLeft {
-    return this == ShapeCorner.topLeft || this == ShapeCorner.bottomLeft;
-  }
-
-  bool get isHorizontalRight {
-    return this == ShapeCorner.topRight || this == ShapeCorner.bottomRight;
-  }
-
-  bool get isVerticalTop {
-    return this == ShapeCorner.leftTop || this == ShapeCorner.rightTop;
-  }
-
-  bool get isVerticalBottom {
-    return this == ShapeCorner.leftBottom || this == ShapeCorner.rightBottom;
-  }
-
-  bool isSameSide(ShapeCorner other) {
-    return (other.isBottom && this.isBottom) ||
-        (other.isTop && this.isTop) ||
-        (other.isLeft && this.isLeft) ||
-        (other.isRight && this.isRight);
   }
 }
 

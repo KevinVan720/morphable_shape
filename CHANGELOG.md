@@ -234,3 +234,7 @@ Code restructure
 ## [1.4.7] - 04.17.2021
 
 Update comment
+
+## [1.4.8] - 04.18.2021
+
+Remove shapecorner, update bubble shape

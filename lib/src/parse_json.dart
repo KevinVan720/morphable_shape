@@ -30,29 +30,6 @@ ShapeSide? parseShapeSide(String? string) {
   return null;
 }
 
-ShapeCorner? parseShapeCorner(String? string) {
-  if (string == null) return null;
-  switch (string) {
-    case "topLeft":
-      return ShapeCorner.topLeft;
-    case "topRight":
-      return ShapeCorner.topRight;
-    case "bottomLeft":
-      return ShapeCorner.bottomLeft;
-    case "bottomRight":
-      return ShapeCorner.bottomRight;
-    case "leftTop":
-      return ShapeCorner.leftTop;
-    case "leftBottom":
-      return ShapeCorner.leftBottom;
-    case "rightTop":
-      return ShapeCorner.rightTop;
-    case "rightBottom":
-      return ShapeCorner.rightBottom;
-  }
-  return null;
-}
-
 DynamicBorderSide? parseDynamicBorderSide(Map<String, dynamic>? map) {
   if (map == null) return null;
   return DynamicBorderSide.fromJson(map);

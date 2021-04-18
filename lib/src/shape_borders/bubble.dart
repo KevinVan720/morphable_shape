@@ -3,18 +3,22 @@ import 'package:morphable_shape/src/common_includes.dart';
 ///Bubble shape, with a triangular tip and equal radius rounded corner
 ///The corner parameter is where the tip calculates its positions
 class BubbleShapeBorder extends OutlinedShapeBorder {
-  final ShapeCorner corner;
+  final ShapeSide side;
 
   final Dimension borderRadius;
   final Dimension arrowHeight;
   final Dimension arrowWidth;
 
+  ///arrow position is calculated from the left (if at top or bottom)
+  ///or from the top (if at left or right)
+  ///if you want to calculate from the other side, you can use for example
+  ///100.toPercentLength-10.toPXLength
   final Dimension arrowCenterPosition;
   final Dimension arrowHeadPosition;
 
   const BubbleShapeBorder({
     DynamicBorderSide border = DynamicBorderSide.none,
-    this.corner = ShapeCorner.bottomRight,
+    this.side = ShapeSide.bottom,
     this.borderRadius = const Length(6),
     this.arrowHeight = const Length(20, unit: LengthUnit.percent),
     this.arrowWidth = const Length(30, unit: LengthUnit.percent),
@@ -23,7 +27,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
   }) : super(border: border);
 
   BubbleShapeBorder.fromJson(Map<String, dynamic> map)
-      : corner = parseShapeCorner(map["corner"]) ?? ShapeCorner.bottomRight,
+      : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
         borderRadius = parseDimension(map["borderRadius"]) ?? Length(6),
         arrowHeight =
             parseDimension(map["arrowHeight"]) ?? 20.0.toPercentLength,
@@ -39,7 +43,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Bubble"};
     rst.addAll(super.toJson());
-    rst["corner"] = corner.toJson();
+    rst["side"] = side.toJson();
     rst["borderRadius"] = borderRadius.toJson();
     rst["arrowHeight"] = arrowHeight.toJson();
     rst["arrowWidth"] = arrowWidth.toJson();
@@ -50,7 +54,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
   }
 
   BubbleShapeBorder copyWith({
-    ShapeCorner? corner,
+    ShapeSide? side,
     Dimension? borderRadius,
     Dimension? arrowHeight,
     Dimension? arrowWidth,
@@ -60,7 +64,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
   }) {
     return BubbleShapeBorder(
       border: border ?? this.border,
-      corner: corner ?? this.corner,
+      side: side ?? this.side,
       borderRadius: borderRadius ?? this.borderRadius,
       arrowHeight: arrowHeight ?? this.arrowHeight,
       arrowWidth: arrowWidth ?? this.arrowWidth,
@@ -70,7 +74,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
   }
 
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
-    return shape is BubbleShapeBorder && this.corner.isSameSide(shape.corner);
+    return shape is BubbleShapeBorder && this.side == shape.side;
   }
 
   DynamicPath generateOuterDynamicPath(Rect rect) {
@@ -83,7 +87,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
     double arrowHeadPosition;
     borderRadius =
         this.borderRadius.toPX(constraint: min(size.height, size.width));
-    if (corner.isHorizontal) {
+    if (side.isHorizontal) {
       arrowHeight = this.arrowHeight.toPX(constraint: size.height);
       arrowWidth = this.arrowWidth.toPX(constraint: size.width);
       arrowCenterPosition =
@@ -99,19 +103,11 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
 
     List<DynamicNode> nodes = [];
 
-    if (this.corner.isHorizontalRight) {
-      arrowCenterPosition = size.width - arrowCenterPosition;
-      arrowHeadPosition = size.width - arrowHeadPosition;
-    }
-    if (this.corner.isVerticalBottom) {
-      arrowCenterPosition = size.height - arrowCenterPosition;
-      arrowHeadPosition = size.height - arrowHeadPosition;
-    }
-
-    final double spacingLeft = this.corner.isLeft ? arrowHeight : 0;
-    final double spacingTop = this.corner.isTop ? arrowHeight : 0;
-    final double spacingRight = this.corner.isRight ? arrowHeight : 0;
-    final double spacingBottom = this.corner.isBottom ? arrowHeight : 0;
+    final double spacingLeft = this.side == ShapeSide.left ? arrowHeight : 0;
+    final double spacingTop = this.side == ShapeSide.top ? arrowHeight : 0;
+    final double spacingRight = this.side == ShapeSide.right ? arrowHeight : 0;
+    final double spacingBottom =
+        this.side == ShapeSide.bottom ? arrowHeight : 0;
 
     final double left = spacingLeft + rect.left;
     final double top = spacingTop + rect.top;
@@ -120,7 +116,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
 
     double radiusBound = 0;
 
-    if (this.corner.isHorizontal) {
+    if (this.side.isHorizontal) {
       arrowCenterPosition = arrowCenterPosition.clamp(0, size.width);
       arrowHeadPosition = arrowHeadPosition.clamp(0, size.width);
       arrowWidth = arrowWidth.clamp(
@@ -146,7 +142,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
       );
     }
 
-    if (this.corner.isTop) {
+    if (this.side == ShapeSide.top) {
       nodes.add(DynamicNode(
           position: Offset(arrowCenterPosition - arrowWidth / 2, top)));
       nodes.add(DynamicNode(position: Offset(arrowHeadPosition, rect.top)));
@@ -159,7 +155,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
         3 * pi / 2,
         pi / 2);
 
-    if (this.corner.isRight) {
+    if (this.side == ShapeSide.right) {
       nodes.add(DynamicNode(
           position: Offset(right, arrowCenterPosition - arrowWidth / 2)));
       nodes.add(DynamicNode(position: Offset(rect.right, arrowHeadPosition)));
@@ -172,7 +168,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
         0,
         pi / 2);
 
-    if (this.corner.isBottom) {
+    if (this.side == ShapeSide.bottom) {
       nodes.add(DynamicNode(
           position: Offset(arrowCenterPosition + arrowWidth / 2, bottom)));
       nodes.add(DynamicNode(position: Offset(arrowHeadPosition, rect.bottom)));
@@ -185,7 +181,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
         pi / 2,
         pi / 2);
 
-    if (this.corner.isLeft) {
+    if (this.side == ShapeSide.left) {
       nodes.add(DynamicNode(
           position: Offset(left, arrowCenterPosition + arrowWidth / 2)));
       nodes.add(DynamicNode(position: Offset(rect.left, arrowHeadPosition)));

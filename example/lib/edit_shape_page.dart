@@ -72,8 +72,8 @@ class EditShapePageState extends State<EditShapePage>
       if (shapeSize == null ||
           shapeSize.width > screenSize.width * 0.8 ||
           shapeSize.height > screenSize.height * 0.8) {
-        double length = (min(screenSize.width, screenSize.height) * 0.8)
-            .clamp(200.0, 400.0);
+        double length =
+            (min(screenSize.width, screenSize.height) * 0.8).clamp(0.0, 600.0);
         shapeSize = Size(length, length);
       }
 
@@ -969,7 +969,7 @@ class EditShapePageState extends State<EditShapePage>
     List<Widget> nodeControls = [];
 
     Size size = shapeSize;
-    ShapeCorner corner = shape.corner;
+    ShapeSide side = shape.side;
     double borderRadius;
     double arrowHeight;
     double arrowWidth;
@@ -977,7 +977,7 @@ class EditShapePageState extends State<EditShapePage>
     double arrowHeadPosition;
     borderRadius =
         shape.borderRadius.toPX(constraint: min(size.height, size.width));
-    if (corner.isHorizontal) {
+    if (side.isHorizontal) {
       arrowHeight = shape.arrowHeight.toPX(constraint: size.height);
       arrowWidth = shape.arrowWidth.toPX(constraint: size.width);
       arrowCenterPosition =
@@ -991,10 +991,10 @@ class EditShapePageState extends State<EditShapePage>
       arrowHeadPosition = shape.arrowHeadPosition.toPX(constraint: size.height);
     }
 
-    final double spacingLeft = shape.corner.isLeft ? arrowHeight : 0;
-    final double spacingTop = shape.corner.isTop ? arrowHeight : 0;
-    final double spacingRight = shape.corner.isRight ? arrowHeight : 0;
-    final double spacingBottom = shape.corner.isBottom ? arrowHeight : 0;
+    final double spacingLeft = side == ShapeSide.left ? arrowHeight : 0;
+    final double spacingTop = side == ShapeSide.top ? arrowHeight : 0;
+    final double spacingRight = side == ShapeSide.right ? arrowHeight : 0;
+    final double spacingBottom = side == ShapeSide.bottom ? arrowHeight : 0;
 
     final double left = spacingLeft;
     final double top = spacingTop;
@@ -1007,7 +1007,7 @@ class EditShapePageState extends State<EditShapePage>
         arrowHeightBound = 0,
         radiusBound = 0;
 
-    if (shape.corner.isHorizontal) {
+    if (side.isHorizontal) {
       arrowCenterPositionBound = size.width;
       arrowHeadPositionBound = size.width;
       arrowCenterPosition =
@@ -1052,8 +1052,8 @@ class EditShapePageState extends State<EditShapePage>
         arrowWidthDragUpdate,
         radiusDragUpdate;
     Offset arrowHeadOffset, arrowCenterOffset, arrowWidthOffset, radiusOffset;
-    switch (shape.corner) {
-      case ShapeCorner.topLeft:
+    switch (side) {
+      case ShapeSide.top:
         {
           arrowHeadOffset = Offset(arrowHeadPosition, 0);
           arrowCenterOffset = Offset(arrowCenterPosition, top);
@@ -1068,24 +1068,7 @@ class EditShapePageState extends State<EditShapePage>
           radiusDragUpdate = (Offset o) => -o.dx;
         }
         break;
-      case ShapeCorner.topRight:
-        {
-          arrowHeadOffset = Offset(size.width - arrowHeadPosition, 0);
-          arrowCenterOffset = Offset(size.width - arrowCenterPosition, top);
-          arrowWidthOffset = Offset(
-              (size.width - arrowCenterPosition - arrowWidth / 2)
-                  .clamp(0.0, size.width),
-              top);
-          arrowHeadDragUpdate = (Offset o) => -o.dx;
-          arrowWidthDragUpdate = (Offset o) => -2 * o.dx;
-          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dx;
-          arrowCenterDragUpdateVertical = (Offset o) => o.dy;
-
-          radiusOffset = Offset(size.width - borderRadius, size.height);
-          radiusDragUpdate = (Offset o) => -o.dx;
-        }
-        break;
-      case ShapeCorner.bottomLeft:
+      case ShapeSide.bottom:
         {
           arrowHeadOffset = Offset(arrowHeadPosition, size.height);
           arrowCenterOffset = Offset(arrowCenterPosition, bottom);
@@ -1101,24 +1084,7 @@ class EditShapePageState extends State<EditShapePage>
           radiusDragUpdate = (Offset o) => o.dx;
         }
         break;
-      case ShapeCorner.bottomRight:
-        {
-          arrowHeadOffset = Offset(size.width - arrowHeadPosition, size.height);
-          arrowCenterOffset = Offset(size.width - arrowCenterPosition, bottom);
-          arrowWidthOffset = Offset(
-              (size.width - arrowCenterPosition - arrowWidth / 2)
-                  .clamp(0.0, size.width),
-              bottom);
-          arrowHeadDragUpdate = (Offset o) => -o.dx;
-          arrowWidthDragUpdate = (Offset o) => -2 * o.dx;
-          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dx;
-          arrowCenterDragUpdateVertical = (Offset o) => -o.dy;
-
-          radiusOffset = Offset(borderRadius, 0);
-          radiusDragUpdate = (Offset o) => o.dx;
-        }
-        break;
-      case ShapeCorner.leftTop:
+      case ShapeSide.left:
         {
           arrowHeadOffset = Offset(0, arrowHeadPosition);
           arrowCenterOffset = Offset(left, arrowCenterPosition);
@@ -1133,24 +1099,7 @@ class EditShapePageState extends State<EditShapePage>
           radiusDragUpdate = (Offset o) => o.dy;
         }
         break;
-      case ShapeCorner.leftBottom:
-        {
-          arrowHeadOffset = Offset(0, size.height - arrowHeadPosition);
-          arrowCenterOffset = Offset(left, size.height - arrowCenterPosition);
-          arrowWidthOffset = Offset(
-              left,
-              (size.height - arrowCenterPosition - arrowWidth / 2)
-                  .clamp(0.0, size.height));
-          arrowHeadDragUpdate = (Offset o) => -o.dy;
-          arrowWidthDragUpdate = (Offset o) => -2 * o.dy;
-          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dy;
-          arrowCenterDragUpdateVertical = (Offset o) => o.dx;
-
-          radiusOffset = Offset(size.width, borderRadius);
-          radiusDragUpdate = (Offset o) => o.dy;
-        }
-        break;
-      case ShapeCorner.rightTop:
+      case ShapeSide.right:
         {
           arrowHeadOffset = Offset(size.width, arrowHeadPosition);
           arrowCenterOffset = Offset(right, arrowCenterPosition);
@@ -1159,23 +1108,6 @@ class EditShapePageState extends State<EditShapePage>
           arrowHeadDragUpdate = (Offset o) => o.dy;
           arrowWidthDragUpdate = (Offset o) => -2 * o.dy;
           arrowCenterDragUpdateHorizontal = (Offset o) => o.dy;
-          arrowCenterDragUpdateVertical = (Offset o) => -o.dx;
-
-          radiusOffset = Offset(0, borderRadius);
-          radiusDragUpdate = (Offset o) => o.dy;
-        }
-        break;
-      case ShapeCorner.rightBottom:
-        {
-          arrowHeadOffset = Offset(size.width, size.height - arrowHeadPosition);
-          arrowCenterOffset = Offset(right, size.height - arrowCenterPosition);
-          arrowWidthOffset = Offset(
-              right,
-              (size.height - arrowCenterPosition - arrowWidth / 2)
-                  .clamp(0.0, size.height));
-          arrowHeadDragUpdate = (Offset o) => -o.dy;
-          arrowWidthDragUpdate = (Offset o) => -2 * o.dy;
-          arrowCenterDragUpdateHorizontal = (Offset o) => -o.dy;
           arrowCenterDragUpdateVertical = (Offset o) => -o.dx;
 
           radiusOffset = Offset(0, borderRadius);
@@ -1192,7 +1124,7 @@ class EditShapePageState extends State<EditShapePage>
                 arrowHeight: updateLength(
                     (currentShapeBorder as BubbleShapeBorder).arrowHeight,
                     constraint:
-                        shape.corner.isHorizontal ? size.height : size.width,
+                        shape.side.isHorizontal ? size.height : size.width,
                     maximumSize: arrowHeightBound,
                     offset: details.delta,
                     offsetToDelta: arrowCenterDragUpdateVertical),
@@ -1200,7 +1132,7 @@ class EditShapePageState extends State<EditShapePage>
                     (currentShapeBorder as BubbleShapeBorder)
                         .arrowCenterPosition,
                     constraint:
-                        shape.corner.isHorizontal ? size.width : size.height,
+                        shape.side.isHorizontal ? size.width : size.height,
                     maximumSize: arrowCenterPositionBound,
                     offset: details.delta,
                     offsetToDelta: arrowCenterDragUpdateHorizontal)));
@@ -1214,7 +1146,7 @@ class EditShapePageState extends State<EditShapePage>
                 arrowWidth: updateLength(
                     (currentShapeBorder as BubbleShapeBorder).arrowWidth,
                     constraint:
-                        shape.corner.isHorizontal ? size.width : size.height,
+                        shape.side.isHorizontal ? size.width : size.height,
                     maximumSize: arrowWidthBound,
                     offset: details.delta,
                     offsetToDelta: arrowWidthDragUpdate)));
@@ -1228,7 +1160,7 @@ class EditShapePageState extends State<EditShapePage>
                 arrowHeadPosition: updateLength(
                     (currentShapeBorder as BubbleShapeBorder).arrowHeadPosition,
                     constraint:
-                        shape.corner.isHorizontal ? size.width : size.height,
+                        shape.side.isHorizontal ? size.width : size.height,
                     maximumSize: arrowHeadPositionBound,
                     offset: details.delta,
                     offsetToDelta: arrowHeadDragUpdate)));
@@ -1987,7 +1919,6 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   List<Widget> buildPathEditingPanelWidget(PathShapeBorder shape) {
-    Size size = shapeSize;
     List<Widget> rst = [];
 
     DynamicPath path = shape.path;
@@ -2218,15 +2149,15 @@ class EditShapePageState extends State<EditShapePage>
     List<Widget> rst = [];
 
     rst.add(buildRowWithHeaderText(
-        headerText: "Arrow Corner",
-        actionWidget: DropdownButton<ShapeCorner>(
-            value: shape.corner,
-            onChanged: (ShapeCorner value) {
+        headerText: "Arrow Side",
+        actionWidget: DropdownButton<ShapeSide>(
+            value: shape.side,
+            onChanged: (ShapeSide value) {
               setState(() {
-                updateCurrentShape(shape.copyWith(corner: value));
+                updateCurrentShape(shape.copyWith(side: value));
               });
             },
-            items: ShapeCorner.values
+            items: ShapeSide.values
                 .map((e) => DropdownMenuItem(value: e, child: Text(e.toJson())))
                 .toList())));
 
@@ -2240,7 +2171,7 @@ class EditShapePageState extends State<EditShapePage>
                 updateCurrentShape(shape.copyWith(arrowCenterPosition: value));
               });
             },
-            constraint: shape.corner.isHorizontal ? size.width : size.height,
+            constraint: shape.side.isHorizontal ? size.width : size.height,
             allowedUnits: ["px", "%"],
           ),
         )));
@@ -2255,7 +2186,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(arrowHeadPosition: value));
             });
           },
-          constraint: shape.corner.isHorizontal ? size.width : size.height,
+          constraint: shape.side.isHorizontal ? size.width : size.height,
           allowedUnits: ["px", "%"],
         ),
       ),
@@ -2271,7 +2202,7 @@ class EditShapePageState extends State<EditShapePage>
                 updateCurrentShape(shape.copyWith(arrowHeight: value));
               });
             },
-            constraint: shape.corner.isHorizontal ? size.height : size.width,
+            constraint: shape.side.isHorizontal ? size.height : size.width,
             allowedUnits: ["px", "%"],
           ),
         )));
@@ -2286,7 +2217,7 @@ class EditShapePageState extends State<EditShapePage>
               updateCurrentShape(shape.copyWith(arrowWidth: value));
             });
           },
-          constraint: shape.corner.isHorizontal ? size.width : size.height,
+          constraint: shape.side.isHorizontal ? size.width : size.height,
           allowedUnits: ["px", "%"],
         ),
       ),
