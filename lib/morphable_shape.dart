@@ -1,5 +1,7 @@
 library morphable_shape;
 
+export 'package:dimension/dimension.dart';
+
 export 'preset_shape_map.dart';
 export 'src/animated_decorated_shadowd_shape.dart';
 export 'src/decorated_shadowed_shape.dart';

@@ -238,3 +238,7 @@ Update comment
 ## [1.4.8] - 04.18.2021
 
 Remove shapecorner, update bubble shape
+
+## [1.4.9] - 04.21.2021
+
+Update dependence
