@@ -35,9 +35,9 @@ DynamicBorderSide? parseDynamicBorderSide(Map<String, dynamic>? map) {
   return DynamicBorderSide.fromJson(map);
 }
 
-RectangleBorders? parseRectangleBorderSide(Map<String, dynamic>? map) {
+RectangleBorderSides? parseRectangleBorderSide(Map<String, dynamic>? map) {
   if (map == null) return null;
-  return RectangleBorders.fromJson(map);
+  return RectangleBorderSides.fromJson(map);
 }
 
 RectangleCornerStyles? parseRectangleCornerStyle(Map<String, dynamic>? map) {

@@ -242,3 +242,7 @@ Remove shapecorner, update bubble shape
 ## [1.4.9] - 04.21.2021
 
 Update dependence
+
+## [1.5.0] - 04.22.2021
+
+Update README, rename RectangleBorders to RectangleBorderSides

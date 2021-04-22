@@ -3182,12 +3182,12 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Width",
             actionWidget: Expanded(
               child: Slider(
-                value: shape.borders.top.width,
+                value: shape.borderSides.top.width,
                 onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
-                        borders: shape.borders.copyWith(
-                            top: shape.borders.top.copyWith(width: value))));
+                        borders: shape.borderSides.copyWith(
+                            top: shape.borderSides.top.copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3198,31 +3198,31 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Color",
             actionWidget: BottomSheetColorPicker(
-              currentColor: shape.borders.top.color,
+              currentColor: shape.borderSides.top.color,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.top.width,
+                    width: shape.borderSides.top.width,
                     color: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(top: newBorder)));
+                      borders: shape.borderSides.copyWith(top: newBorder)));
                 });
               },
             )),
         buildRowWithHeaderText(
             headerText: "Gradient",
             actionWidget: BottomSheetGradientPicker(
-              currentGradient: shape.borders.top.gradient,
+              currentGradient: shape.borderSides.top.gradient,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.top.width,
-                    color: shape.borders.top.color,
+                    width: shape.borderSides.top.width,
+                    color: shape.borderSides.top.color,
                     gradient: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(top: newBorder)));
+                      borders: shape.borderSides.copyWith(top: newBorder)));
                 });
               },
             ))
@@ -3242,13 +3242,13 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Width",
             actionWidget: Expanded(
               child: Slider(
-                value: shape.borders.right.width,
+                value: shape.borderSides.right.width,
                 onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
-                        borders: shape.borders.copyWith(
+                        borders: shape.borderSides.copyWith(
                             right:
-                                shape.borders.right.copyWith(width: value))));
+                                shape.borderSides.right.copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3259,31 +3259,31 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Color",
             actionWidget: BottomSheetColorPicker(
-              currentColor: shape.borders.right.color,
+              currentColor: shape.borderSides.right.color,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.right.width,
+                    width: shape.borderSides.right.width,
                     color: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(right: newBorder)));
+                      borders: shape.borderSides.copyWith(right: newBorder)));
                 });
               },
             )),
         buildRowWithHeaderText(
             headerText: "Gradient",
             actionWidget: BottomSheetGradientPicker(
-              currentGradient: shape.borders.right.gradient,
+              currentGradient: shape.borderSides.right.gradient,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.right.width,
-                    color: shape.borders.right.color,
+                    width: shape.borderSides.right.width,
+                    color: shape.borderSides.right.color,
                     gradient: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(right: newBorder)));
+                      borders: shape.borderSides.copyWith(right: newBorder)));
                 });
               },
             ))
@@ -3303,13 +3303,13 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Width",
             actionWidget: Expanded(
               child: Slider(
-                value: shape.borders.bottom.width,
+                value: shape.borderSides.bottom.width,
                 onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
-                        borders: shape.borders.copyWith(
+                        borders: shape.borderSides.copyWith(
                             bottom:
-                                shape.borders.bottom.copyWith(width: value))));
+                                shape.borderSides.bottom.copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3320,31 +3320,31 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Color",
             actionWidget: BottomSheetColorPicker(
-              currentColor: shape.borders.bottom.color,
+              currentColor: shape.borderSides.bottom.color,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.bottom.width,
+                    width: shape.borderSides.bottom.width,
                     color: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(bottom: newBorder)));
+                      borders: shape.borderSides.copyWith(bottom: newBorder)));
                 });
               },
             )),
         buildRowWithHeaderText(
             headerText: "Gradient",
             actionWidget: BottomSheetGradientPicker(
-              currentGradient: shape.borders.bottom.gradient,
+              currentGradient: shape.borderSides.bottom.gradient,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.bottom.width,
-                    color: shape.borders.bottom.color,
+                    width: shape.borderSides.bottom.width,
+                    color: shape.borderSides.bottom.color,
                     gradient: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(bottom: newBorder)));
+                      borders: shape.borderSides.copyWith(bottom: newBorder)));
                 });
               },
             ))
@@ -3364,12 +3364,12 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Width",
             actionWidget: Expanded(
               child: Slider(
-                value: shape.borders.left.width,
+                value: shape.borderSides.left.width,
                 onChanged: (value) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
-                        borders: shape.borders.copyWith(
-                            left: shape.borders.left.copyWith(width: value))));
+                        borders: shape.borderSides.copyWith(
+                            left: shape.borderSides.left.copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3380,31 +3380,31 @@ class EditShapePageState extends State<EditShapePage>
         buildRowWithHeaderText(
             headerText: "Color",
             actionWidget: BottomSheetColorPicker(
-              currentColor: shape.borders.left.color,
+              currentColor: shape.borderSides.left.color,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.left.width,
+                    width: shape.borderSides.left.width,
                     color: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(left: newBorder)));
+                      borders: shape.borderSides.copyWith(left: newBorder)));
                 });
               },
             )),
         buildRowWithHeaderText(
             headerText: "Gradient",
             actionWidget: BottomSheetGradientPicker(
-              currentGradient: shape.borders.left.gradient,
+              currentGradient: shape.borderSides.left.gradient,
               valueChanged: (value) {
                 setState(() {
                   DynamicBorderSide newBorder = DynamicBorderSide(
-                    width: shape.borders.left.width,
-                    color: shape.borders.left.color,
+                    width: shape.borderSides.left.width,
+                    color: shape.borderSides.left.color,
                     gradient: value,
                   );
                   updateCurrentShape(shape.copyWith(
-                      borders: shape.borders.copyWith(left: newBorder)));
+                      borders: shape.borderSides.copyWith(left: newBorder)));
                 });
               },
             ))

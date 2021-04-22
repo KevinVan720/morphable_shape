@@ -53,26 +53,26 @@ class RectangleCornerStyles {
   }
 }
 
-class RectangleBorders {
+class RectangleBorderSides {
   final DynamicBorderSide top;
   final DynamicBorderSide bottom;
   final DynamicBorderSide left;
   final DynamicBorderSide right;
 
-  const RectangleBorders.only({
+  const RectangleBorderSides.only({
     this.top = DynamicBorderSide.none,
     this.bottom = DynamicBorderSide.none,
     this.left = DynamicBorderSide.none,
     this.right = DynamicBorderSide.none,
   });
 
-  const RectangleBorders.all(DynamicBorderSide border)
+  const RectangleBorderSides.all(DynamicBorderSide border)
       : top = border,
         bottom = border,
         left = border,
         right = border;
 
-  const RectangleBorders.symmetric(
+  const RectangleBorderSides.symmetric(
       {DynamicBorderSide horizontal = DynamicBorderSide.none,
       DynamicBorderSide vertical = DynamicBorderSide.none})
       : top = horizontal,
@@ -80,8 +80,8 @@ class RectangleBorders {
         left = vertical,
         right = vertical;
 
-  static RectangleBorders fromJson(Map map) {
-    return RectangleBorders.only(
+  static RectangleBorderSides fromJson(Map map) {
+    return RectangleBorderSides.only(
       top: parseDynamicBorderSide(map['top']) ?? DynamicBorderSide.none,
       bottom: parseDynamicBorderSide(map['bottom']) ?? DynamicBorderSide.none,
       left: parseDynamicBorderSide(map['left']) ?? DynamicBorderSide.none,
@@ -98,13 +98,13 @@ class RectangleBorders {
     };
   }
 
-  RectangleBorders copyWith({
+  RectangleBorderSides copyWith({
     DynamicBorderSide? top,
     DynamicBorderSide? bottom,
     DynamicBorderSide? left,
     DynamicBorderSide? right,
   }) {
-    return RectangleBorders.only(
+    return RectangleBorderSides.only(
       top: top ?? this.top,
       bottom: bottom ?? this.bottom,
       left: left ?? this.left,

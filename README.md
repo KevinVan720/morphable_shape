@@ -3,8 +3,7 @@
 A Flutter package for creating various shapes that are responsive
 and can morph between each other.
 
-Notice: Please always try to use the latest version of this package (which has null safety enabled). All future development will happen
-there.
+Notice: This class uses the [dimension](https://pub.dev/packages/dimension) package but only the px and percent units are respected since ShapeBorder has no access to the build context and the screen size.
 
 ## Getting Started
 
@@ -20,7 +19,7 @@ ShapeBorder rectangle=RectangleShapeBorder(
     );
 ```
 
-You can use the shape to create a shapeBorder that gets used by the Material widget or the ClipPath widget which perform the shape clipping.
+You can create a ShapeBorder that gets used by the Material widget or the ClipPath widget which perform the shape clipping.
 
 ```dart
 Widget widget=Material(
@@ -38,7 +37,7 @@ decoration: decoration
 );
 ```
 
-This package also has the DecoratedShadowedShape widget which lets you define inset shadows which Flutter does not support right now:
+This package also has the **DecoratedShadowedShape** widget which lets you define inset shadows which Flutter does not support right now:
 ```dart
 Widget widget = DecoratedShadowedShape(
     shape: shape,
@@ -53,21 +52,21 @@ You can run the example app to create a local shape editing tool to see the vari
 
 ## DynamicBorderSide
 
-The DynamicBorderSide is an extension to the built-in BorderSide class. It supports gradient in addtion to color. It also supports painting partially by specifing the begin, end and offset parameters. You can also change the strokeJoin and strokeCap paramter.
+The DynamicBorderSide is an extension to the built-in BorderSide class. It supports gradient filling in addtion to single color filling. It also supports painting partially by specifing the begin, end and offset parameters (e.g. paint only the first half of the border side). You can change the strokeJoin and strokeCap paramter as well.
 
 This class is used to configure how the borders are painted with different shapes.
 
 ```dart
 DynamicBorderSide(
-    style: style,
-    width: width,
-    color: color,
-    gradient: gradient,
-    begin: begin,
-    end: end,
-    offset: offset,
-    strokeJoin: strokeJoin,
-    strokeCap: strokeCap,
+    style: BorderStyle.solid,
+    width: 1,
+    color: Colors.red,
+    gradient: LinearGradient(colors:[Colors.red, Colors.blue]),
+    begin: 0.toPercentLength,
+    end: 100.toPercentLength,
+    offset: 0.toPercentLength,
+    strokeJoin: StrokeJoin.miter,
+    strokeCap: StrokeCap.round,
 );
 ```
 
@@ -76,8 +75,8 @@ DynamicBorderSide(
 Currently supported shape borders are:
 
 ### RectangleShapeBorder
-The most powerful and commonly used one should be the RectangleShape class. It allows to you configure each corner of the rectangle individually or at once.  
-It also automatically scales all sides so that they don’t overlap (just like what CSS does). The RectangleShape supports four different corner styles:
+The most powerful and commonly used one should be the RectangleShapeBorder class. It allows to you configure each corner of the rectangle individually or at once.
+It also automatically scales all sides so that they don’t overlap (just like what CSS does). The RectangleShapeBorder supports four different corner styles:
 ```dart
 enum CornerStyle{
   rounded,
@@ -87,7 +86,7 @@ enum CornerStyle{
 }
 ```
 
-You can configure the corner styles like this:
+You can configure the corner styles at once or individually:
 ```dart
 var cornerStyles=RectangleCornerStyles.all(CornerStyle.rounded);
 cornerStyles=RectangleCornerStyles.only(
@@ -96,7 +95,7 @@ bottomRight: CornerStyle.concave
 );
 ```
 
-You can also specify the border with, color (or gradient) using the
+You can also specify the border width, color (or gradient) using the
 DynamicBorderSide class:
 ```dart
 var border=DynamicBorderSide(
@@ -115,7 +114,7 @@ border: border,
 );
 ```
 
-You can make a triangle, a diamond, a trapezoid, or even an arrow shape by just using the RectangleShape class and providing the right corner style and border radius.
+You can make a triangle, a diamond, a trapezoid, or even an arrow shape by just using the RectangleShapeBorder class and providing the right corner style and border radius.
 
 ![rectangle](https://i.imgur.com/I0jXJu2.png)
 
@@ -124,16 +123,16 @@ You can make a triangle, a diamond, a trapezoid, or even an arrow shape by just 
 CircleShapeBorder gives you a circle. Simple as that.
 
 ## RoundedRectangleShapeBorder
-If you use the RoundedRectangleShape class, then the four border sides can be further configured individually. The four border sides can be styled independently or at once:
+If you use the RoundedRectangleShapeBorder class, then the four border sides can be configured individually. The four border sides can be styled independently or at once, similar to what CSS offers:
 
 ```dart
-var borders=RectangleBorders.all(DynamicBorderSide.none);
-borders=RectangleBorders.symmetric(
+var borders=RectangleBorderSides.all(DynamicBorderSide.none);
+borders=RectangleBorderSides.symmetric(
 horizontal: DynamicBorderSide(
 width: 10,
 color: Colors.blue,
 ));
-borders=RectangleBorders.only(
+borders=RectangleBorderSides.only(
 top: DynamicBorderSide(
 width: 10,
 gradient: LinearGradient(colors:[Colors.red, Colors.green]),
@@ -144,7 +143,7 @@ Then you have:
 ```dart
 ShapeBorder shapeBorder=RoundedRectangleShapeBorder({
     borderRadius: DynamicBorderRadius.all(DynamicRadius.circular(Length(100))),
-    borders: borders,
+    borderSides: borders,
   });
 ```
 Below are some border designs using this class. This class is very similar to what CSS
@@ -154,7 +153,7 @@ offers.
 ![round_rectangle](https://i.imgur.com/Gfh5zxu.png)
 
 ### PolygonShapeBorder
-PolygonShape supports changing the number of sides as well as corner radius and corner style:
+PolygonShapeBorder supports changing the number of sides as well as corner radius and corner style:
 ```dart
 PolygonShapeBorder(
 sides:6,
@@ -182,18 +181,20 @@ insetStyle: CornerStyle.rounded
 ### ArcShapeBorder, ArrowShapeBorder, BubbleShapeBorder, TrapezoidShapeBorder, TriangleShapeBorder
 These shape borders are also supported and responsive. Check out their constructors to see how to make them.
 
-###PathShapeBorder
-Accepts a DynamicPath instance to draw a custom path border. Right now only straight line and cubic Bezier curves are supported. Arcs are translated to cubic Beziers first.
+![various](https://i.imgur.com/qDK8sBf.png)
+
+### PathShapeBorder
+Accepts a DynamicPath instance to draw a custom path border. Right now only straight line and cubic Bezier curves are supported. Arcs need to be translated to cubic Beziers first. In the future I may let this class accept close SVG path as well.
 
 ## Shape Morphing
 
-Every shape in this package can be morphed into one another, including the border(s). Hence the name of this package. To morph between two shapes you first need to create a ShapeBorderTween:
+Every shape in this package can be morphed into one another, including the border side(s). Hence the name of this package. To morph between two shapes you first need to create a ShapeBorderTween:
 ```dart
 MorphableShapeBorderTween shapeBorderTween =
         MorphableShapeBorderTween(begin: beginShapeBorder, end: endShapeBorder);
 ```
 
-Then you can get the intermediate shapes at progress t by calling:
+Then you can get the intermediate shapes at progress **t**(from 0 to 1) by calling:
 
 ```dart
 ShapeBorder intermediate=shapeBorderTween.lerp(t);
@@ -257,6 +258,8 @@ const ShapeShadow({
 ```
 
 If you want implicit animation for this widget, use the AnimatedDecoratedShadowedShape.
+
+The [animated_styled_widget](https://pub.dev/packages/animated_styled_widget) has many exmaples using the DecoratedShadowedShape widget.
 
 ## A Shape Editing Tool
 
