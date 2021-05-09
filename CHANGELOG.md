@@ -246,3 +246,7 @@ Update dependence
 ## [1.5.0] - 04.22.2021
 
 Update README, rename RectangleBorders to RectangleBorderSides
+
+## [1.5.1] - 05.09.2021
+
+Update license.
