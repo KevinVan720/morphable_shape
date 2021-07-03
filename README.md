@@ -141,10 +141,10 @@ gradient: LinearGradient(colors:[Colors.red, Colors.green]),
 
 Then you have:
 ```dart
-ShapeBorder shapeBorder=RoundedRectangleShapeBorder({
+ShapeBorder shapeBorder=RoundedRectangleShapeBorder(
     borderRadius: DynamicBorderRadius.all(DynamicRadius.circular(Length(100))),
     borderSides: borders,
-  });
+  );
 ```
 Below are some border designs using this class. This class is very similar to what CSS
 offers and is a combination of the BoxBorder and RoundedRectangleBorder class that Flutter
