@@ -250,3 +250,11 @@ Update README, rename RectangleBorders to RectangleBorderSides
 ## [1.5.1] - 05.09.2021
 
 Update license.
+
+## [1.5.2] - 02.20.2022
+
+Update dependency.
+
+## [1.5.3] - 02.22.2022
+
+Now AnimatedDecoratedShadowedShape can tween between color and gradients.
