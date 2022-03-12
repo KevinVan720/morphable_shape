@@ -16,6 +16,7 @@ class ShapeShadow extends ui.Shadow {
     double blurRadius = 0.0,
     this.spreadRadius = 0.0,
     this.gradient,
+    this.blurStyle = BlurStyle.normal,
   }) : super(color: color, offset: offset, blurRadius: blurRadius);
 
   factory ShapeShadow.fromBoxShadow(BoxShadow source) {
@@ -24,6 +25,7 @@ class ShapeShadow extends ui.Shadow {
       offset: source.offset,
       blurRadius: source.blurRadius,
       spreadRadius: source.spreadRadius,
+      blurStyle: source.blurStyle,
     );
   }
 
@@ -34,6 +36,8 @@ class ShapeShadow extends ui.Shadow {
     rst.updateNotNull("blurRadius", blurRadius);
     rst.updateNotNull("gradient", gradient?.toJson());
     rst.updateNotNull("spreadRadius", spreadRadius);
+    //TODO: parse blurStyle
+    //rst.updateNotNull("blurStyle", blurStyle)
     return rst;
   }
 
@@ -43,6 +47,8 @@ class ShapeShadow extends ui.Shadow {
   ///This gradient will only be used by the ShadowedShape class.
   ///If used by other class, this gradient takes no effect
   final Gradient? gradient;
+
+  final BlurStyle blurStyle;
 
   /// Create the [Paint] object that corresponds to this shadow description.
   ///
@@ -71,6 +77,7 @@ class ShapeShadow extends ui.Shadow {
       offset: offset * factor,
       blurRadius: (blurRadius * factor).clamp(0, double.infinity),
       spreadRadius: spreadRadius * factor,
+      blurStyle: blurStyle,
     );
   }
 
@@ -94,6 +101,7 @@ class ShapeShadow extends ui.Shadow {
           .lerpDouble(a.blurRadius, b.blurRadius, t)!
           .clamp(0, double.infinity),
       spreadRadius: ui.lerpDouble(a.spreadRadius, b.spreadRadius, t)!,
+      blurStyle: t < 0.5 ? a.blurStyle : b.blurStyle,
     );
   }
 
@@ -125,12 +133,13 @@ class ShapeShadow extends ui.Shadow {
         other.offset == offset &&
         other.gradient == gradient &&
         other.blurRadius == blurRadius &&
-        other.spreadRadius == spreadRadius;
+        other.spreadRadius == spreadRadius &&
+        other.blurStyle == blurStyle;
   }
 
   @override
   int get hashCode =>
-      hashValues(color, gradient, offset, blurRadius, spreadRadius);
+      hashValues(color, gradient, offset, blurRadius, spreadRadius, blurStyle);
 
   @override
   String toString() =>

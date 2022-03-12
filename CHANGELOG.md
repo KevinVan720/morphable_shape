@@ -258,3 +258,11 @@ Update dependency.
 ## [1.5.3] - 02.22.2022
 
 Now AnimatedDecoratedShadowedShape can tween between color and gradients.
+
+## [1.5.4] - 02.22.2022
+
+Now AnimatedDecoratedShadowedShape can tween between color and gradients.
+
+## [1.5.5] - 03.11.2022
+
+Support BlurStyle in ShapeShadow.

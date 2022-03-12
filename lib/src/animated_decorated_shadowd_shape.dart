@@ -14,18 +14,18 @@ class ListShapeShadowTween extends Tween<List<ShapeShadow>?> {
   }
 }
 
-class CustomBoxDecorationTween extends Tween<Decoration?> {
+class CustomBoxDecorationTween extends DecorationTween {
   CustomBoxDecorationTween({
     Decoration? begin,
     Decoration? end,
   }) : super(begin: begin, end: end);
 
   @override
-  Decoration? lerp(double t) {
+  Decoration lerp(double t) {
     if (begin is BoxDecoration && end is BoxDecoration) {
-      return lerpDecoration(begin as BoxDecoration, end as BoxDecoration, t);
+      return lerpDecoration(begin as BoxDecoration, end as BoxDecoration, t)??BoxDecoration();
     }
-    return Decoration.lerp(begin, end, t);
+    return Decoration.lerp(begin, end, t)??BoxDecoration();
   }
 
   BoxDecoration? lerpDecoration(BoxDecoration? a, BoxDecoration? b, double t) {
