@@ -1,6 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:morphable_shape/src/box_decoration_mix.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 import 'package:morphable_shape/src/dynamic_path/dynamic_path_morph.dart';
+import '';
 
 class ListShapeShadowTween extends Tween<List<ShapeShadow>?> {
   ListShapeShadowTween({
@@ -23,12 +27,13 @@ class CustomBoxDecorationTween extends DecorationTween {
   @override
   Decoration lerp(double t) {
     if (begin is BoxDecoration && end is BoxDecoration) {
-      return lerpDecoration(begin as BoxDecoration, end as BoxDecoration, t)??BoxDecoration();
+      return lerpDecoration(begin as BoxDecoration, end as BoxDecoration, t) ??
+          BoxDecoration();
     }
-    return Decoration.lerp(begin, end, t)??BoxDecoration();
+    return Decoration.lerp(begin, end, t) ?? BoxDecoration();
   }
 
-  BoxDecoration? lerpDecoration(BoxDecoration? a, BoxDecoration? b, double t) {
+  Decoration? lerpDecoration(BoxDecoration? a, BoxDecoration? b, double t) {
     assert(t != null);
     if (a == null && b == null) return null;
     if (a == null) return b!.scale(t);
@@ -36,15 +41,69 @@ class CustomBoxDecorationTween extends DecorationTween {
     if (t == 0.0) return a;
     if (t == 1.0) return b;
 
+    if (a.image != null || b.image != null) {
+      DecorationImage? aImageAtT, bImageAtT;
+
+      if (a.image != null) {
+        DecorationImage aImage = a.image!;
+        aImageAtT = DecorationImage(
+          image: aImage.image,
+          onError: aImage.onError,
+          colorFilter: aImage.colorFilter,
+          fit: aImage.fit,
+          alignment: aImage.alignment,
+          centerSlice: aImage.centerSlice,
+          repeat: aImage.repeat,
+          matchTextDirection: aImage.matchTextDirection,
+          scale: aImage.scale,
+          opacity: lerpDouble(aImage.opacity, 0, t) ?? 0,
+          filterQuality: aImage.filterQuality,
+          invertColors: aImage.invertColors,
+          isAntiAlias: aImage.isAntiAlias,
+        );
+      }
+
+      if (b.image != null) {
+        DecorationImage bImage = b.image!;
+        bImageAtT = DecorationImage(
+          image: bImage.image,
+          onError: bImage.onError,
+          colorFilter: bImage.colorFilter,
+          fit: bImage.fit,
+          alignment: bImage.alignment,
+          centerSlice: bImage.centerSlice,
+          repeat: bImage.repeat,
+          matchTextDirection: bImage.matchTextDirection,
+          scale: bImage.scale,
+          opacity: lerpDouble(0, bImage.opacity, t) ?? 1,
+          filterQuality: bImage.filterQuality,
+          invertColors: bImage.invertColors,
+          isAntiAlias: bImage.isAntiAlias,
+        );
+      }
+
+      return BoxDecorationMix(
+        color: Color.lerp(a.color, b.color, t),
+        image1: t < 0.5 ? bImageAtT : aImageAtT,
+        image2: t < 0.5 ? aImageAtT : bImageAtT,
+        border: BoxBorder.lerp(a.border, b.border, t),
+        borderRadius:
+            BorderRadiusGeometry.lerp(a.borderRadius, b.borderRadius, t),
+        boxShadow: BoxShadow.lerpList(a.boxShadow, b.boxShadow, t),
+        gradient: lerpGradient(t, a.gradient, b.gradient,
+            a.color ?? Color(0x00FFFFFF), b.color ?? Color(0x00FFFFFF)),
+        shape: t < 0.5 ? a.shape : b.shape,
+      );
+    }
+
     return BoxDecoration(
       color: Color.lerp(a.color, b.color, t),
-      image: t < 0.5 ? a.image : b.image, // TODO(ianh): cross-fade the image
       border: BoxBorder.lerp(a.border, b.border, t),
       borderRadius:
           BorderRadiusGeometry.lerp(a.borderRadius, b.borderRadius, t),
       boxShadow: BoxShadow.lerpList(a.boxShadow, b.boxShadow, t),
-      gradient: lerpGradient(t, a.gradient, b.gradient, a.color ?? Colors.white,
-          b.color ?? Colors.white),
+      gradient: lerpGradient(t, a.gradient, b.gradient,
+          a.color ?? Color(0x00FFFFFF), b.color ?? Color(0x00FFFFFF)),
       shape: t < 0.5 ? a.shape : b.shape,
     );
   }
@@ -57,30 +116,90 @@ class CustomBoxDecorationTween extends DecorationTween {
       } else {
         if (endGradient is LinearGradient) {
           return Gradient.lerp(
-              LinearGradient(colors: [beginColor, beginColor]), endGradient, t);
+              LinearGradient(
+                  begin: endGradient.begin,
+                  end: endGradient.end,
+                  transform: endGradient.transform,
+                  tileMode: endGradient.tileMode,
+                  stops: endGradient.stops,
+                  colors: List.generate(
+                      endGradient.colors.length, (index) => beginColor)),
+              endGradient,
+              t);
         }
         if (endGradient is RadialGradient) {
           return Gradient.lerp(
-              RadialGradient(colors: [beginColor, beginColor]), endGradient, t);
+              RadialGradient(
+                  center: endGradient.center,
+                  radius: endGradient.radius,
+                  focal: endGradient.focal,
+                  focalRadius: endGradient.focalRadius,
+                  transform: endGradient.transform,
+                  tileMode: endGradient.tileMode,
+                  stops: endGradient.stops,
+                  colors: List.generate(
+                      endGradient.colors.length, (index) => beginColor)),
+              endGradient,
+              t);
         }
         if (endGradient is SweepGradient) {
           return Gradient.lerp(
-              SweepGradient(colors: [beginColor, beginColor]), endGradient, t);
+              SweepGradient(
+                  center: endGradient.center,
+                  startAngle: endGradient.startAngle,
+                  endAngle: endGradient.endAngle,
+                  transform: endGradient.transform,
+                  tileMode: endGradient.tileMode,
+                  stops: endGradient.stops,
+                  colors: List.generate(
+                      endGradient.colors.length, (index) => beginColor)),
+              endGradient,
+              t);
         }
       }
     } else {
       if (endGradient == null) {
         if (beginGradient is LinearGradient) {
           return Gradient.lerp(
-              beginGradient, LinearGradient(colors: [endColor, endColor]), t);
+              beginGradient,
+              LinearGradient(
+                  begin: beginGradient.begin,
+                  end: beginGradient.end,
+                  transform: beginGradient.transform,
+                  tileMode: beginGradient.tileMode,
+                  stops: beginGradient.stops,
+                  colors: List.generate(
+                      beginGradient.colors.length, (index) => endColor)),
+              t);
         }
         if (beginGradient is RadialGradient) {
           return Gradient.lerp(
-              beginGradient, RadialGradient(colors: [endColor, endColor]), t);
+              beginGradient,
+              RadialGradient(
+                  center: beginGradient.center,
+                  radius: beginGradient.radius,
+                  focal: beginGradient.focal,
+                  focalRadius: beginGradient.focalRadius,
+                  transform: beginGradient.transform,
+                  tileMode: beginGradient.tileMode,
+                  stops: beginGradient.stops,
+                  colors: List.generate(
+                      beginGradient.colors.length, (index) => endColor)),
+              t);
         }
         if (beginGradient is SweepGradient) {
           return Gradient.lerp(
-              beginGradient, SweepGradient(colors: [endColor, endColor]), t);
+              beginGradient,
+              SweepGradient(
+                  center: beginGradient.center,
+                  startAngle: beginGradient.startAngle,
+                  endAngle: beginGradient.endAngle,
+                  transform: beginGradient.transform,
+                  tileMode: beginGradient.tileMode,
+                  stops: beginGradient.stops,
+                  colors: List.generate(
+                      beginGradient.colors.length, (index) => endColor)),
+              t);
         }
       } else {
         return Gradient.lerp(beginGradient, endGradient, t);

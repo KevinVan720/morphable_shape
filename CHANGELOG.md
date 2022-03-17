@@ -266,3 +266,11 @@ Now AnimatedDecoratedShadowedShape can tween between color and gradients.
 ## [1.5.5] - 03.11.2022
 
 Support BlurStyle in ShapeShadow.
+
+## [1.5.6] - 03.16.2022
+
+Support crossfade background image.
+
+## [1.5.7] - 03.16.2022
+
+Fix a bug when crossfade background image.
