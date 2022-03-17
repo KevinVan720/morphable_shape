@@ -83,12 +83,16 @@ class BoxDecorationMix extends Decoration {
     this.border,
     this.borderRadius,
     this.boxShadow,
-    this.gradient,
+    this.gradient1,
+    this.gradient2,
     this.backgroundBlendMode,
     this.shape = BoxShape.rectangle,
   })  : assert(shape != null),
         assert(
-          backgroundBlendMode == null || color != null || gradient != null,
+          backgroundBlendMode == null ||
+              color != null ||
+              gradient1 != null ||
+              gradient2 != null,
           "backgroundBlendMode applies to BoxDecoration's background color or "
           'gradient, but no color or gradient was provided.',
         );
@@ -102,7 +106,8 @@ class BoxDecorationMix extends Decoration {
     BoxBorder? border,
     BorderRadiusGeometry? borderRadius,
     List<BoxShadow>? boxShadow,
-    Gradient? gradient,
+    Gradient? gradient1,
+    Gradient? gradient2,
     BlendMode? backgroundBlendMode,
     BoxShape? shape,
   }) {
@@ -113,7 +118,8 @@ class BoxDecorationMix extends Decoration {
       border: border ?? this.border,
       borderRadius: borderRadius ?? this.borderRadius,
       boxShadow: boxShadow ?? this.boxShadow,
-      gradient: gradient ?? this.gradient,
+      gradient1: gradient1 ?? this.gradient1,
+      gradient2: gradient2 ?? this.gradient2,
       backgroundBlendMode: backgroundBlendMode ?? this.backgroundBlendMode,
       shape: shape ?? this.shape,
     );
@@ -181,7 +187,8 @@ class BoxDecorationMix extends Decoration {
   /// If this is specified, [color] has no effect.
   ///
   /// The [gradient] is drawn under the [image].
-  final Gradient? gradient;
+  final Gradient? gradient1;
+  final Gradient? gradient2;
 
   /// The blend mode applied to the [color] or [gradient] background of the box.
   ///
@@ -239,7 +246,8 @@ class BoxDecorationMix extends Decoration {
         other.border == border &&
         other.borderRadius == borderRadius &&
         listEquals<BoxShadow>(other.boxShadow, boxShadow) &&
-        other.gradient == gradient &&
+        other.gradient1 == gradient1 &&
+        other.gradient2 == gradient2 &&
         other.shape == shape;
   }
 
@@ -252,7 +260,8 @@ class BoxDecorationMix extends Decoration {
       border,
       borderRadius,
       hashList(boxShadow),
-      gradient,
+      gradient1,
+      gradient2,
       shape,
     );
   }
@@ -292,29 +301,54 @@ class _BoxDecorationMixPainter extends BoxPainter {
 
   final BoxDecorationMix _decoration;
 
-  Paint? _cachedBackgroundPaint;
-  Rect? _rectForCachedBackgroundPaint;
-  Paint _getBackgroundPaint(Rect rect, TextDirection? textDirection) {
+  Paint? _cachedBackgroundPaint1;
+  Rect? _rectForCachedBackgroundPaint1;
+  Paint _getBackgroundPaint1(Rect rect, TextDirection? textDirection) {
     assert(rect != null);
-    assert(
-        _decoration.gradient != null || _rectForCachedBackgroundPaint == null);
+    assert(_decoration.gradient1 != null ||
+        _rectForCachedBackgroundPaint1 == null);
 
-    if (_cachedBackgroundPaint == null ||
-        (_decoration.gradient != null &&
-            _rectForCachedBackgroundPaint != rect)) {
+    if (_cachedBackgroundPaint1 == null ||
+        (_decoration.gradient1 != null &&
+            _rectForCachedBackgroundPaint1 != rect)) {
       final Paint paint = Paint();
       if (_decoration.backgroundBlendMode != null)
         paint.blendMode = _decoration.backgroundBlendMode!;
       if (_decoration.color != null) paint.color = _decoration.color!;
-      if (_decoration.gradient != null) {
-        paint.shader = _decoration.gradient!
+      if (_decoration.gradient1 != null) {
+        paint.shader = _decoration.gradient1!
             .createShader(rect, textDirection: textDirection);
-        _rectForCachedBackgroundPaint = rect;
+        _rectForCachedBackgroundPaint1 = rect;
       }
-      _cachedBackgroundPaint = paint;
+      _cachedBackgroundPaint1 = paint;
     }
 
-    return _cachedBackgroundPaint!;
+    return _cachedBackgroundPaint1!;
+  }
+
+  Paint? _cachedBackgroundPaint2;
+  Rect? _rectForCachedBackgroundPaint2;
+  Paint _getBackgroundPaint2(Rect rect, TextDirection? textDirection) {
+    assert(rect != null);
+    assert(_decoration.gradient2 != null ||
+        _rectForCachedBackgroundPaint2 == null);
+
+    if (_cachedBackgroundPaint2 == null ||
+        (_decoration.gradient2 != null &&
+            _rectForCachedBackgroundPaint2 != rect)) {
+      final Paint paint = Paint();
+      if (_decoration.backgroundBlendMode != null)
+        paint.blendMode = _decoration.backgroundBlendMode!;
+      if (_decoration.color != null) paint.color = _decoration.color!;
+      if (_decoration.gradient2 != null) {
+        paint.shader = _decoration.gradient2!
+            .createShader(rect, textDirection: textDirection);
+        _rectForCachedBackgroundPaint2 = rect;
+      }
+      _cachedBackgroundPaint2 = paint;
+    }
+
+    return _cachedBackgroundPaint2!;
   }
 
   void _paintBox(
@@ -350,8 +384,12 @@ class _BoxDecorationMixPainter extends BoxPainter {
 
   void _paintBackgroundColor(
       Canvas canvas, Rect rect, TextDirection? textDirection) {
-    if (_decoration.color != null || _decoration.gradient != null)
-      _paintBox(canvas, rect, _getBackgroundPaint(rect, textDirection),
+    if (_decoration.color != null || _decoration.gradient1 != null)
+      _paintBox(canvas, rect, _getBackgroundPaint1(rect, textDirection),
+          textDirection);
+
+    if (_decoration.color != null || _decoration.gradient2 != null)
+      _paintBox(canvas, rect, _getBackgroundPaint2(rect, textDirection),
           textDirection);
   }
 

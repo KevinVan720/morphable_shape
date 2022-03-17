@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
           overlayColor: Colors.amber.withOpacity(0.2),
         ),
       ),
-      home: EditShapePage(),
+      home: TestPage(),
     );
   }
 }

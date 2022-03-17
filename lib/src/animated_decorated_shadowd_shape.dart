@@ -33,6 +33,12 @@ class CustomBoxDecorationTween extends DecorationTween {
     return Decoration.lerp(begin, end, t) ?? BoxDecoration();
   }
 
+  bool sameGradient(Gradient a, Gradient b) {
+    return (a is LinearGradient && b is LinearGradient) ||
+        (a is RadialGradient && b is RadialGradient) ||
+        (a is SweepGradient && b is SweepGradient);
+  }
+
   Decoration? lerpDecoration(BoxDecoration? a, BoxDecoration? b, double t) {
     assert(t != null);
     if (a == null && b == null) return null;
@@ -41,7 +47,14 @@ class CustomBoxDecorationTween extends DecorationTween {
     if (t == 0.0) return a;
     if (t == 1.0) return b;
 
-    if (a.image != null || b.image != null) {
+    ///If there is image in either a or b or
+    ///if the gradient in a and b are not the same type,
+    ///use crossfade
+    if (a.image != null ||
+        b.image != null ||
+        (a.gradient != null &&
+            b.gradient != null &&
+            !sameGradient(a.gradient!, b.gradient!))) {
       DecorationImage? aImageAtT, bImageAtT;
 
       if (a.image != null) {
@@ -90,8 +103,8 @@ class CustomBoxDecorationTween extends DecorationTween {
         borderRadius:
             BorderRadiusGeometry.lerp(a.borderRadius, b.borderRadius, t),
         boxShadow: BoxShadow.lerpList(a.boxShadow, b.boxShadow, t),
-        gradient: lerpGradient(t, a.gradient, b.gradient,
-            a.color ?? Color(0x00FFFFFF), b.color ?? Color(0x00FFFFFF)),
+        gradient1: a.gradient?.scale(1 - t),
+        gradient2: b.gradient?.scale(t),
         shape: t < 0.5 ? a.shape : b.shape,
       );
     }
