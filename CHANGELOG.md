@@ -278,3 +278,7 @@ Fix a bug when crossfade background image.
 ## [1.5.8] - 03.16.2022
 
 Also crossfade gradient with different type.
+
+## [1.5.9] - 03.16.2022
+
+Fix a bug when crossfade background gradient.

@@ -109,14 +109,25 @@ class CustomBoxDecorationTween extends DecorationTween {
       );
     }
 
+    if (a.gradient != null || b.gradient != null) {
+      return BoxDecoration(
+        //color: Color.lerp(a.color, b.color, t),
+        border: BoxBorder.lerp(a.border, b.border, t),
+        borderRadius:
+            BorderRadiusGeometry.lerp(a.borderRadius, b.borderRadius, t),
+        boxShadow: BoxShadow.lerpList(a.boxShadow, b.boxShadow, t),
+        gradient: lerpGradient(t, a.gradient, b.gradient,
+            a.color ?? Color(0x00FFFFFF), b.color ?? Color(0x00FFFFFF)),
+        shape: t < 0.5 ? a.shape : b.shape,
+      );
+    }
+
     return BoxDecoration(
       color: Color.lerp(a.color, b.color, t),
       border: BoxBorder.lerp(a.border, b.border, t),
       borderRadius:
           BorderRadiusGeometry.lerp(a.borderRadius, b.borderRadius, t),
       boxShadow: BoxShadow.lerpList(a.boxShadow, b.boxShadow, t),
-      gradient: lerpGradient(t, a.gradient, b.gradient,
-          a.color ?? Color(0x00FFFFFF), b.color ?? Color(0x00FFFFFF)),
       shape: t < 0.5 ? a.shape : b.shape,
     );
   }
@@ -128,7 +139,7 @@ class CustomBoxDecorationTween extends DecorationTween {
         return null;
       } else {
         if (endGradient is LinearGradient) {
-          return Gradient.lerp(
+          return LinearGradient.lerp(
               LinearGradient(
                   begin: endGradient.begin,
                   end: endGradient.end,
@@ -141,7 +152,7 @@ class CustomBoxDecorationTween extends DecorationTween {
               t);
         }
         if (endGradient is RadialGradient) {
-          return Gradient.lerp(
+          return RadialGradient.lerp(
               RadialGradient(
                   center: endGradient.center,
                   radius: endGradient.radius,
@@ -156,7 +167,7 @@ class CustomBoxDecorationTween extends DecorationTween {
               t);
         }
         if (endGradient is SweepGradient) {
-          return Gradient.lerp(
+          return SweepGradient.lerp(
               SweepGradient(
                   center: endGradient.center,
                   startAngle: endGradient.startAngle,
@@ -173,7 +184,7 @@ class CustomBoxDecorationTween extends DecorationTween {
     } else {
       if (endGradient == null) {
         if (beginGradient is LinearGradient) {
-          return Gradient.lerp(
+          return LinearGradient.lerp(
               beginGradient,
               LinearGradient(
                   begin: beginGradient.begin,
@@ -186,7 +197,7 @@ class CustomBoxDecorationTween extends DecorationTween {
               t);
         }
         if (beginGradient is RadialGradient) {
-          return Gradient.lerp(
+          return RadialGradient.lerp(
               beginGradient,
               RadialGradient(
                   center: beginGradient.center,
@@ -201,7 +212,7 @@ class CustomBoxDecorationTween extends DecorationTween {
               t);
         }
         if (beginGradient is SweepGradient) {
-          return Gradient.lerp(
+          return SweepGradient.lerp(
               beginGradient,
               SweepGradient(
                   center: beginGradient.center,

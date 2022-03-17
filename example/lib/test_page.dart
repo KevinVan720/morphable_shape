@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
@@ -28,46 +29,30 @@ class _TestPageState extends State<TestPage> {
               duration: Duration(milliseconds: 2000),
               shape: RectangleShapeBorder(),
               decoration: toggleStyle
-                  ? BoxDecoration(
-                      gradient: SweepGradient(
-                          center: Alignment(0.13, 0.1),
-                          startAngle: 0.5,
-                          endAngle: 6.3,
-                          colors: [
-                          Color(0xFFF6EA41),
-                          Color(0xFFEEBD89),
-                          Color(0xFFD13ABD),
-                          Color(0xFFAEBAF8),
-                          Color(0xFFB60F46),
-                          Color(0xFFF6EA41),
-                        ],
-                          stops: [
-                          0.01,
-                          0.2,
-                          0.5,
-                          0.7,
-                          0.8,
-                          0.98
-                        ]))
+                  ? BoxDecoration(color: Colors.white)
                   : BoxDecoration(
+                      image: DecorationImage(
+                          fit: BoxFit.fill,
+                          image: NetworkImage(
+                              "https://images.unsplash.com/photo-1557409239-720ef57b99d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80")),
                       gradient: SweepGradient(
                           center: Alignment(0.03, -0.17),
                           startAngle: 0.1,
                           endAngle: 5.3,
                           colors: [
-                          Colors.black87,
-                          Color(0xFF04619f),
-                          Color(0xFF358f74),
-                          Color(0xFF923cb5),
-                          Colors.black87,
-                        ],
+                            Colors.black87,
+                            Color(0xFF04619f),
+                            Color(0xFF358f74),
+                            Color(0xFF923cb5),
+                            Colors.black87,
+                          ],
                           stops: [
-                          0.1,
-                          0.3,
-                          0.45,
-                          0.8,
-                          0.98
-                        ])),
+                            0.1,
+                            0.3,
+                            0.45,
+                            0.8,
+                            0.98
+                          ])),
             ),
           ),
         ),
