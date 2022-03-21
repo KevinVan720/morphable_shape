@@ -282,3 +282,7 @@ Also crossfade gradient with different type.
 ## [1.5.9] - 03.16.2022
 
 Fix a bug when crossfade background gradient.
+
+## [1.6.0] - 03.21.2022
+
+Update dependency.
