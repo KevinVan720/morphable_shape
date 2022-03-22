@@ -290,3 +290,7 @@ Update dependency.
 ## [1.6.1] - 03.22.2022
 
 Update dependency.
+
+## [1.6.2] - 03.22.2022
+
+Update dependency.
