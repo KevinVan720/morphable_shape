@@ -286,3 +286,7 @@ Fix a bug when crossfade background gradient.
 ## [1.6.0] - 03.21.2022
 
 Update dependency.
+
+## [1.6.1] - 03.22.2022
+
+Update dependency.
