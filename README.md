@@ -231,7 +231,7 @@ Every shape in this package supports serialization. If you have designed some sh
 ```dart
 Shape shape=RoundedRectangleShape();
 String jsonStr=json.encode(shape.toJson());
-Shape shapeDecoded=parseShape(json.decode(jsonStr));
+MorphableShapeBorder shapeDecoded=parseMorphableShapeBorder(json.decode(jsonStr));
 ```
 
 ## Decorated Shadowed Shape
