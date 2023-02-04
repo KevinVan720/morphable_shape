@@ -2,7 +2,6 @@ import 'package:dimension/dimension.dart';
 import 'package:flutter/material.dart';
 
 import 'edit_shape_page.dart';
-import 'test_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
           overlayColor: Colors.amber.withOpacity(0.2),
         ),
       ),
-      home: TestPage(),
+      home: EditShapePage(),
     );
   }
 }

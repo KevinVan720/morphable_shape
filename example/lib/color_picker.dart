@@ -319,7 +319,7 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                                 ),
                               ),
                               actions: <Widget>[
-                                FlatButton(
+                                TextButton(
                                   child: const Text('Got it'),
                                   onPressed: () {
                                     setState(() {

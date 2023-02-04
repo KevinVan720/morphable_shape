@@ -28,11 +28,6 @@ class EditShapePageState extends State<EditShapePage>
 
   MorphableShapeBorder currentShapeBorder;
 
-  ///trying to implement undo/redo, but each drag incurs too many
-  ///changes, not making much sense
-  //Queue<Map<String, dynamic>> shapeHistory=Queue();
-  //Queue<Map<String, dynamic>> redoHistory=Queue();
-
   Size shapeSize;
   int selectedNodeIndex;
   bool isEditingPath = false;
