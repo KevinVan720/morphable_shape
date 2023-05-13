@@ -10,13 +10,13 @@ export 'shape_picker.dart'
 
 class LengthSlider extends StatefulWidget {
   const LengthSlider({
-    this.min,
-    this.max,
+    required this.min,
+    required this.max,
     this.divisions = 30,
     this.sliderColor = Colors.amber,
-    this.value,
-    @required this.onChanged,
-    @required this.constraint,
+    required this.value,
+    required this.onChanged,
+    required this.constraint,
     this.allowedUnits = const ["px"],
   });
 
@@ -35,11 +35,11 @@ class LengthSlider extends StatefulWidget {
 }
 
 class _LengthSlider extends State<LengthSlider> {
-  Length _sliderValue;
+  late Length _sliderValue;
 
-  double min;
-  double max;
-  int divisions;
+  late double min;
+  late double max;
+  late int divisions;
 
   @override
   void initState() {

@@ -13,9 +13,9 @@ class CustomRawIconButton extends StatelessWidget {
   bool isDisabled;
 
   CustomRawIconButton(
-      {@required this.icon,
+      {required this.icon,
       this.color = Colors.grey,
-      @required this.onTap,
+      required this.onTap,
       this.size = 24,
       this.isDisabled = false});
 
@@ -36,9 +36,9 @@ class CustomRawIconButton extends StatelessWidget {
 
 class BlockGradientPicker extends StatefulWidget {
   const BlockGradientPicker({
-    Key key,
-    @required this.pickerGradient,
-    @required this.onGradientChanged,
+    Key? key,
+    required this.pickerGradient,
+    required this.onGradientChanged,
   }) : super(key: key);
 
   final Gradient pickerGradient;
@@ -55,20 +55,20 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
 
   int selectIndex = 0;
 
-  List<Color> colors;
-  List<double> stops;
-  Alignment alignment1;
-  Alignment alignment2;
+  late List<Color> colors;
+  late List<double> stops;
+  late Alignment alignment1;
+  late Alignment alignment2;
   double radius = 1;
   double startAngle = 0;
   double endAngle = 360;
 
-  TileMode tileMode;
+  late TileMode tileMode;
 
   //double focalRadius = 1;
 
-  Gradient currentGradient;
-  int gradientType;
+  late Gradient currentGradient;
+  late int gradientType;
 
   @override
   void initState() {
@@ -415,7 +415,7 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
     widget.onGradientChanged(currentGradient);
   }
 
-  void updateGradientType(int index) {
+  void updateGradientType(int? index) {
     setState(() {
       gradientType = index ?? 0;
       updateGradient();
@@ -488,8 +488,8 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
 class BottomSheetGradientPicker extends StatefulWidget {
   BottomSheetGradientPicker({
     this.headText = "Pick a gradient",
-    this.currentGradient,
-    @required this.valueChanged,
+    required this.currentGradient,
+    required this.valueChanged,
   });
 
   final String headText;
@@ -501,7 +501,7 @@ class BottomSheetGradientPicker extends StatefulWidget {
 }
 
 class _BottomSheetGradientPicker extends State<BottomSheetGradientPicker> {
-  Gradient currentGradient;
+  late Gradient currentGradient;
 
   @override
   void initState() {

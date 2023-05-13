@@ -306,3 +306,7 @@ Update dependency.
 ## [1.6.5] - 02.04.2023
 
 Update dependency.
+
+## [1.6.6] - 05.12.2023
+
+Update dependency.

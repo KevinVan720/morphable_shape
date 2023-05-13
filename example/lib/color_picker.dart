@@ -25,16 +25,16 @@ const List<ColorSwatch> materialColors = const <ColorSwatch>[
 
 List<Color> _getMaterialColorShades(ColorSwatch color) {
   return <Color>[
-    if (color[50] != null) color[50],
-    if (color[100] != null) color[100],
-    if (color[200] != null) color[200],
-    if (color[300] != null) color[300],
-    if (color[400] != null) color[400],
-    if (color[500] != null) color[500],
-    if (color[600] != null) color[600],
-    if (color[700] != null) color[700],
-    if (color[800] != null) color[800],
-    if (color[900] != null) color[900],
+    if (color[50] != null) color[50]!,
+    if (color[100] != null) color[100]!,
+    if (color[200] != null) color[200]!,
+    if (color[300] != null) color[300]!,
+    if (color[400] != null) color[400]!,
+    if (color[500] != null) color[500]!,
+    if (color[600] != null) color[600]!,
+    if (color[700] != null) color[700]!,
+    if (color[800] != null) color[800]!,
+    if (color[900] != null) color[900]!,
   ];
 }
 
@@ -59,8 +59,8 @@ typedef PickerItemBuilder = Widget Function(
 
 class BlockColorPicker extends StatefulWidget {
   const BlockColorPicker({
-    @required this.pickerColor,
-    @required this.onColorChanged,
+    required this.pickerColor,
+    required this.onColorChanged,
     this.availableColors = materialColors,
     this.layoutBuilder = defaultLayoutBuilder,
     this.itemBuilder = defaultItemBuilder,
@@ -174,8 +174,8 @@ class BlockColorPicker extends StatefulWidget {
 }
 
 class _BlockColorPickerState extends State<BlockColorPicker> {
-  Color _currentColor;
-  double _currentOpacity;
+  late Color _currentColor;
+  late double _currentOpacity;
 
   @override
   void initState() {
@@ -240,10 +240,10 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
 
 class BottomSheetColorPicker extends StatefulWidget {
   BottomSheetColorPicker({
-    Key key,
+    Key? key,
     this.headText = "Pick a color",
-    this.currentColor,
-    @required this.valueChanged,
+    required this.currentColor,
+    required this.valueChanged,
   }) : super(key: key);
 
   final String headText;
@@ -255,7 +255,7 @@ class BottomSheetColorPicker extends StatefulWidget {
 }
 
 class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
-  Color currentColor;
+  late Color currentColor;
 
   @override
   void initState() {

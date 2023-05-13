@@ -26,19 +26,19 @@ class EditShapePageState extends State<EditShapePage>
   static int gridCount = 10;
   static double shapeMinimumSize = 20;
 
-  MorphableShapeBorder currentShapeBorder;
+  late MorphableShapeBorder currentShapeBorder;
 
-  Size shapeSize;
-  int selectedNodeIndex;
+  late Size shapeSize;
+  int? selectedNodeIndex;
   bool isEditingPath = false;
   bool showGrid = true;
   bool snapToGrid = false;
 
-  TabController _tabController;
+  late TabController _tabController;
 
-  Axis direction;
+  late Axis direction;
 
-  Widget control;
+  late Widget control;
 
   @override
   void initState() {
@@ -288,46 +288,46 @@ class EditShapePageState extends State<EditShapePage>
   List<Widget> buildEditingShapeControlWidgets() {
     List<Widget> stackedComponents = [];
     if (currentShapeBorder is ArcShapeBorder) {
-      stackedComponents.addAll(buildArcEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildArcEditingWidgets(currentShapeBorder as ArcShapeBorder));
     }
     if (currentShapeBorder is ArrowShapeBorder) {
-      stackedComponents.addAll(buildArrowEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildArrowEditingWidgets(currentShapeBorder as ArrowShapeBorder));
     }
     if (currentShapeBorder is BubbleShapeBorder) {
-      stackedComponents.addAll(buildBubbleEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildBubbleEditingWidgets(currentShapeBorder as BubbleShapeBorder));
     }
     if (currentShapeBorder is CircleShapeBorder) {
-      stackedComponents.addAll(buildCircleEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildCircleEditingWidgets(currentShapeBorder as CircleShapeBorder));
     }
 
     if (currentShapeBorder is PathShapeBorder) {
-      stackedComponents.addAll(buildPathEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildPathEditingWidgets(currentShapeBorder as PathShapeBorder));
     }
     if (currentShapeBorder is PolygonShapeBorder) {
-      stackedComponents.addAll(buildPolygonEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildPolygonEditingWidgets(currentShapeBorder as PolygonShapeBorder));
     }
 
     if (currentShapeBorder is RectangleShapeBorder) {
       stackedComponents
-          .addAll(buildRectangleEditingWidgets(currentShapeBorder));
+          .addAll(buildRectangleEditingWidgets(currentShapeBorder as RectangleShapeBorder));
     }
 
     if (currentShapeBorder is RoundedRectangleShapeBorder) {
       stackedComponents
-          .addAll(buildRoundedRectangleEditingWidgets(currentShapeBorder));
+          .addAll(buildRoundedRectangleEditingWidgets(currentShapeBorder as RoundedRectangleShapeBorder));
     }
 
     if (currentShapeBorder is StarShapeBorder) {
-      stackedComponents.addAll(buildStarEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildStarEditingWidgets(currentShapeBorder as StarShapeBorder));
     }
 
     if (currentShapeBorder is TrapezoidShapeBorder) {
       stackedComponents
-          .addAll(buildTrapezoidEditingWidgets(currentShapeBorder));
+          .addAll(buildTrapezoidEditingWidgets(currentShapeBorder as TrapezoidShapeBorder));
     }
 
     if (currentShapeBorder is TriangleShapeBorder) {
-      stackedComponents.addAll(buildTriangleEditingWidgets(currentShapeBorder));
+      stackedComponents.addAll(buildTriangleEditingWidgets(currentShapeBorder as TriangleShapeBorder));
     }
 
     return stackedComponents;
@@ -430,55 +430,55 @@ class EditShapePageState extends State<EditShapePage>
     List<Widget> stackedComponents = [];
 
     if (currentShapeBorder is ArcShapeBorder) {
-      stackedComponents.addAll(buildArcEditingPanelWidget(currentShapeBorder));
+      stackedComponents.addAll(buildArcEditingPanelWidget(currentShapeBorder as ArcShapeBorder));
     }
 
     if (currentShapeBorder is ArrowShapeBorder) {
       stackedComponents
-          .addAll(buildArrowEditingPanelWidget(currentShapeBorder));
+          .addAll(buildArrowEditingPanelWidget(currentShapeBorder as ArrowShapeBorder));
     }
 
     if (currentShapeBorder is BubbleShapeBorder) {
       stackedComponents
-          .addAll(buildBubbleEditingPanelWidget(currentShapeBorder));
+          .addAll(buildBubbleEditingPanelWidget(currentShapeBorder as BubbleShapeBorder));
     }
 
     if (currentShapeBorder is CircleShapeBorder) {
       stackedComponents
-          .addAll(buildCircleEditingPanelWidget(currentShapeBorder));
+          .addAll(buildCircleEditingPanelWidget(currentShapeBorder as CircleShapeBorder));
     }
 
     if (currentShapeBorder is PathShapeBorder) {
-      stackedComponents.addAll(buildPathEditingPanelWidget(currentShapeBorder));
+      stackedComponents.addAll(buildPathEditingPanelWidget(currentShapeBorder as PathShapeBorder));
     }
 
     if (currentShapeBorder is PolygonShapeBorder) {
       stackedComponents
-          .addAll(buildPolygonEditingPanelWidget(currentShapeBorder));
+          .addAll(buildPolygonEditingPanelWidget(currentShapeBorder as PolygonShapeBorder));
     }
 
     if (currentShapeBorder is RectangleShapeBorder) {
       stackedComponents
-          .addAll(buildRectangleEditingPanelWidget(currentShapeBorder));
+          .addAll(buildRectangleEditingPanelWidget(currentShapeBorder as RectangleShapeBorder));
     }
 
     if (currentShapeBorder is RoundedRectangleShapeBorder) {
       stackedComponents
-          .addAll(buildRoundedRectangleEditingPanelWidget(currentShapeBorder));
+          .addAll(buildRoundedRectangleEditingPanelWidget(currentShapeBorder as RoundedRectangleShapeBorder));
     }
 
     if (currentShapeBorder is StarShapeBorder) {
-      stackedComponents.addAll(buildStarEditingPanelWidget(currentShapeBorder));
+      stackedComponents.addAll(buildStarEditingPanelWidget(currentShapeBorder as StarShapeBorder));
     }
 
     if (currentShapeBorder is TrapezoidShapeBorder) {
       stackedComponents
-          .addAll(buildTrapezoidEditingPanelWidget(currentShapeBorder));
+          .addAll(buildTrapezoidEditingPanelWidget(currentShapeBorder as TrapezoidShapeBorder));
     }
 
     if (currentShapeBorder is TriangleShapeBorder) {
       stackedComponents
-          .addAll(buildTriangleEditingPanelWidget(currentShapeBorder));
+          .addAll(buildTriangleEditingPanelWidget(currentShapeBorder as TriangleShapeBorder));
     }
 
     List<Widget> withDividerWidgets = [];
@@ -497,12 +497,12 @@ class EditShapePageState extends State<EditShapePage>
 
     if (currentShapeBorder is OutlinedShapeBorder) {
       stackedComponents
-          .addAll(buildOutlinedBorderEditingPanelWidget(currentShapeBorder));
+          .addAll(buildOutlinedBorderEditingPanelWidget(currentShapeBorder as OutlinedShapeBorder));
     }
 
     if (currentShapeBorder is RoundedRectangleShapeBorder) {
       stackedComponents.addAll(
-          buildRoundedRectangleBorderEditingPanelWidget(currentShapeBorder));
+          buildRoundedRectangleBorderEditingPanelWidget(currentShapeBorder as RoundedRectangleShapeBorder));
     }
 
     List<Widget> withDividerWidgets = [];
@@ -521,7 +521,7 @@ class EditShapePageState extends State<EditShapePage>
     int nextIndex = (index + 1) % path.nodes.length;
     List<Offset> controlPoints = path.getNextPathControlPointsAt(index);
     Offset tempPoint;
-    List<Offset> splittedControlPoints;
+    List<Offset> splittedControlPoints =[];
 
     if (controlPoints.length == 2) {
       tempPoint = (controlPoints[0] + controlPoints[1]) / 2;
