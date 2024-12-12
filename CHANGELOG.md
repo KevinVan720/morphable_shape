@@ -310,3 +310,7 @@ Update dependency.
 ## [1.6.6] - 05.12.2023
 
 Update dependency.
+
+## [2.0.0] - 12.12.2024
+
+Breaking change: Fix: Migrate use of hashValues to Object.hash api which has been the latest standard since Dart 2.14.0

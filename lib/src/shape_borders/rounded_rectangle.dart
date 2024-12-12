@@ -324,5 +324,5 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
   }
 
   @override
-  int get hashCode => hashValues(borderSides, borderRadius);
+  int get hashCode => Object.hash(borderSides, borderRadius);
 }
