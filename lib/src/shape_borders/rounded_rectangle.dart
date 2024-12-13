@@ -1,5 +1,4 @@
 import 'package:morphable_shape/src/common_includes.dart';
-import 'package:morphable_shape/src/ui_data_classes/dynamic_rectangle_styles.dart';
 
 ///Rectangle shape with various border radius and width for each corner
 ///This class is similar to what CSS box does, you can configure different border
@@ -324,5 +323,5 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
   }
 
   @override
-  int get hashCode => hashValues(borderSides, borderRadius);
+  int get hashCode => Object.hash(borderSides, borderRadius);
 }

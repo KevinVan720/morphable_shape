@@ -1,7 +1,5 @@
-import 'dart:ui';
 
 import 'package:morphable_shape/src/common_includes.dart';
-import 'package:morphable_shape/src/dynamic_path/dynamic_path_morph.dart';
 
 ///this class should only be called by a morphShapeTween
 ///Use PathMorph to morph between two shapes
@@ -326,5 +324,6 @@ class MorphShapeBorder extends MorphableShapeBorder {
         return Gradient.lerp(beginGradient, endGradient, t);
       }
     }
+    return null;
   }
 }

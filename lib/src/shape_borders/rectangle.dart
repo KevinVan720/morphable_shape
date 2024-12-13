@@ -1,5 +1,4 @@
 import 'package:morphable_shape/src/common_includes.dart';
-import 'package:morphable_shape/src/ui_data_classes/dynamic_rectangle_styles.dart';
 
 ///Rectangle shape with various corner style and radius for each corner
 class RectangleShapeBorder extends OutlinedShapeBorder {
@@ -251,5 +250,5 @@ class RectangleShapeBorder extends OutlinedShapeBorder {
   }
 
   @override
-  int get hashCode => hashValues(border, cornerStyles, borderRadius);
+  int get hashCode => Object.hash(border, cornerStyles, borderRadius);
 }

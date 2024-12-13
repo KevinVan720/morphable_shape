@@ -1,9 +1,4 @@
-import 'dart:math';
-import 'dart:ui';
 
-import 'package:flutter/animation.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:morphable_shape/src/common_includes.dart';
 import 'package:morphable_shape/src/dynamic_path/border_paths.dart';
 

@@ -166,7 +166,7 @@ class _ShapeBorderPaint extends StatelessWidget {
   const _ShapeBorderPaint({
     this.child,
     this.shape,
-    this.borderOnForeground = true,
+    this.borderOnForeground = false,
   });
 
   final Widget? child;
@@ -189,6 +189,7 @@ class _ShapeBorderPaint extends StatelessWidget {
 
 class _ShapeBorderPainter extends CustomPainter {
   _ShapeBorderPainter(this.border, this.textDirection);
+
   final ShapeBorder? border;
   final TextDirection? textDirection;
 

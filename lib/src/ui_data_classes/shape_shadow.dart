@@ -139,7 +139,7 @@ class ShapeShadow extends ui.Shadow {
 
   @override
   int get hashCode =>
-      hashValues(color, gradient, offset, blurRadius, spreadRadius, blurStyle);
+      Object.hash(color, gradient, offset, blurRadius, spreadRadius, blurStyle);
 
   @override
   String toString() =>

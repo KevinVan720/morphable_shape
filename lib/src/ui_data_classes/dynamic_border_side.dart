@@ -190,6 +190,6 @@ class DynamicBorderSide {
   }
 
   @override
-  int get hashCode => hashValues(
+  int get hashCode => Object.hash(
       color, gradient, width, style, begin, end, shift, strokeJoin, strokeCap);
 }

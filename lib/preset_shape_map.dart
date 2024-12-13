@@ -1,4 +1,3 @@
-import 'package:dimension/dimension.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 ///A collection of predefined shapes, grouped into maps
