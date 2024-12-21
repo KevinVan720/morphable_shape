@@ -251,5 +251,5 @@ class RectangleShapeBorder extends OutlinedShapeBorder {
   }
 
   @override
-  int get hashCode => hashValues(border, cornerStyles, borderRadius);
+  int get hashCode => Object.hash(border, cornerStyles, borderRadius);
 }

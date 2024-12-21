@@ -50,7 +50,7 @@ class DynamicRadius {
   }
 
   @override
-  int get hashCode => hashValues(x, y);
+  int get hashCode => Object.hash(x, y);
 }
 
 class DynamicBorderRadius {
@@ -125,5 +125,5 @@ class DynamicBorderRadius {
   }
 
   @override
-  int get hashCode => hashValues(topLeft, topRight, bottomLeft, bottomRight);
+  int get hashCode => Object.hash(topLeft, topRight, bottomLeft, bottomRight);
 }

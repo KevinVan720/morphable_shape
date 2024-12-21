@@ -129,7 +129,8 @@ class DynamicBorderSide {
         color: Color.lerp(a.color, b.color, t)!,
         gradient: Gradient.lerp(a.gradient, b.gradient, t),
         width: width,
-        style: a.style, // == b.style
+        style: a.style,
+        // == b.style
         begin: Dimension.lerp(a.begin, b.begin, t),
         end: a.end == null && b.end == null
             ? null
@@ -190,6 +191,6 @@ class DynamicBorderSide {
   }
 
   @override
-  int get hashCode => hashValues(
+  int get hashCode => Object.hash(
       color, gradient, width, style, begin, end, shift, strokeJoin, strokeCap);
 }

@@ -38,7 +38,7 @@ class DynamicOffset {
   }
 
   @override
-  int get hashCode => hashValues(dx, dy);
+  int get hashCode => Object.hash(dx, dy);
 
   @override
   bool operator ==(dynamic other) {
