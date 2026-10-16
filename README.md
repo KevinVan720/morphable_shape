@@ -229,9 +229,9 @@ Shapes with the same geometry can be morphed faster and in a more consistent way
 Every shape in this package supports serialization. If you have designed some shape you like, just call toJson() on it. Then you can reuse it by writting.
 
 ```dart
-Shape shape=RoundedRectangleShape();
-String jsonStr=json.encode(shape.toJson());
-MorphableShapeBorder shapeDecoded=parseMorphableShapeBorder(json.decode(jsonStr));
+MorphableShapeBorder shape = RoundedRectangleShapeBorder();
+String jsonStr = json.encode(shape.toJson());
+MorphableShapeBorder? shapeDecoded = parseMorphableShapeBorder(json.decode(jsonStr));
 ```
 
 ## Decorated Shadowed Shape
@@ -254,6 +254,7 @@ const ShapeShadow({
     double blurRadius = 0.0,
     this.spreadRadius = 0.0,
     this.gradient,
+    this.blurStyle = BlurStyle.normal,
   })
 ```
 

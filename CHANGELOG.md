@@ -314,3 +314,18 @@ Update dependency.
 ## [2.0.0] - 12.12.2024
 
 Breaking change: Fix: Migrate use of hashValues to Object.hash api which has been the latest standard since Dart 2.14.0
+
+## [2.0.1] - 10.16.2026
+
+Support the latest Flutter stable (requires Flutter 3.27 / Dart 3.6 or newer).
+No longer depends on the Material library: works in apps that use package:flutter/material.dart as well as the standalone material_ui package.
+Fix the "outer.nodes.length == fillColors.length" assertion (#16, #7) when a RoundedRectangleShapeBorder is painted by a ShapeDecoration/Container; the border is now painted at the position of the box.
+Fix crashes (NaN, failed assertions) when shapes or morphing shapes are painted with an empty size, e.g. at the start of a size animation.
+Fix AnimatedDecoratedShadowedShape throwing when no decoration is given.
+All shape borders and their style classes now have value equality, so rebuilding an AnimatedDecoratedShadowedShape with an equal shape no longer restarts the animation, and morph data is reused instead of being recomputed.
+Fix DynamicBorderSide.toJson writing the end value as shift.
+Parsing JSON tolerates missing keys and whole numbers written as doubles (e.g. by Flutter web).
+ShapeShadow now paints and serializes its blurStyle.
+Measuring or painting a PathShapeBorder no longer modifies its path.
+MorphShapeBorder is now exported.
+Add tests.

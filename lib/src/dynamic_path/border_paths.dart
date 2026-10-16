@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:morphable_shape/src/dynamic_path/dynamic_path.dart';
 
 ///border paths for a FilledBorderShape

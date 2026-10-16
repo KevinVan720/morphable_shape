@@ -1,9 +1,3 @@
-import 'dart:math';
-import 'dart:ui';
-
-import 'package:flutter/animation.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:morphable_shape/src/common_includes.dart';
 import 'package:morphable_shape/src/dynamic_path/border_paths.dart';
 
@@ -580,9 +574,9 @@ class DynamicPathMorph {
     for (int i = 0; i <= totalPoints; i++) {
       List<List<int>> temp =
           generateAllSupplyCounts(totalPoints - i, slots - 1);
-      temp.forEach((l) {
+      for (final List<int> l in temp) {
         l.insert(0, i);
-      });
+      }
       rst.addAll(temp);
     }
     return rst;
@@ -607,6 +601,13 @@ class DynamicPathMorph {
     }
     for (int i = 0; i < length; i++) {
       totalWeights += weights[i];
+    }
+
+    ///a degenerate path (e.g. generated for an empty rect) has no length,
+    ///distribute the new points evenly instead of dividing by zero
+    if (totalWeights <= 0) {
+      weights = List.filled(length, 1.0);
+      totalWeights = length.toDouble();
     }
 
     List<int> counts;
@@ -700,7 +701,7 @@ class DynamicPathMorph {
   static int randomChoose(List<num> list) {
     int index = 0;
     num totalWeight = list.total();
-    var rng = new Random();
+    var rng = Random();
     double randomDraw = rng.nextDouble() * totalWeight;
     double currentSum = 0;
     for (int i = 0; i < list.length; i++) {

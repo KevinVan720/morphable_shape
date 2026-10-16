@@ -7,32 +7,29 @@ class TriangleShapeBorder extends OutlinedShapeBorder {
   final DynamicOffset point3;
 
   const TriangleShapeBorder(
-      {this.point1 = const DynamicOffset(
-          const Length(0, unit: LengthUnit.percent),
-          const Length(0, unit: LengthUnit.percent)),
-      this.point2 = const DynamicOffset(
-          const Length(100, unit: LengthUnit.percent),
-          const Length(0, unit: LengthUnit.percent)),
-      this.point3 = const DynamicOffset(
-          const Length(50, unit: LengthUnit.percent),
-          const Length(100, unit: LengthUnit.percent)),
-      DynamicBorderSide border = DynamicBorderSide.none})
-      : super(border: border);
+      {this.point1 = const DynamicOffset(Length(0, unit: LengthUnit.percent),
+          Length(0, unit: LengthUnit.percent)),
+      this.point2 = const DynamicOffset(Length(100, unit: LengthUnit.percent),
+          Length(0, unit: LengthUnit.percent)),
+      this.point3 = const DynamicOffset(Length(50, unit: LengthUnit.percent),
+          Length(100, unit: LengthUnit.percent)),
+      super.border = DynamicBorderSide.none});
 
   TriangleShapeBorder.fromJson(Map<String, dynamic> map)
       : point1 = parseDynamicOffset(map["point1"]) ??
-            DynamicOffset(const Length(0, unit: LengthUnit.percent),
-                const Length(0, unit: LengthUnit.percent)),
+            const DynamicOffset(Length(0, unit: LengthUnit.percent),
+                Length(0, unit: LengthUnit.percent)),
         point2 = parseDynamicOffset(map["point2"]) ??
-            DynamicOffset(const Length(100, unit: LengthUnit.percent),
-                const Length(0, unit: LengthUnit.percent)),
+            const DynamicOffset(Length(100, unit: LengthUnit.percent),
+                Length(0, unit: LengthUnit.percent)),
         point3 = parseDynamicOffset(map["point3"]) ??
-            DynamicOffset(const Length(50, unit: LengthUnit.percent),
-                const Length(100, unit: LengthUnit.percent)),
+            const DynamicOffset(Length(50, unit: LengthUnit.percent),
+                Length(100, unit: LengthUnit.percent)),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Triangle"};
     rst.addAll(super.toJson());
@@ -42,6 +39,7 @@ class TriangleShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   TriangleShapeBorder copyWith({
     DynamicOffset? point1,
     DynamicOffset? point2,
@@ -56,10 +54,12 @@ class TriangleShapeBorder extends OutlinedShapeBorder {
     );
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
     return shape is TriangleShapeBorder;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
@@ -88,10 +88,24 @@ class TriangleShapeBorder extends OutlinedShapeBorder {
       point3
     ]..sort((a, b) => (a - center).direction.compareTo((b - center).direction));
 
-    points.forEach((element) {
-      nodes.add(DynamicNode(position: element));
-    });
+    for (final Offset point in points) {
+      nodes.add(DynamicNode(position: point));
+    }
 
     return DynamicPath(size: rect.size, nodes: nodes);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is TriangleShapeBorder &&
+        other.border == border &&
+        other.point1 == point1 &&
+        other.point2 == point2 &&
+        other.point3 == point3;
+  }
+
+  @override
+  int get hashCode => Object.hash(border, point1, point2, point3);
 }

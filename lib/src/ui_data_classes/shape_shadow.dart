@@ -11,13 +11,13 @@ class ShapeShadow extends ui.Shadow {
   /// and [spreadRadius].
   /// If gradient is not null, the gradient will be used.
   const ShapeShadow({
-    Color color = const Color(0xFF000000),
-    Offset offset = Offset.zero,
-    double blurRadius = 0.0,
+    super.color = const Color(0xFF000000),
+    super.offset = Offset.zero,
+    super.blurRadius = 0.0,
     this.spreadRadius = 0.0,
     this.gradient,
     this.blurStyle = BlurStyle.normal,
-  }) : super(color: color, offset: offset, blurRadius: blurRadius);
+  });
 
   factory ShapeShadow.fromBoxShadow(BoxShadow source) {
     return ShapeShadow(
@@ -36,8 +36,10 @@ class ShapeShadow extends ui.Shadow {
     rst.updateNotNull("blurRadius", blurRadius);
     rst.updateNotNull("gradient", gradient?.toJson());
     rst.updateNotNull("spreadRadius", spreadRadius);
-    //TODO: parse blurStyle
-    //rst.updateNotNull("blurStyle", blurStyle)
+
+    ///only written when it is not the default, so that the json of existing
+    ///shadows does not change
+    if (blurStyle != BlurStyle.normal) rst["blurStyle"] = blurStyle.name;
     return rst;
   }
 
@@ -60,7 +62,7 @@ class ShapeShadow extends ui.Shadow {
   Paint toPaint() {
     final Paint result = Paint()
       ..color = color
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, blurSigma);
+      ..maskFilter = MaskFilter.blur(blurStyle, blurSigma);
     assert(() {
       if (debugDisableShadows) result.maskFilter = null;
       return true;
@@ -143,5 +145,5 @@ class ShapeShadow extends ui.Shadow {
 
   @override
   String toString() =>
-      'BoxShadow($color, $gradient, $offset, ${debugFormatDouble(blurRadius)}, ${debugFormatDouble(spreadRadius)})';
+      'ShapeShadow($color, $gradient, $offset, ${debugFormatDouble(blurRadius)}, ${debugFormatDouble(spreadRadius)}, $blurStyle)';
 }

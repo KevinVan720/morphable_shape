@@ -1,15 +1,12 @@
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
 import 'package:animated_box_decoration/animated_box_decoration.dart';
+import 'package:flutter/widgets.dart';
 import 'package:morphable_shape/morphable_shape.dart';
-import 'package:morphable_shape/src/dynamic_path/dynamic_path_morph.dart';
 
 class ListShapeShadowTween extends Tween<List<ShapeShadow>?> {
   ListShapeShadowTween({
-    List<ShapeShadow>? begin,
-    List<ShapeShadow>? end,
-  }) : super(begin: begin, end: end);
+    super.begin,
+    super.end,
+  });
 
   @override
   List<ShapeShadow>? lerp(double t) {
@@ -18,20 +15,21 @@ class ListShapeShadowTween extends Tween<List<ShapeShadow>?> {
 }
 
 ///An implicitly animated version of the DecoratedShadowedShape widget
-
+///
+///The [shape] has to be a [MorphableShapeBorder] (or null).
 class AnimatedDecoratedShadowedShape extends ImplicitlyAnimatedWidget {
-  AnimatedDecoratedShadowedShape({
-    Key? key,
+  const AnimatedDecoratedShadowedShape({
+    super.key,
     this.child,
     this.shadows,
     this.insetShadows,
     this.decoration,
     this.shape,
     this.method,
-    Curve curve = Curves.linear,
-    required Duration duration,
-    VoidCallback? onEnd,
-  }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
+    super.curve,
+    required super.duration,
+    super.onEnd,
+  });
 
   final Widget? child;
   final List<ShapeShadow>? shadows;
@@ -41,7 +39,8 @@ class AnimatedDecoratedShadowedShape extends ImplicitlyAnimatedWidget {
   final MorphMethod? method;
 
   @override
-  _AnimatedShadowedShapeState createState() => _AnimatedShadowedShapeState();
+  AnimatedWidgetBaseState<AnimatedDecoratedShadowedShape> createState() =>
+      _AnimatedShadowedShapeState();
 }
 
 class _AnimatedShadowedShapeState
@@ -77,7 +76,7 @@ class _AnimatedShadowedShapeState
             widget.decoration,
             (dynamic value) =>
                 SmoothDecorationTween(begin: value as Decoration))
-        as DecorationTween;
+        as DecorationTween?;
   }
 
   @override

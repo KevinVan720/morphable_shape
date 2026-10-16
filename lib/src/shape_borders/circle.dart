@@ -3,20 +3,22 @@ import 'package:morphable_shape/src/common_includes.dart';
 ///Circle shape
 class CircleShapeBorder extends OutlinedShapeBorder {
   const CircleShapeBorder({
-    DynamicBorderSide border = DynamicBorderSide.none,
-  }) : super(border: border);
+    super.border = DynamicBorderSide.none,
+  });
 
   CircleShapeBorder.fromJson(Map<String, dynamic> map)
       : super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Circle"};
     rst.addAll(super.toJson());
     return rst;
   }
 
+  @override
   CircleShapeBorder copyWith({
     DynamicBorderSide? border,
   }) {
@@ -25,12 +27,14 @@ class CircleShapeBorder extends OutlinedShapeBorder {
     );
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
     return shape is CircleShapeBorder ||
         shape is RectangleShapeBorder ||
         shape is RoundedRectangleShapeBorder;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
@@ -75,4 +79,14 @@ class CircleShapeBorder extends OutlinedShapeBorder {
 
     return DynamicPath(nodes: nodes, size: size);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is CircleShapeBorder && other.border == border;
+  }
+
+  @override
+  int get hashCode => border.hashCode;
 }

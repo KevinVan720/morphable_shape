@@ -57,8 +57,8 @@ DynamicBorderRadius? parseDynamicBorderRadius(Map<String, dynamic>? map) {
 
 DynamicOffset? parseDynamicOffset(Map<String, dynamic>? map) {
   if (map == null) return null;
-  Dimension dx = parseDimension(map['dx']) ?? Length(0);
-  Dimension dy = parseDimension(map['dy']) ?? Length(0);
+  Dimension dx = parseDimension(map['dx']) ?? const Length(0);
+  Dimension dy = parseDimension(map['dy']) ?? const Length(0);
   return DynamicOffset(dx, dy);
 }
 
@@ -76,18 +76,21 @@ DynamicPath? parseDynamicPath(Map<String, dynamic>? map) {
 
 ShapeShadow? parseShapeShadow(Map<String, dynamic>? map) {
   if (map == null) return null;
-  Color color = parseColor(map["color"]) ?? Colors.transparent;
+  Color color = parseColor(map["color"]) ?? const Color(0x00000000);
   Offset offset = parseOffset(map["offset"]) ?? Offset.zero;
   double blurRadius = (map["blurRadius"] ?? 0.0).toDouble();
   double spreadRadius = (map["spreadRadius"] ?? 0.0).toDouble();
   Gradient? gradient = parseGradient(map["gradient"]);
+  BlurStyle blurStyle =
+      BlurStyle.values.asNameMap()[map["blurStyle"]] ?? BlurStyle.normal;
 
   return ShapeShadow(
       color: color,
       offset: offset,
       blurRadius: blurRadius,
       spreadRadius: spreadRadius,
-      gradient: gradient);
+      gradient: gradient,
+      blurStyle: blurStyle);
 }
 
 MorphableShapeBorder? parseMorphableShapeBorder(Map<String, dynamic>? map) {

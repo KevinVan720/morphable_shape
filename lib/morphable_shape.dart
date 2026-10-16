@@ -1,4 +1,4 @@
-library morphable_shape;
+library;
 
 export 'package:dimension/dimension.dart';
 
@@ -14,6 +14,7 @@ export 'src/shape_borders/arc.dart';
 export 'src/shape_borders/arrow.dart';
 export 'src/shape_borders/bubble.dart';
 export 'src/shape_borders/circle.dart';
+export 'src/shape_borders/morph.dart';
 export 'src/shape_borders/path.dart';
 export 'src/shape_borders/polygon.dart';
 export 'src/shape_borders/rectangle.dart';

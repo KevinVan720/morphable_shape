@@ -16,23 +16,23 @@ class StarShapeBorder extends OutlinedShapeBorder {
     this.insetRadius = const Length(0),
     this.cornerStyle = CornerStyle.rounded,
     this.insetStyle = CornerStyle.rounded,
-    border = DynamicBorderSide.none,
-  })  : assert(corners >= 3),
-        super(border: border);
+    super.border = DynamicBorderSide.none,
+  }) : assert(corners >= 3);
 
   StarShapeBorder.fromJson(Map<String, dynamic> map)
       : cornerStyle =
             parseCornerStyle(map["cornerStyle"]) ?? CornerStyle.rounded,
         insetStyle = parseCornerStyle(map["insetStyle"]) ?? CornerStyle.rounded,
-        corners = map["corners"] ?? 4,
+        corners = (map["corners"] as num?)?.toInt() ?? 4,
         inset = parseDimension(map['inset']) ??
-            Length(50, unit: LengthUnit.percent),
-        cornerRadius = parseDimension(map["cornerRadius"]) ?? Length(0),
-        insetRadius = parseDimension(map["insetRadius"]) ?? Length(0),
+            const Length(50, unit: LengthUnit.percent),
+        cornerRadius = parseDimension(map["cornerRadius"]) ?? const Length(0),
+        insetRadius = parseDimension(map["insetRadius"]) ?? const Length(0),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Star"};
     rst.addAll(super.toJson());
@@ -45,6 +45,7 @@ class StarShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   StarShapeBorder copyWith({
     int? corners,
     Dimension? inset,
@@ -65,14 +66,20 @@ class StarShapeBorder extends OutlinedShapeBorder {
     );
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
-    return shape is StarShapeBorder && shape.corners == this.corners;
+    return shape is StarShapeBorder && shape.corners == corners;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
     double scale = min(rect.width, rect.height) / 2;
+
+    ///The star is undefined (0/0) without a size: compute it in a unit
+    ///square, the path is scaled down to the empty rect at the end anyway.
+    if (scale <= 0) scale = 1;
     double cornerRadius = this.cornerRadius.toPX(constraint: scale / 2);
     double insetRadius = this.insetRadius.toPX(constraint: scale / 2);
 
@@ -235,4 +242,22 @@ class StarShapeBorder extends OutlinedShapeBorder {
     return DynamicPath(size: Size(2 * scale, 2 * scale), nodes: nodes)
       ..resize(rect.size);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is StarShapeBorder &&
+        other.border == border &&
+        other.corners == corners &&
+        other.inset == inset &&
+        other.cornerRadius == cornerRadius &&
+        other.insetRadius == insetRadius &&
+        other.cornerStyle == cornerStyle &&
+        other.insetStyle == insetStyle;
+  }
+
+  @override
+  int get hashCode => Object.hash(border, corners, inset, cornerRadius,
+      insetRadius, cornerStyle, insetStyle);
 }

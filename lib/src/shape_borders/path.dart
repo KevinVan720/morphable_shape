@@ -6,8 +6,7 @@ class PathShapeBorder extends OutlinedShapeBorder {
   final DynamicPath path;
 
   const PathShapeBorder(
-      {DynamicBorderSide border = DynamicBorderSide.none, required this.path})
-      : super(border: border);
+      {super.border = DynamicBorderSide.none, required this.path});
 
   PathShapeBorder.fromJson(Map<String, dynamic> map)
       : path = parseDynamicPath(map["path"]) ??
@@ -16,6 +15,7 @@ class PathShapeBorder extends OutlinedShapeBorder {
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Path"};
     rst.addAll(super.toJson());
@@ -23,6 +23,7 @@ class PathShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   PathShapeBorder copyWith({
     DynamicPath? path,
     DynamicBorderSide? border,
@@ -31,11 +32,20 @@ class PathShapeBorder extends OutlinedShapeBorder {
         path: path ?? this.path, border: border ?? this.border);
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
-    return shape is PathShapeBorder && this.path == shape.path;
+    return shape is PathShapeBorder && path == shape.path;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
-    return path..resize(rect.size);
+    ///Work on a copy: measuring or painting the shape must not modify (resize
+    ///or merge the nodes of) the path this shape was created with.
+    DynamicPath copy = DynamicPath(size: path.size, nodes: [])
+      ..nodes = [
+        for (final DynamicNode node in path.nodes)
+          DynamicNode(position: node.position, prev: node.prev, next: node.next)
+      ];
+    return copy..resize(rect.size);
   }
 }

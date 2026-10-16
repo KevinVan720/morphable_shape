@@ -18,11 +18,12 @@ typedef PickerItemBuilder = Widget Function(
 
 class BlockShapePicker extends StatefulWidget {
   const BlockShapePicker({
-    @required this.onShapeChanged,
+    super.key,
+    required this.onShapeChanged,
     this.itemBuilder = defaultItemBuilder,
   });
 
-  final Function onShapeChanged;
+  final ValueChanged<MorphableShapeBorder> onShapeChanged;
   final PickerItemBuilder itemBuilder;
 
   static Widget defaultItemBuilder(MorphableShapeBorder shape,
@@ -34,8 +35,8 @@ class BlockShapePicker extends StatefulWidget {
       shape: shape,
       child: Container(
         color: isCurrentShape
-            ? Colors.black.withOpacity(0.7)
-            : Colors.black.withOpacity(0.1),
+            ? Colors.black.withValues(alpha: 0.7)
+            : Colors.black.withValues(alpha: 0.1),
         child: InkWell(
           onTap: changeShape,
           radius: 60,
@@ -50,7 +51,7 @@ class BlockShapePicker extends StatefulWidget {
 }
 
 class _BlockShapePickerState extends State<BlockShapePicker> {
-  MorphableShapeBorder _currentShape;
+  MorphableShapeBorder? _currentShape;
 
   @override
   void initState() {
@@ -67,10 +68,9 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
 
   @override
   Widget build(BuildContext context) {
-    Orientation orientation = MediaQuery.of(context).orientation;
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.sizeOf(context);
 
-    return Container(
+    return SizedBox(
         width: min(screenSize.width * 0.8, 360.0),
         height: min(screenSize.height * 0.8, 360.0),
         child: ListView(
@@ -81,7 +81,7 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
                       Container(
                           alignment: Alignment.centerLeft,
                           padding: EdgeInsets.only(left: 3, top: 1, bottom: 1),
-                          //color: Colors.grey.withOpacity(0.2),
+                          //color: Colors.grey.withValues(alpha: 0.2),
                           child: Text(
                             category,
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -96,9 +96,9 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
                         padding:
                             EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                         children:
-                            presetShapeMap[category].keys.map((String name) {
+                            presetShapeMap[category]!.keys.map((String name) {
                           MorphableShapeBorder shape =
-                              presetShapeMap[category][name];
+                              presetShapeMap[category]![name]!;
                           return widget.itemBuilder(shape,
                               shape == _currentShape, () => changeShape(shape));
                         }).toList(),
@@ -111,26 +111,27 @@ class _BlockShapePickerState extends State<BlockShapePicker> {
 }
 
 class BottomSheetShapePicker extends StatefulWidget {
-  BottomSheetShapePicker({
+  const BottomSheetShapePicker({
+    super.key,
     this.headText = "Pick a shape",
     this.currentShape,
-    @required this.valueChanged,
+    required this.valueChanged,
   });
 
   final String headText;
-  final MorphableShapeBorder currentShape;
-  final ValueChanged valueChanged;
+  final MorphableShapeBorder? currentShape;
+  final ValueChanged<MorphableShapeBorder> valueChanged;
 
   @override
-  _BottomSheetShapePicker createState() => _BottomSheetShapePicker();
+  State<BottomSheetShapePicker> createState() => _BottomSheetShapePicker();
 }
 
 class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
-  MorphableShapeBorder currentShape;
+  late MorphableShapeBorder currentShape;
 
   @override
   void initState() {
-    currentShape = widget.currentShape ?? RectangleShapeBorder();
+    currentShape = widget.currentShape ?? const RectangleShapeBorder();
     super.initState();
   }
 
@@ -175,7 +176,7 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
                         setState(() {
                           widget.valueChanged(currentShape);
                         });
-                        Navigator.of(context)?.pop();
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
@@ -183,13 +184,13 @@ class _BottomSheetShapePicker extends State<BottomSheetShapePicker> {
               },
             );
           },
+          elevation: 5.0,
+          constraints: BoxConstraints.tight(Size(24, 24)),
+          padding: const EdgeInsets.all(0.5),
           child: Icon(
             Icons.streetview_outlined,
             size: 28,
           ),
-          elevation: 5.0,
-          constraints: BoxConstraints.tight(Size(24, 24)),
-          padding: const EdgeInsets.all(0.5),
         ));
   }
 }

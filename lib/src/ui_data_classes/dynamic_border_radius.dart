@@ -6,7 +6,7 @@ class DynamicRadius {
   /// Constructs an elliptical radius with the given radii.
   const DynamicRadius.elliptical(this.x, this.y);
 
-  static const DynamicRadius zero = DynamicRadius.circular(const Length(0));
+  static const DynamicRadius zero = DynamicRadius.circular(Length(0));
 
   DynamicRadius.fromJson(Map<String, dynamic> map)
       : x = parseDimension(map["x"]) ?? 0.toPXLength,
@@ -70,10 +70,12 @@ class DynamicBorderRadius {
   });
 
   DynamicBorderRadius.fromJson(Map<String, dynamic> map)
-      : topLeft = DynamicRadius.fromJson(map["topLeft"]),
-        topRight = DynamicRadius.fromJson(map["topRight"]),
-        bottomLeft = DynamicRadius.fromJson(map["bottomLeft"]),
-        bottomRight = DynamicRadius.fromJson(map["bottomRight"]);
+      : topLeft = parseDynamicRadius(map["topLeft"]) ?? DynamicRadius.zero,
+        topRight = parseDynamicRadius(map["topRight"]) ?? DynamicRadius.zero,
+        bottomLeft =
+            parseDynamicRadius(map["bottomLeft"]) ?? DynamicRadius.zero,
+        bottomRight =
+            parseDynamicRadius(map["bottomRight"]) ?? DynamicRadius.zero;
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> map = {};

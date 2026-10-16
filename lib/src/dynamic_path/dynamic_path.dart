@@ -9,7 +9,7 @@ class DynamicNode {
   DynamicNode({required this.position, this.prev, this.next});
 
   DynamicNode.fromJson(Map<String, dynamic> map)
-      : position = parseOffset(map["pos"]) ?? Offset(0, 0),
+      : position = parseOffset(map["pos"]) ?? Offset.zero,
         prev = parseOffset(map["prev"]),
         next = parseOffset(map["next"]);
 
@@ -30,6 +30,10 @@ class DynamicPath {
   static double boxBoundingTolerance = 0.001;
   static int defaultPointPrecision = 3;
 
+  ///absolute lower bound of the tolerance used for very small sizes, so that
+  ///floating point noise is not mistaken for points out of bounds
+  static const double _minimumBoxBoundingTolerance = 1e-6;
+
   Size size;
   List<DynamicNode> nodes;
 
@@ -38,34 +42,41 @@ class DynamicPath {
     ///I break the involved Bezier line segment into two so that the new control points may be inside
     ///the bounding box or move closer to it. Repeat this process to get an optimal result
     ///max 20 times trial, 1% tolerance
-    double tolerance = min(size.width, size.height) * boxBoundingTolerance;
-    Rect bound = Rect.fromLTRB(-tolerance, -tolerance, size.width + tolerance,
-        size.height + tolerance);
-    int outlierIndex = getOutlierIndex(bound: bound);
-    int iteration = 0;
+    ///
+    ///Nothing can be fitted into an empty size, the points are only clamped
+    ///below in that case.
+    if (!size.isEmpty) {
+      double tolerance = max(
+          min(size.width, size.height) * boxBoundingTolerance,
+          _minimumBoxBoundingTolerance);
+      Rect bound = Rect.fromLTRB(-tolerance, -tolerance, size.width + tolerance,
+          size.height + tolerance);
+      int outlierIndex = getOutlierIndex(bound: bound);
+      int iteration = 0;
 
-    while (outlierIndex != -1 && iteration < 20) {
-      int splitIndex = outlierIndex;
-      if (!bound.contains(nodes[outlierIndex].prev ?? Offset.zero)) {
-        splitIndex = (outlierIndex - 1) % nodes.length;
-      }
-      int nextIndex = (splitIndex + 1) % nodes.length;
-      List<Offset> controlPoints = getNextPathControlPointsAt(splitIndex);
+      while (outlierIndex != -1 && iteration < 20) {
+        int splitIndex = outlierIndex;
+        if (!bound.contains(nodes[outlierIndex].prev ?? Offset.zero)) {
+          splitIndex = (outlierIndex - 1) % nodes.length;
+        }
+        int nextIndex = (splitIndex + 1) % nodes.length;
+        List<Offset> controlPoints = getNextPathControlPointsAt(splitIndex);
 
-      List<Offset> splitControlPoints;
-      if (controlPoints.length >= 4) {
-        splitControlPoints = splitCubicAt(0.5, controlPoints);
-        nodes[splitIndex].next = splitControlPoints[1];
-        nodes[nextIndex].prev = splitControlPoints[5];
-        nodes.insert(
-            nextIndex,
-            DynamicNode(
-                position: splitControlPoints[3],
-                prev: splitControlPoints[2],
-                next: splitControlPoints[4]));
+        List<Offset> splitControlPoints;
+        if (controlPoints.length >= 4) {
+          splitControlPoints = splitCubicAt(0.5, controlPoints);
+          nodes[splitIndex].next = splitControlPoints[1];
+          nodes[nextIndex].prev = splitControlPoints[5];
+          nodes.insert(
+              nextIndex,
+              DynamicNode(
+                  position: splitControlPoints[3],
+                  prev: splitControlPoints[2],
+                  next: splitControlPoints[4]));
+        }
+        outlierIndex = getOutlierIndex(bound: bound);
+        iteration++;
       }
-      outlierIndex = getOutlierIndex(bound: bound);
-      iteration++;
     }
 
     ///Effectively force the points and control points to all lie within the bounding rect
@@ -165,14 +176,15 @@ class DynamicPath {
   */
 
   void resize(Size newSize) {
-    nodes.forEach((element) {
-      element.position = element.position
-          .scale(newSize.width / size.width, newSize.height / size.height);
-      element.prev = element.prev
-          ?.scale(newSize.width / size.width, newSize.height / size.height);
-      element.next = element.next
-          ?.scale(newSize.width / size.width, newSize.height / size.height);
-    });
+    ///all the points of a path without width (or height) are clamped to 0 in
+    ///that direction, there is nothing to scale (and dividing by 0 gives NaN)
+    double scaleX = size.width == 0 ? 1.0 : newSize.width / size.width;
+    double scaleY = size.height == 0 ? 1.0 : newSize.height / size.height;
+    for (final DynamicNode node in nodes) {
+      node.position = node.position.scale(scaleX, scaleY);
+      node.prev = node.prev?.scale(scaleX, scaleY);
+      node.next = node.next?.scale(scaleX, scaleY);
+    }
     size = newSize;
   }
 
@@ -310,16 +322,15 @@ class DynamicPath {
     for (int i = 0; i < nodes.length; i++) {
       List<Offset> controlPoints = getNextPathControlPointsAt(i);
       if (controlPoints.length == 4) {
-        path
-          ..cubicTo(
-              controlPoints[1].dx,
-              controlPoints[1].dy,
-              controlPoints[2].dx,
-              controlPoints[2].dy,
-              controlPoints[3].dx,
-              controlPoints[3].dy);
+        path.cubicTo(
+            controlPoints[1].dx,
+            controlPoints[1].dy,
+            controlPoints[2].dx,
+            controlPoints[2].dy,
+            controlPoints[3].dx,
+            controlPoints[3].dy);
       } else {
-        path..lineTo(controlPoints[1].dx, controlPoints[1].dy);
+        path.lineTo(controlPoints[1].dx, controlPoints[1].dy);
       }
     }
 

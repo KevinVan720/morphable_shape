@@ -10,19 +10,19 @@ class ArrowShapeBorder extends OutlinedShapeBorder {
       {this.side = ShapeSide.right,
       this.arrowHeight = const Length(25, unit: LengthUnit.percent),
       this.tailWidth = const Length(40, unit: LengthUnit.percent),
-      DynamicBorderSide border = DynamicBorderSide.none})
-      : super(border: border);
+      super.border = DynamicBorderSide.none});
 
   ArrowShapeBorder.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
         arrowHeight = parseDimension(map['arrowHeight']) ??
-            Length(25, unit: LengthUnit.percent),
+            const Length(25, unit: LengthUnit.percent),
         tailWidth = parseDimension(map['tailWidth']) ??
-            Length(40, unit: LengthUnit.percent),
+            const Length(40, unit: LengthUnit.percent),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Arrow"};
     rst.addAll(super.toJson());
@@ -32,6 +32,7 @@ class ArrowShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   ArrowShapeBorder copyWith({
     ShapeSide? side,
     Dimension? arrowHeight,
@@ -45,10 +46,12 @@ class ArrowShapeBorder extends OutlinedShapeBorder {
         border: border ?? this.border);
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
-    return shape is ArrowShapeBorder && shape.side == this.side;
+    return shape is ArrowShapeBorder && shape.side == side;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
@@ -140,4 +143,18 @@ class ArrowShapeBorder extends OutlinedShapeBorder {
 
     return DynamicPath(size: rect.size, nodes: nodes);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is ArrowShapeBorder &&
+        other.border == border &&
+        other.side == side &&
+        other.arrowHeight == arrowHeight &&
+        other.tailWidth == tailWidth;
+  }
+
+  @override
+  int get hashCode => Object.hash(border, side, arrowHeight, tailWidth);
 }

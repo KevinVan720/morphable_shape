@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' show PathMetric;
 
 import 'package:morphable_shape/src/common_includes.dart';
 import 'package:morphable_shape/src/dynamic_path/border_paths.dart';
@@ -6,6 +6,11 @@ import 'package:morphable_shape/src/dynamic_path/border_paths.dart';
 ///The base class for various shape borders implemented in this package
 ///should be serializable/deserializable
 ///generate a DynamicPath instance with all the control points, then convert to a Path
+///
+///The dynamic paths are generated in the local coordinate space of the shape,
+///i.e. [generateOuterDynamicPath] and [generateInnerDynamicPath] are called
+///with a rect located at the origin. The paths are shifted to the final rect
+///when they are converted to [Path]s.
 abstract class MorphableShapeBorder extends ShapeBorder {
   const MorphableShapeBorder();
 
@@ -13,6 +18,7 @@ abstract class MorphableShapeBorder extends ShapeBorder {
 
   MorphableShapeBorder copyWith();
 
+  @override
   EdgeInsetsGeometry get dimensions;
 
   ///TODO: implement this,
@@ -53,34 +59,38 @@ abstract class OutlinedShapeBorder extends MorphableShapeBorder {
 
   const OutlinedShapeBorder({this.border = DynamicBorderSide.none});
 
+  @override
   EdgeInsetsGeometry get dimensions => EdgeInsets.all(border.width);
 
+  @override
   Map<String, dynamic> toJson() {
     return {"border": border.toJson()};
   }
 
+  ///Every subclass needs to override this method.
+  @override
   OutlinedShapeBorder copyWith({
     DynamicBorderSide? border,
   }) {
-    return this.copyWith(border: border);
+    return copyWith(border: border);
   }
 
+  @override
   DynamicPath generateInnerDynamicPath(Rect rect) {
     return generateOuterDynamicPath(rect);
   }
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    Paint borderPaint = Paint();
-
     if (border.style != BorderStyle.none) {
-      borderPaint.isAntiAlias = true;
-      borderPaint.style = PaintingStyle.stroke;
-      borderPaint.color = border.color;
-      borderPaint.strokeWidth = border.width;
-      borderPaint.shader = border.gradient?.createShader(rect);
-      borderPaint.strokeCap = border.strokeCap;
-      borderPaint.strokeJoin = border.strokeJoin;
+      Paint borderPaint = Paint()
+        ..isAntiAlias = true
+        ..style = PaintingStyle.stroke
+        ..color = border.color
+        ..strokeWidth = border.width
+        ..shader = border.gradient?.createShader(rect)
+        ..strokeCap = border.strokeCap
+        ..strokeJoin = border.strokeJoin;
       drawBorderPath(canvas, rect, borderPaint, getOuterPath(rect), border);
     }
   }
@@ -89,7 +99,9 @@ abstract class OutlinedShapeBorder extends MorphableShapeBorder {
   static void drawBorderPath(Canvas canvas, Rect rect, Paint borderPaint,
       Path path, DynamicBorderSide border) {
     if (border.begin != null || border.end != null) {
-      PathMetric metric = path.computeMetrics().first;
+      ///an empty path (e.g. for an empty rect) has nothing to draw
+      PathMetric? metric = path.computeMetrics().firstOrNull;
+      if (metric == null) return;
 
       double beginPX = border.begin?.toPX(constraint: metric.length) ?? 0.0;
       double endPX =
@@ -155,10 +167,16 @@ abstract class FilledBorderShapeBorder extends MorphableShapeBorder {
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    Paint borderPaint = Paint();
+    ///The dynamic paths have to be generated in the local coordinate space of
+    ///the shape (just like getOuterPath does) and then shifted to the rect.
+    ///Generating them directly in the rect (which is not at the origin when
+    ///painted by e.g. a ShapeDecoration) treated every node as being out of
+    ///bounds, which added extra nodes to the paths and failed the
+    ///`outer.nodes.length == fillColors.length` assertion (issue #16).
+    final Rect localRect = Offset.zero & rect.size;
 
-    DynamicPath outer = generateOuterDynamicPath(rect);
-    DynamicPath inner = generateInnerDynamicPath(rect);
+    DynamicPath outer = generateOuterDynamicPath(localRect);
+    DynamicPath inner = generateInnerDynamicPath(localRect);
     List<Color> borderColors = borderFillColors();
     List<Gradient?> borderGradients = borderFillGradients();
 
@@ -170,7 +188,8 @@ abstract class FilledBorderShapeBorder extends MorphableShapeBorder {
 
     borderPaths.removeOverlappingPaths();
 
-    List<Path> paths = borderPaths.generateBorderPaths(rect);
+    List<Path> paths = borderPaths.generateBorderPaths(localRect);
+    if (paths.isEmpty) return;
     borderColors = borderPaths.fillColors;
     borderGradients = borderPaths.fillGradients;
     List<Path> finalPaths = [paths[0]];
@@ -188,6 +207,7 @@ abstract class FilledBorderShapeBorder extends MorphableShapeBorder {
         finalGradients.add(borderGradients[i]);
       }
     }
+    Paint borderPaint = Paint();
     for (int i = 0; i < finalPaths.length; i++) {
       borderPaint.isAntiAlias = true;
       borderPaint.style = PaintingStyle.fill;
@@ -195,7 +215,7 @@ abstract class FilledBorderShapeBorder extends MorphableShapeBorder {
       borderPaint.shader = finalGradients[i]?.createShader(rect);
       borderPaint.strokeWidth = 1;
       borderPaint.strokeMiterLimit = 0.0;
-      canvas.drawPath(finalPaths[i], borderPaint);
+      canvas.drawPath(finalPaths[i].shift(rect.topLeft), borderPaint);
     }
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-const List<ColorSwatch> materialColors = const <ColorSwatch>[
-  const ColorSwatch(0xFFFFFFFF, {500: Colors.white}),
-  const ColorSwatch(0xFF000000, {500: Colors.black}),
+const List<ColorSwatch> materialColors = <ColorSwatch>[
+  ColorSwatch(0xFFFFFFFF, {500: Colors.white}),
+  ColorSwatch(0xFF000000, {500: Colors.black}),
   Colors.red,
   Colors.pink,
   Colors.purple,
@@ -38,7 +38,7 @@ List<Color> _getMaterialColorShades(ColorSwatch color) {
   ];
 }
 
-List<Color> MaterialColorShade = materialColors
+List<Color> materialColorShades = materialColors
     .sublist(2)
     .map((color) => _getMaterialColorShades(color))
     .expand((i) => i)
@@ -59,6 +59,7 @@ typedef PickerItemBuilder = Widget Function(
 
 class BlockColorPicker extends StatefulWidget {
   const BlockColorPicker({
+    super.key,
     required this.pickerColor,
     required this.onColorChanged,
     this.availableColors = materialColors,
@@ -76,7 +77,7 @@ class BlockColorPicker extends StatefulWidget {
       BuildContext context, List<Color> colors, PickerItem child) {
     Orientation orientation = MediaQuery.of(context).orientation;
 
-    return Container(
+    return SizedBox(
       width: orientation == Orientation.portrait ? 300.0 : 400.0,
       height: orientation == Orientation.portrait ? 360.0 : 160.0,
       child: GridView.count(
@@ -94,7 +95,7 @@ class BlockColorPicker extends StatefulWidget {
       BuildContext context, List<Color> colors, PickerItem child) {
     Orientation orientation = MediaQuery.of(context).orientation;
 
-    return Container(
+    return SizedBox(
       width: orientation == Orientation.portrait ? 300.0 : 400.0,
       height: orientation == Orientation.portrait ? 360.0 : 160.0,
       child: GridView.builder(
@@ -122,7 +123,7 @@ class BlockColorPicker extends StatefulWidget {
         color: color,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.8),
+            color: Colors.grey.withValues(alpha: 0.8),
             offset: Offset(1.0, 2.0),
             blurRadius: 3.0,
           ),
@@ -180,7 +181,7 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
   @override
   void initState() {
     _currentColor = widget.pickerColor;
-    _currentOpacity = _currentColor.opacity;
+    _currentOpacity = _currentColor.a;
     super.initState();
   }
 
@@ -196,7 +197,7 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
     setState(() {
       _currentOpacity = opacity;
     });
-    widget.onColorChanged(_currentColor.withOpacity(_currentOpacity));
+    widget.onColorChanged(_currentColor.withValues(alpha: _currentOpacity));
   }
 
   @override
@@ -215,7 +216,7 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
               min: 0.0,
               max: 1.0,
               divisions: 10,
-              label: '${_currentOpacity}',
+              label: '$_currentOpacity',
               value: _currentOpacity,
               onChanged: changeOpacity,
             )),
@@ -229,7 +230,7 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
           widget.availableColors.map((Color f) => f).toList(),
           (Color color) => widget.itemBuilder(
               color,
-              _currentColor.withOpacity(1) == color.withOpacity(1),
+              _currentColor.withValues(alpha: 1) == color.withValues(alpha: 1),
               () => changeColor(color)),
         ),
         SizedBox(height: 50, child: opacityWidgets)
@@ -239,19 +240,19 @@ class _BlockColorPickerState extends State<BlockColorPicker> {
 }
 
 class BottomSheetColorPicker extends StatefulWidget {
-  BottomSheetColorPicker({
-    Key? key,
+  const BottomSheetColorPicker({
+    super.key,
     this.headText = "Pick a color",
     required this.currentColor,
     required this.valueChanged,
-  }) : super(key: key);
+  });
 
   final String headText;
   final Color currentColor;
-  final ValueChanged valueChanged;
+  final ValueChanged<Color> valueChanged;
 
   @override
-  _BottomSheetColorPicker createState() => _BottomSheetColorPicker();
+  State<BottomSheetColorPicker> createState() => _BottomSheetColorPicker();
 }
 
 class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
@@ -259,7 +260,7 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
 
   @override
   void initState() {
-    currentColor = widget.currentColor ?? Colors.black;
+    currentColor = widget.currentColor;
     super.initState();
   }
 
@@ -302,7 +303,7 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                         'More Colors',
                       ),
                       onPressed: () {
-                        Navigator.of(context)?.pop();
+                        Navigator.of(context).pop();
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -315,7 +316,7 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                                       BlockColorPicker.denseLayoutBuilder,
                                   itemBuilder:
                                       BlockColorPicker.denseItemBuilder,
-                                  availableColors: MaterialColorShade,
+                                  availableColors: materialColorShades,
                                 ),
                               ),
                               actions: <Widget>[
@@ -325,7 +326,7 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                                     setState(() {
                                       widget.valueChanged(currentColor);
                                     });
-                                    Navigator.of(context)?.pop();
+                                    Navigator.of(context).pop();
                                   },
                                 ),
                               ],
@@ -340,7 +341,7 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
                         setState(() {
                           widget.valueChanged(currentColor);
                         });
-                        Navigator.of(context)?.pop();
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
@@ -348,13 +349,13 @@ class _BottomSheetColorPicker extends State<BottomSheetColorPicker> {
               },
             );
           },
+          elevation: 5.0,
+          constraints: BoxConstraints.tight(Size(24, 24)),
+          padding: const EdgeInsets.all(0.5),
           child: Container(
             decoration: BoxDecoration(
                 color: currentColor, border: Border.all(color: Colors.black)),
           ),
-          elevation: 5.0,
-          constraints: BoxConstraints.tight(Size(24, 24)),
-          padding: const EdgeInsets.all(0.5),
         ));
   }
 }

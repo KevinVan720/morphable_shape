@@ -45,10 +45,9 @@ List<Offset> arcToCubicBezier(Rect rect, double startAngle, double sweepAngle,
   if (sweepAngle.abs() > limit) {
     List<Offset> rst =
         arcToCubicBezier(rect, startAngle, sweepAngle / 2.0, limit: limit);
-    rst
-      ..addAll(arcToCubicBezier(
-          rect, startAngle + sweepAngle / 2.0, sweepAngle / 2.0,
-          limit: limit));
+    rst.addAll(arcToCubicBezier(
+        rect, startAngle + sweepAngle / 2.0, sweepAngle / 2.0,
+        limit: limit));
     return rst;
   }
 

@@ -1,5 +1,4 @@
 import 'package:morphable_shape/src/common_includes.dart';
-import 'package:morphable_shape/src/shape_borders/morph.dart';
 
 ///Why is there no shapeTween?
 ///Because to morph shape we need to know the rect at every time step,
@@ -8,53 +7,37 @@ class MorphableShapeBorderTween extends Tween<MorphableShapeBorder?> {
   MorphShapeData? data;
   MorphMethod method;
   MorphableShapeBorderTween(
-      {MorphableShapeBorder? begin,
-      MorphableShapeBorder? end,
-      this.method = MorphMethod.auto})
-      : super(begin: begin, end: end);
+      {super.begin, super.end, this.method = MorphMethod.auto});
 
   @override
   MorphableShapeBorder? lerp(double t) {
     if (begin == null && end == null) {
       return null;
     }
-    if (begin == null) {
-      if (data == null || end != data!.end) {
-        data = MorphShapeData(
-            begin: RectangleShapeBorder(),
-            end: !(end! is MorphShapeBorder)
-                ? end!
-                : (end! as MorphShapeBorder).morphData.end,
-            boundingBox: Rect.fromLTRB(0, 0, 100, 100),
-            method: method);
-        DynamicPathMorph.sampleBorderPathsFromShape(data!);
-      }
-      return MorphShapeBorder(t: t, morphData: data!);
-    } else if (end == null) {
-      if (data == null) {
-        data = MorphShapeData(
-            begin: !(begin! is MorphShapeBorder)
-                ? begin!
-                : (begin! as MorphShapeBorder).morphData.begin,
-            end: RectangleShapeBorder(),
-            boundingBox: Rect.fromLTRB(0, 0, 100, 100),
-            method: method);
-        DynamicPathMorph.sampleBorderPathsFromShape(data!);
-      }
-      return MorphShapeBorder(t: t, morphData: data!);
-    }
 
-    if (data == null || begin != data!.begin || end != data!.end) {
-      MorphableShapeBorder beginShape = !(begin! is MorphShapeBorder)
-          ? begin!
-          : (begin! as MorphShapeBorder).morphData.begin;
-      MorphableShapeBorder endShape = !(end! is MorphShapeBorder)
-          ? end!
-          : (end! as MorphShapeBorder).morphData.end;
+    ///a missing shape is morphed from/to a rectangle, a morph shape (e.g. the
+    ///current value of an interrupted animation) is replaced by its own
+    ///begin/end shape
+    MorphableShapeBorder beginShape = switch (begin) {
+      null => const RectangleShapeBorder(),
+      MorphShapeBorder morph => morph.morphData.begin,
+      MorphableShapeBorder shape => shape,
+    };
+    MorphableShapeBorder endShape = switch (end) {
+      null => const RectangleShapeBorder(),
+      MorphShapeBorder morph => morph.morphData.end,
+      MorphableShapeBorder shape => shape,
+    };
+
+    ///the morph data is expensive to compute, only do it when the shapes change
+    if (data == null ||
+        data!.begin != beginShape ||
+        data!.end != endShape ||
+        data!.method != method) {
       data = MorphShapeData(
           begin: beginShape,
           end: endShape,
-          boundingBox: Rect.fromLTRB(0, 0, 100, 100),
+          boundingBox: const Rect.fromLTRB(0, 0, 100, 100),
           method: method);
       DynamicPathMorph.sampleBorderPathsFromShape(data!);
     }

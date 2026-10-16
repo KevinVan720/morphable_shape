@@ -51,6 +51,20 @@ class RectangleCornerStyles {
       bottomRight: bottomRight ?? this.bottomRight,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is RectangleCornerStyles &&
+        other.topLeft == topLeft &&
+        other.bottomLeft == bottomLeft &&
+        other.topRight == topRight &&
+        other.bottomRight == bottomRight;
+  }
+
+  @override
+  int get hashCode => Object.hash(topLeft, bottomLeft, topRight, bottomRight);
 }
 
 class RectangleBorderSides {
@@ -111,4 +125,18 @@ class RectangleBorderSides {
       right: right ?? this.right,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is RectangleBorderSides &&
+        other.top == top &&
+        other.bottom == bottom &&
+        other.left == left &&
+        other.right == right;
+  }
+
+  @override
+  int get hashCode => Object.hash(top, bottom, left, right);
 }

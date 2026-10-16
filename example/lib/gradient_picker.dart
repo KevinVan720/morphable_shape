@@ -1,19 +1,21 @@
 import 'dart:math';
+
+import 'package:dimension/dimension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/flutter_class_parser.dart';
-import 'package:dimension/dimension.dart';
 
 import 'color_picker.dart';
 
 class CustomRawIconButton extends StatelessWidget {
-  void Function() onTap;
-  Icon icon;
-  Color color;
-  double size;
-  bool isDisabled;
+  final void Function() onTap;
+  final Icon icon;
+  final Color color;
+  final double size;
+  final bool isDisabled;
 
-  CustomRawIconButton(
-      {required this.icon,
+  const CustomRawIconButton(
+      {super.key,
+      required this.icon,
       this.color = Colors.grey,
       required this.onTap,
       this.size = 24,
@@ -23,25 +25,25 @@ class CustomRawIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return RawMaterialButton(
       onPressed: !isDisabled ? onTap : null,
-      child: icon,
-      shape: new CircleBorder(),
+      shape: const CircleBorder(),
       elevation: !isDisabled ? 3.0 : 0.0,
       fillColor: !isDisabled ? color : Colors.grey,
       constraints: BoxConstraints.tight(Size(size, size)),
       padding: const EdgeInsets.all(0.0),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      child: icon,
     );
   }
 }
 
 class BlockGradientPicker extends StatefulWidget {
   const BlockGradientPicker({
-    Key? key,
+    super.key,
     required this.pickerGradient,
     required this.onGradientChanged,
-  }) : super(key: key);
+  });
 
-  final Gradient pickerGradient;
+  final Gradient? pickerGradient;
   final ValueChanged<Gradient> onGradientChanged;
 
   @override
@@ -73,12 +75,13 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
   @override
   void initState() {
     currentGradient = widget.pickerGradient ??
-        LinearGradient(colors: [Colors.redAccent, Colors.greenAccent]);
+        const LinearGradient(colors: [Colors.redAccent, Colors.greenAccent]);
 
-    colors = currentGradient.colors;
-    stops = currentGradient.stops ??
+    ///copies, the lists of the gradient may be unmodifiable
+    colors = List.of(currentGradient.colors);
+    stops = List.of(currentGradient.stops ??
         List<double>.generate(
-            colors.length, (int index) => index / (colors.length - 1));
+            colors.length, (int index) => index / (colors.length - 1)));
     if (currentGradient is LinearGradient) {
       alignment1 = (currentGradient as LinearGradient).begin as Alignment;
       alignment2 = (currentGradient as LinearGradient).end as Alignment;
@@ -131,7 +134,7 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
             decoration: selected
                 ? BoxDecoration(
                     border: Border.all(
-                    color: Colors.redAccent.withOpacity(0.8),
+                    color: Colors.redAccent.withValues(alpha: 0.8),
                     width: 2,
                   ))
                 : null,
@@ -216,7 +219,7 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
       child: Column(
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          Container(
+          SizedBox(
               height: 100,
               child: Stack(
                 children: <Widget>[
@@ -260,26 +263,20 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
                       : Container()
                 ],
               )),
-          Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-            Text("Linear"),
-            Radio(
-              value: 0,
-              groupValue: gradientType,
-              onChanged: updateGradientType,
-            ),
-            Text("Radial"),
-            Radio(
-              value: 1,
-              groupValue: gradientType,
-              onChanged: updateGradientType,
-            ),
-            Text("Sweep"),
-            Radio(
-              value: 2,
-              groupValue: gradientType,
-              onChanged: updateGradientType,
-            ),
-          ]),
+          RadioGroup<int>(
+            groupValue: gradientType,
+            onChanged: updateGradientType,
+            child: const Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text("Linear"),
+                  Radio<int>(value: 0),
+                  Text("Radial"),
+                  Radio<int>(value: 1),
+                  Text("Sweep"),
+                  Radio<int>(value: 2),
+                ]),
+          ),
           stopsWidget,
           Row(
             children: [
@@ -293,7 +290,7 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
                     colors[selectIndex] = color;
                     List<Color> tempColors = [];
                     for (var color in colors) {
-                      tempColors.add(color.withOpacity(color.opacity));
+                      tempColors.add(color.withValues(alpha: color.a));
                     }
                     setState(() {
                       colors = tempColors;
@@ -375,7 +372,6 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
                   onChanged: (value) {
                     setState(() {
                       tileMode = parseTileMode(value) ?? TileMode.clamp;
-                      print(tileMode);
                       updateGradient();
                     });
                   },
@@ -471,7 +467,6 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
       x = alignment2.x;
       y = alignment2.y;
     }
-    ;
     x = x.roundWithNumber(3);
     y = y.roundWithNumber(3);
     setState(() {
@@ -486,22 +481,24 @@ class _BlockGradientPickerState extends State<BlockGradientPicker> {
 }
 
 class BottomSheetGradientPicker extends StatefulWidget {
-  BottomSheetGradientPicker({
+  const BottomSheetGradientPicker({
+    super.key,
     this.headText = "Pick a gradient",
     required this.currentGradient,
     required this.valueChanged,
   });
 
   final String headText;
-  final Gradient currentGradient;
-  final ValueChanged valueChanged;
+  final Gradient? currentGradient;
+  final ValueChanged<Gradient?> valueChanged;
 
   @override
-  _BottomSheetGradientPicker createState() => _BottomSheetGradientPicker();
+  State<BottomSheetGradientPicker> createState() =>
+      _BottomSheetGradientPicker();
 }
 
 class _BottomSheetGradientPicker extends State<BottomSheetGradientPicker> {
-  late Gradient currentGradient;
+  Gradient? currentGradient;
 
   @override
   void initState() {
@@ -549,7 +546,7 @@ class _BottomSheetGradientPicker extends State<BottomSheetGradientPicker> {
                         setState(() {
                           widget.valueChanged(currentGradient);
                         });
-                        Navigator.of(context)?.pop();
+                        Navigator.of(context).pop();
                       },
                     ),
                   ],
@@ -557,15 +554,15 @@ class _BottomSheetGradientPicker extends State<BottomSheetGradientPicker> {
               },
             );
           },
+          shape: CircleBorder(),
+          elevation: 5.0,
+          constraints: BoxConstraints.tight(Size(24, 24)),
+          padding: const EdgeInsets.all(0.5),
           child: Container(
             decoration: BoxDecoration(
                 gradient: currentGradient,
                 border: Border.all(color: Colors.black)),
           ),
-          shape: CircleBorder(),
-          elevation: 5.0,
-          constraints: BoxConstraints.tight(Size(24, 24)),
-          padding: const EdgeInsets.all(0.5),
         ));
   }
 }

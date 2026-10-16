@@ -17,18 +17,18 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
   final Dimension arrowHeadPosition;
 
   const BubbleShapeBorder({
-    DynamicBorderSide border = DynamicBorderSide.none,
+    super.border = DynamicBorderSide.none,
     this.side = ShapeSide.bottom,
     this.borderRadius = const Length(6),
     this.arrowHeight = const Length(20, unit: LengthUnit.percent),
     this.arrowWidth = const Length(30, unit: LengthUnit.percent),
     this.arrowCenterPosition = const Length(50, unit: LengthUnit.percent),
     this.arrowHeadPosition = const Length(50, unit: LengthUnit.percent),
-  }) : super(border: border);
+  });
 
   BubbleShapeBorder.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
-        borderRadius = parseDimension(map["borderRadius"]) ?? Length(6),
+        borderRadius = parseDimension(map["borderRadius"]) ?? const Length(6),
         arrowHeight =
             parseDimension(map["arrowHeight"]) ?? 20.0.toPercentLength,
         arrowWidth = parseDimension(map["arrowWidth"]) ?? 30.0.toPercentLength,
@@ -40,6 +40,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Bubble"};
     rst.addAll(super.toJson());
@@ -53,6 +54,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   BubbleShapeBorder copyWith({
     ShapeSide? side,
     Dimension? borderRadius,
@@ -73,10 +75,12 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
     );
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
-    return shape is BubbleShapeBorder && this.side == shape.side;
+    return shape is BubbleShapeBorder && side == shape.side;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
@@ -103,11 +107,10 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
 
     List<DynamicNode> nodes = [];
 
-    final double spacingLeft = this.side == ShapeSide.left ? arrowHeight : 0;
-    final double spacingTop = this.side == ShapeSide.top ? arrowHeight : 0;
-    final double spacingRight = this.side == ShapeSide.right ? arrowHeight : 0;
-    final double spacingBottom =
-        this.side == ShapeSide.bottom ? arrowHeight : 0;
+    final double spacingLeft = side == ShapeSide.left ? arrowHeight : 0;
+    final double spacingTop = side == ShapeSide.top ? arrowHeight : 0;
+    final double spacingRight = side == ShapeSide.right ? arrowHeight : 0;
+    final double spacingBottom = side == ShapeSide.bottom ? arrowHeight : 0;
 
     final double left = spacingLeft + rect.left;
     final double top = spacingTop + rect.top;
@@ -116,7 +119,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
 
     double radiusBound = 0;
 
-    if (this.side.isHorizontal) {
+    if (side.isHorizontal) {
       arrowCenterPosition = arrowCenterPosition.clamp(0, size.width);
       arrowHeadPosition = arrowHeadPosition.clamp(0, size.width);
       arrowWidth = arrowWidth.clamp(
@@ -142,7 +145,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
       );
     }
 
-    if (this.side == ShapeSide.top) {
+    if (side == ShapeSide.top) {
       nodes.add(DynamicNode(
           position: Offset(arrowCenterPosition - arrowWidth / 2, top)));
       nodes.add(DynamicNode(position: Offset(arrowHeadPosition, rect.top)));
@@ -155,7 +158,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
         3 * pi / 2,
         pi / 2);
 
-    if (this.side == ShapeSide.right) {
+    if (side == ShapeSide.right) {
       nodes.add(DynamicNode(
           position: Offset(right, arrowCenterPosition - arrowWidth / 2)));
       nodes.add(DynamicNode(position: Offset(rect.right, arrowHeadPosition)));
@@ -168,7 +171,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
         0,
         pi / 2);
 
-    if (this.side == ShapeSide.bottom) {
+    if (side == ShapeSide.bottom) {
       nodes.add(DynamicNode(
           position: Offset(arrowCenterPosition + arrowWidth / 2, bottom)));
       nodes.add(DynamicNode(position: Offset(arrowHeadPosition, rect.bottom)));
@@ -181,7 +184,7 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
         pi / 2,
         pi / 2);
 
-    if (this.side == ShapeSide.left) {
+    if (side == ShapeSide.left) {
       nodes.add(DynamicNode(
           position: Offset(left, arrowCenterPosition + arrowWidth / 2)));
       nodes.add(DynamicNode(position: Offset(rect.left, arrowHeadPosition)));
@@ -196,4 +199,22 @@ class BubbleShapeBorder extends OutlinedShapeBorder {
 
     return DynamicPath(nodes: nodes, size: size);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is BubbleShapeBorder &&
+        other.border == border &&
+        other.side == side &&
+        other.borderRadius == borderRadius &&
+        other.arrowHeight == arrowHeight &&
+        other.arrowWidth == arrowWidth &&
+        other.arrowCenterPosition == arrowCenterPosition &&
+        other.arrowHeadPosition == arrowHeadPosition;
+  }
+
+  @override
+  int get hashCode => Object.hash(border, side, borderRadius, arrowHeight,
+      arrowWidth, arrowCenterPosition, arrowHeadPosition);
 }

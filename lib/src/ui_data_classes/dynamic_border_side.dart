@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' show lerpDouble;
 
 import 'package:morphable_shape/src/common_includes.dart';
 
@@ -19,17 +19,16 @@ class DynamicBorderSide {
     this.strokeCap = StrokeCap.butt,
   });
 
+  ///begin, end and shift are only written by [toJson] when they are set, so
+  ///missing values are read back as unset (null).
   DynamicBorderSide.fromJson(Map<String, dynamic> map)
-      : color = parseColor(map["color"]) ?? Color(0xFF000000),
+      : color = parseColor(map["color"]) ?? const Color(0xFF000000),
         gradient = parseGradient(map["gradient"]),
-        width = map["width"].toDouble() ?? 1.0,
+        width = (map["width"] as num?)?.toDouble() ?? 1.0,
         style = parseBorderStyle(map["style"]) ?? BorderStyle.solid,
-        begin =
-            parseDimension(map["begin"]) ?? Length(0, unit: LengthUnit.percent),
-        end =
-            parseDimension(map["end"]) ?? Length(100, unit: LengthUnit.percent),
-        shift =
-            parseDimension(map["shift"]) ?? Length(0, unit: LengthUnit.percent),
+        begin = parseDimension(map["begin"]),
+        end = parseDimension(map["end"]),
+        shift = parseDimension(map["shift"]),
         strokeCap = parseStrokeCap(map["strokeCap"]) ?? StrokeCap.square,
         strokeJoin = parseStrokeJoin(map["strokeJoin"]) ?? StrokeJoin.miter;
 
@@ -41,7 +40,7 @@ class DynamicBorderSide {
     rst["style"] = style.toJson();
     rst.updateNotNull("begin", begin?.toJson());
     rst.updateNotNull("end", end?.toJson());
-    rst.updateNotNull("shift", end?.toJson());
+    rst.updateNotNull("shift", shift?.toJson());
     rst.updateNotNull("strokeCap", strokeCap.toJson());
     rst.updateNotNull("strokeJoin", strokeJoin.toJson());
     return rst;

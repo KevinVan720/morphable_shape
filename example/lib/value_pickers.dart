@@ -1,5 +1,3 @@
-import 'package:dimension/dimension.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
@@ -10,28 +8,31 @@ export 'shape_picker.dart'
 
 class LengthSlider extends StatefulWidget {
   const LengthSlider({
-    required this.min,
-    required this.max,
+    super.key,
+    this.min,
+    this.max,
     this.divisions = 30,
     this.sliderColor = Colors.amber,
     required this.value,
     required this.onChanged,
-    required this.constraint,
+    this.constraint,
     this.allowedUnits = const ["px"],
   });
 
-  final double min;
-  final double max;
+  final double? min;
+  final double? max;
   final int divisions;
   final Color sliderColor;
   final List<String> allowedUnits;
-  final Length value;
-  final double constraint;
 
-  final ValueChanged onChanged;
+  ///the editor only creates [Length]s, other dimensions are shown in px
+  final Dimension value;
+  final double? constraint;
+
+  final ValueChanged<Length> onChanged;
 
   @override
-  _LengthSlider createState() => _LengthSlider();
+  State<LengthSlider> createState() => _LengthSlider();
 }
 
 class _LengthSlider extends State<LengthSlider> {
@@ -41,58 +42,46 @@ class _LengthSlider extends State<LengthSlider> {
   late double max;
   late int divisions;
 
-  @override
-  void initState() {
-    super.initState();
+  Length get _value {
+    Dimension value = widget.value;
+    return value is Length
+        ? value
+        : Length(value.toPX(constraint: widget.constraint));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.value != null) {
-      _sliderValue = widget.value
-          .copyWith(value: widget.value.value.roundWithPrecision(1));
-    } else {
-      if (widget.min != null && widget.max != null) {
-        _sliderValue = Length((widget.min + widget.max) / 2);
-      } else {
-        _sliderValue = Length(1);
-      }
-    }
+    _sliderValue = _value.copyWith(value: _value.value.roundWithPrecision(1));
 
     if (_sliderValue.unit == LengthUnit.px) {
       min = widget.min ?? 0.0;
-      max = widget.max ?? widget.constraint.roundWithPrecision(1);
-      divisions = widget.divisions ??
-          ((max - min) > 10 ? (max - min) / 5 : (max - min)).round();
+      max = widget.max ?? (widget.constraint ?? 100.0).roundWithPrecision(1);
+      divisions = widget.divisions;
     } else {
       min = 0;
       max = 100.0;
       divisions = widget.divisions;
     }
 
-    return Container(
+    return SizedBox(
       height: 50,
       child: Row(
         children: <Widget>[
           Expanded(
               child: Container(
-                  padding: EdgeInsets.only(top: 3.0),
+                  padding: const EdgeInsets.only(top: 3.0),
                   alignment: Alignment.center,
-                  child: Offstage(
-                    offstage: _sliderValue == null,
-                    child: Slider(
-                      activeColor: widget.sliderColor,
-                      min: min,
-                      max: max,
-                      divisions: divisions,
-                      value: (_sliderValue.value ?? 0).clamp(min, max),
-                      onChanged: (newValue) {
-                        setState(() {
-                          widget.onChanged(
-                              widget.value.copyWith(value: newValue));
-                        });
-                      },
-                    ),
+                  child: Slider(
+                    activeColor: widget.sliderColor,
+                    min: min,
+                    max: max,
+                    divisions: divisions,
+                    value: _sliderValue.value.clamp(min, max),
+                    onChanged: (newValue) {
+                      setState(() {
+                        widget.onChanged(_value.copyWith(value: newValue));
+                      });
+                    },
                   ))),
           //editable text field
           Container(
@@ -107,30 +96,25 @@ class _LengthSlider extends State<LengthSlider> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                _sliderValue != null
-                    ? Container(
-                        alignment: Alignment.centerLeft,
-                        width: 50,
-                        child: FocusTextField(
-                          key: ObjectKey(_sliderValue.value),
-                          initText: _sliderValue.value.toStringAsFixed(1),
-                          onSubmitted: (value) {
-                            double newValue =
-                                double.tryParse(value) ?? widget.value.value;
-                            widget.onChanged(
-                                widget.value.copyWith(value: newValue));
-                          },
-                        ))
-                    : Container(
-                        width: 10,
-                      ),
                 Container(
-                  width: _sliderValue != null ? 38 : 50,
+                    alignment: Alignment.centerLeft,
+                    width: 50,
+                    child: FocusTextField(
+                      key: ObjectKey(_sliderValue.value),
+                      initText: _sliderValue.value.toStringAsFixed(1),
+                      onSubmitted: (value) {
+                        double newValue =
+                            double.tryParse(value) ?? _value.value;
+                        widget.onChanged(_value.copyWith(value: newValue));
+                      },
+                    )),
+                Container(
+                  width: 38,
                   height: 30,
                   margin: EdgeInsets.only(right: 4),
                   padding: EdgeInsets.only(left: 10),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.25),
+                    color: Colors.grey.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.all(Radius.circular(4.0)),
                   ),
                   alignment: Alignment.center,
@@ -147,13 +131,11 @@ class _LengthSlider extends State<LengthSlider> {
                     icon: null,
                     underline: Container(),
                     value: _sliderValue.getUnit(),
-                    onChanged: (String value) {
+                    onChanged: (String? value) {
                       setState(() {
-                        ///avoid null for non auto values
                         double oldPX = _sliderValue.toPX(
-                              constraint: widget.constraint,
-                            ) ??
-                            100;
+                          constraint: widget.constraint,
+                        );
                         LengthUnit newUnit =
                             lengthUnitMap[value] ?? LengthUnit.px;
                         widget.onChanged(_sliderValue.copyWith(
@@ -171,7 +153,7 @@ class _LengthSlider extends State<LengthSlider> {
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
-                        child: Container(width: 100, child: Text(value)),
+                        child: SizedBox(width: 100, child: Text(value)),
                       );
                     }).toList(),
                   ),
@@ -183,22 +165,21 @@ class _LengthSlider extends State<LengthSlider> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
 
 class FixedUnitValuePicker extends StatefulWidget {
   final double value;
   final String unit;
-  final Function onValueChanged;
+  final ValueChanged<double> onValueChanged;
 
-  FixedUnitValuePicker({this.value, this.unit, this.onValueChanged});
+  const FixedUnitValuePicker(
+      {super.key,
+      required this.value,
+      required this.unit,
+      required this.onValueChanged});
 
   @override
-  _FixedUnitValuePickerState createState() => _FixedUnitValuePickerState();
+  State<FixedUnitValuePicker> createState() => _FixedUnitValuePickerState();
 }
 
 class _FixedUnitValuePickerState extends State<FixedUnitValuePicker> {
@@ -233,7 +214,7 @@ class _FixedUnitValuePickerState extends State<FixedUnitValuePicker> {
               margin: EdgeInsets.only(right: 4),
               padding: EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.25),
+                color: Colors.grey.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.all(Radius.circular(4.0)),
               ),
               alignment: Alignment.center,
@@ -253,25 +234,23 @@ class _FixedUnitValuePickerState extends State<FixedUnitValuePicker> {
 
 class OffsetPicker extends StatefulWidget {
   final Offset position;
-  final Size constraintSize;
-  final Function onPositionChanged;
+  final Size? constraintSize;
+  final ValueChanged<Offset> onPositionChanged;
 
   const OffsetPicker(
-      {this.position, this.onPositionChanged, this.constraintSize});
+      {super.key,
+      required this.position,
+      required this.onPositionChanged,
+      this.constraintSize});
 
   @override
-  _OffsetPickerState createState() => _OffsetPickerState();
+  State<OffsetPicker> createState() => _OffsetPickerState();
 }
 
 class _OffsetPickerState extends State<OffsetPicker> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 50,
       child: Row(
         children: [
@@ -302,19 +281,19 @@ class _OffsetPickerState extends State<OffsetPicker> {
 
 class FocusTextField extends StatefulWidget {
   final String initText;
-  final Function onSubmitted;
+  final ValueChanged<String> onSubmitted;
 
-  const FocusTextField({Key key, this.initText, this.onSubmitted})
-      : super(key: key);
+  const FocusTextField(
+      {super.key, required this.initText, required this.onSubmitted});
 
   @override
-  _FocusTextFieldState createState() => _FocusTextFieldState();
+  State<FocusTextField> createState() => _FocusTextFieldState();
 }
 
 class _FocusTextFieldState extends State<FocusTextField> {
-  TextEditingController textController;
-  FocusNode focus;
-  String hintText;
+  late TextEditingController textController;
+  late FocusNode focus;
+  late String hintText;
   bool hasSubmitted = false;
 
   @override

@@ -8,17 +8,17 @@ class TrapezoidShapeBorder extends OutlinedShapeBorder {
   const TrapezoidShapeBorder(
       {this.side = ShapeSide.bottom,
       this.inset = const Length(20, unit: LengthUnit.percent),
-      DynamicBorderSide border = DynamicBorderSide.none})
-      : super(border: border);
+      super.border = DynamicBorderSide.none});
 
   TrapezoidShapeBorder.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map["side"]) ?? ShapeSide.bottom,
         inset = parseDimension(map['inset']) ??
-            Length(20, unit: LengthUnit.percent),
+            const Length(20, unit: LengthUnit.percent),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Trapezoid"};
     rst.addAll(super.toJson());
@@ -27,6 +27,7 @@ class TrapezoidShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   TrapezoidShapeBorder copyWith({
     ShapeSide? side,
     Dimension? inset,
@@ -39,10 +40,12 @@ class TrapezoidShapeBorder extends OutlinedShapeBorder {
     );
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
     return shape is TrapezoidShapeBorder;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
@@ -68,7 +71,7 @@ class TrapezoidShapeBorder extends OutlinedShapeBorder {
         break;
       case ShapeSide.bottom:
         {
-          nodes.add(DynamicNode(position: Offset(0, 0)));
+          nodes.add(DynamicNode(position: const Offset(0, 0)));
           nodes.add(DynamicNode(position: Offset(size.width, 0)));
           nodes.add(
               DynamicNode(position: Offset(size.width - inset, size.height)));
@@ -85,7 +88,7 @@ class TrapezoidShapeBorder extends OutlinedShapeBorder {
         break;
       case ShapeSide.right:
         {
-          nodes.add(DynamicNode(position: Offset(0, 0)));
+          nodes.add(DynamicNode(position: const Offset(0, 0)));
           nodes.add(DynamicNode(position: Offset(size.width, inset)));
           nodes.add(
               DynamicNode(position: Offset(size.width, size.height - inset)));
@@ -96,4 +99,17 @@ class TrapezoidShapeBorder extends OutlinedShapeBorder {
 
     return DynamicPath(size: size, nodes: nodes);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is TrapezoidShapeBorder &&
+        other.border == border &&
+        other.side == side &&
+        other.inset == inset;
+  }
+
+  @override
+  int get hashCode => Object.hash(border, side, inset);
 }

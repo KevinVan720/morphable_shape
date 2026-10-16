@@ -13,8 +13,7 @@ class DynamicOffset {
     return map;
   }
 
-  static const DynamicOffset zero =
-      DynamicOffset(const Length(0), const Length(0));
+  static const DynamicOffset zero = DynamicOffset(Length(0), Length(0));
 
   /// The radius value on the horizontal axis.
   final Dimension dx;
@@ -41,7 +40,8 @@ class DynamicOffset {
   int get hashCode => Object.hash(dx, dy);
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
     return other is DynamicOffset && dx == other.dx && dy == other.dy;
   }
 }

@@ -1,24 +1,27 @@
 name: flutter_shape_editor
 description: An online editor for editing various Flutter shapes and morph between them.
+publish_to: none
 
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  dimension: ^0.2.0
+  flutter_class_parser: ^0.2.5
   morphable_shape:
     path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/Icon-512.png
     - assets/images/Icon-192.png
-

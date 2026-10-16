@@ -2,7 +2,7 @@ import 'package:morphable_shape/src/common_includes.dart';
 
 extension CornerStyleExtension on CornerStyle {
   String toJson() {
-    return this.toString().stripFirstDot();
+    return toString().stripFirstDot();
   }
 
   bool get isConcave {
@@ -12,7 +12,7 @@ extension CornerStyleExtension on CornerStyle {
 
 extension ShapeSideExtension on ShapeSide {
   String toJson() {
-    return this.toString().stripFirstDot();
+    return toString().stripFirstDot();
   }
 
   bool get isHorizontal {
@@ -20,14 +20,14 @@ extension ShapeSideExtension on ShapeSide {
   }
 
   bool get isVertical {
-    return !this.isHorizontal;
+    return !isHorizontal;
   }
 }
 
 extension OffsetExtension on Offset {
   Offset clamp(Offset lower, Offset upper) {
-    return Offset(this.dx.clamp(lower.dx, max(upper.dx, lower.dx)),
-        this.dy.clamp(lower.dy, max(upper.dy, lower.dy)));
+    return Offset(dx.clamp(lower.dx, max(upper.dx, lower.dx)),
+        dy.clamp(lower.dy, max(upper.dy, lower.dy)));
   }
 
   Offset rotateAround({Offset pivot = Offset.zero, double angle = 0.0}) {
@@ -37,7 +37,7 @@ extension OffsetExtension on Offset {
   }
 
   Offset roundWithPrecision(int N) {
-    return Offset(this.dx.roundWithPrecision(N), this.dy.roundWithPrecision(N));
+    return Offset(dx.roundWithPrecision(N), dy.roundWithPrecision(N));
   }
 }
 
@@ -51,7 +51,7 @@ extension IndexedIterable<E> on Iterable<E> {
 extension NumListExtension on List<num> {
   num total() {
     num total = 0;
-    this.forEach((element) {
+    forEach((element) {
       total += element;
     });
     return total;
@@ -59,14 +59,17 @@ extension NumListExtension on List<num> {
 }
 
 ///Every arc will be converted to cubic Bezier path(s) in this package
+// The extension name is public API (it can be used to resolve conflicts
+// explicitly), so it is not renamed to UpperCamelCase.
+// ignore: camel_case_extensions
 extension addDynamicNodeExtension on List<DynamicNode> {
   void cubicTo(Offset x1, Offset x2, Offset x3) {
-    if (this.isEmpty) {
+    if (isEmpty) {
       return;
     }
-    this.last.next = x1;
+    last.next = x1;
     DynamicNode newNode = DynamicNode(position: x3, prev: x2);
-    this.add(newNode);
+    add(newNode);
   }
 
   void addArc(Rect rect, double startAngle, double sweepAngle,
@@ -74,9 +77,9 @@ extension addDynamicNodeExtension on List<DynamicNode> {
     ///configure the minSplitTimes to let some FilledColorShape have symmetric split at the rounded corners
     List<Offset> points =
         arcToCubicBezier(rect, startAngle, sweepAngle, splitTimes: splitTimes);
-    this.add(DynamicNode(position: points[0]));
+    add(DynamicNode(position: points[0]));
     for (int i = 0; i < points.length; i += 4) {
-      this.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+      cubicTo(points[i + 1], points[i + 2], points[i + 3]);
     }
   }
 
@@ -90,13 +93,13 @@ extension addDynamicNodeExtension on List<DynamicNode> {
         splitTimes: splitTimes);
     if (style == CornerStyle.rounded) {
       for (int i = 0; i < points.length; i += 4) {
-        this.cubicTo(points[i + 1], points[i + 2], points[i + 3]);
+        cubicTo(points[i + 1], points[i + 2], points[i + 3]);
       }
     }
     if (style == CornerStyle.straight) {
-      this.add(DynamicNode(position: points.first));
-      this.add(DynamicNode(position: (points.first + points.last) / 2));
-      this.add(DynamicNode(position: points.last));
+      add(DynamicNode(position: points.first));
+      add(DynamicNode(position: (points.first + points.last) / 2));
+      add(DynamicNode(position: points.last));
     }
     if (style == CornerStyle.concave) {
       Offset newCenter = center +
@@ -105,7 +108,7 @@ extension addDynamicNodeExtension on List<DynamicNode> {
       double newSweep = (-(pi - sweepAngle)).clampAngleWithin();
       double newStart = -(pi - (startAngle + sweepAngle / 2) + newSweep / 2)
           .clampAngleWithin();
-      this.addArc(
+      addArc(
           Rect.fromCircle(
               center: newCenter, radius: radius * tan(sweepAngle / 2)),
           newStart,
@@ -113,13 +116,15 @@ extension addDynamicNodeExtension on List<DynamicNode> {
           splitTimes: splitTimes);
     }
     if (style == CornerStyle.cutout) {
-      this.add(DynamicNode(position: points.first));
-      this.add(DynamicNode(position: center));
-      this.add(DynamicNode(position: points.last));
+      add(DynamicNode(position: points.first));
+      add(DynamicNode(position: center));
+      add(DynamicNode(position: points.last));
     }
   }
 }
 
+// The extension name is public API, see above.
+// ignore: camel_case_extensions
 extension angleDoubleExtension on double {
   double toRadian() {
     return this / 180 * pi;

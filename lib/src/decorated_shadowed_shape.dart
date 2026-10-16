@@ -34,7 +34,8 @@ class ClipPathShadow extends StatelessWidget {
   final CustomClipper<Path> clipper;
   final Widget? child;
 
-  ClipPathShadow({
+  const ClipPathShadow({
+    super.key,
     this.shadows,
     required this.clipper,
     this.child,
@@ -43,13 +44,13 @@ class ClipPathShadow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: this.shadows != null
+      painter: shadows != null
           ? _ClipShapeShadowPainter(
-              clipper: this.clipper,
-              shadows: this.shadows,
+              clipper: clipper,
+              shadows: shadows,
             )
           : null,
-      child: ClipPath(child: child, clipper: this.clipper),
+      child: ClipPath(clipper: clipper, child: child),
     );
   }
 }
@@ -62,7 +63,7 @@ class _ClipShapeShadowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    shadows?.forEach((element) {
+    for (final ShapeShadow element in shadows ?? const <ShapeShadow>[]) {
       Rect rect = Rect.fromLTRB(0, 0, size.width, size.height)
           .inflate(element.spreadRadius);
       var paint = element.toPaint()
@@ -70,7 +71,7 @@ class _ClipShapeShadowPainter extends CustomPainter {
       var clipPath =
           clipper.getClip(rect.size).shift(element.offset + rect.topLeft);
       canvas.drawPath(clipPath, paint);
-    });
+    }
   }
 
   @override
@@ -85,7 +86,8 @@ class ClipPathInsetShadow extends StatelessWidget {
   final Widget? child;
   final Decoration? decoration;
 
-  ClipPathInsetShadow({
+  const ClipPathInsetShadow({
+    super.key,
     this.shadows,
     required this.clipper,
     this.child,
@@ -95,10 +97,10 @@ class ClipPathInsetShadow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget rst = CustomPaint(
-      painter: this.shadows != null
+      painter: shadows != null
           ? _ClipInsetShapeShadowPainter(
-              clipper: this.clipper,
-              shadows: this.shadows,
+              clipper: clipper,
+              shadows: shadows,
             )
           : null,
       child: child,
@@ -123,7 +125,7 @@ class _ClipInsetShapeShadowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    shadows?.forEach((element) {
+    for (final ShapeShadow element in shadows ?? const <ShapeShadow>[]) {
       Rect rect = Rect.fromLTRB(0, 0, size.width, size.height)
           .deflate(element.spreadRadius)
           .expandToInclude(Rect.zero);
@@ -153,7 +155,7 @@ class _ClipInsetShapeShadowPainter extends CustomPainter {
         clipPath,
       );
       canvas.drawPath(finalPath, paint);
-    });
+    }
   }
 
   @override
@@ -162,27 +164,22 @@ class _ClipInsetShapeShadowPainter extends CustomPainter {
   }
 }
 
+///Paints the shape border on top of its child
 class _ShapeBorderPaint extends StatelessWidget {
   const _ShapeBorderPaint({
     this.child,
     this.shape,
-    this.borderOnForeground = true,
   });
 
   final Widget? child;
   final ShapeBorder? shape;
-  final bool borderOnForeground;
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
+      foregroundPainter:
+          _ShapeBorderPainter(shape, Directionality.maybeOf(context)),
       child: child,
-      painter: borderOnForeground
-          ? null
-          : _ShapeBorderPainter(shape, Directionality.maybeOf(context)),
-      foregroundPainter: borderOnForeground
-          ? _ShapeBorderPainter(shape, Directionality.maybeOf(context))
-          : null,
     );
   }
 }
@@ -210,8 +207,9 @@ class DecoratedShadowedShape extends StatelessWidget {
   final Decoration? decoration;
   final Widget? child;
 
-  DecoratedShadowedShape(
-      {this.shape,
+  const DecoratedShadowedShape(
+      {super.key,
+      this.shape,
       this.shadows,
       this.insetShadows,
       this.decoration,
@@ -220,7 +218,7 @@ class DecoratedShadowedShape extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CustomClipper<Path> clipper = CustomShapeBorderClipper(
-      shape: shape ?? RectangleShapeBorder(),
+      shape: shape ?? const RectangleShapeBorder(),
       textDirection: Directionality.maybeOf(context),
     );
     return _ShapeBorderPaint(

@@ -7,20 +7,21 @@ class ArcShapeBorder extends OutlinedShapeBorder {
   final bool isOutward;
 
   const ArcShapeBorder({
-    DynamicBorderSide border = DynamicBorderSide.none,
+    super.border = DynamicBorderSide.none,
     this.side = ShapeSide.bottom,
     this.isOutward = true,
     this.arcHeight = const Length(20),
-  }) : super(border: border);
+  });
 
   ArcShapeBorder.fromJson(Map<String, dynamic> map)
       : side = parseShapeSide(map['side']) ?? ShapeSide.bottom,
-        isOutward = map["isOutward"],
-        arcHeight = parseDimension(map["arcHeight"]) ?? Length(20),
+        isOutward = map["isOutward"] ?? true,
+        arcHeight = parseDimension(map["arcHeight"]) ?? const Length(20),
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Arc"};
     rst.addAll(super.toJson());
@@ -31,6 +32,7 @@ class ArcShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   ArcShapeBorder copyWith({
     ShapeSide? side,
     bool? isOutward,
@@ -45,17 +47,19 @@ class ArcShapeBorder extends OutlinedShapeBorder {
     );
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
-    return shape is ArcShapeBorder && shape.side == this.side;
+    return shape is ArcShapeBorder && shape.side == side;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     final size = rect.size;
 
     double maximumSize = min(size.height, size.height) / 2;
 
     double arcHeight = 0;
-    if (this.side.isHorizontal) {
+    if (side.isHorizontal) {
       arcHeight =
           this.arcHeight.toPX(constraint: size.height).clamp(0, maximumSize);
     } else {
@@ -63,7 +67,7 @@ class ArcShapeBorder extends OutlinedShapeBorder {
           this.arcHeight.toPX(constraint: size.width).clamp(0, maximumSize);
     }
     double theta1, theta2, theta3, radius;
-    if (this.side.isHorizontal) {
+    if (side.isHorizontal) {
       theta1 = atan(size.width / (2 * arcHeight));
       theta2 = atan((2 * arcHeight) / size.width);
       theta3 = theta1 - theta2;
@@ -78,14 +82,14 @@ class ArcShapeBorder extends OutlinedShapeBorder {
     List<DynamicNode> nodes = [];
 
     if (arcHeight == 0) {
-      nodes.add(DynamicNode(position: Offset(0, 0.0)));
+      nodes.add(DynamicNode(position: const Offset(0, 0.0)));
       nodes.add(DynamicNode(position: Offset(size.width, 0.0)));
       nodes.add(DynamicNode(position: Offset(size.width, size.height)));
       nodes.add(DynamicNode(position: Offset(0, size.height)));
       return DynamicPath(nodes: nodes, size: size);
     }
 
-    switch (this.side) {
+    switch (side) {
       case ShapeSide.top:
         if (isOutward) {
           Rect circleRect = Rect.fromCenter(
@@ -186,4 +190,18 @@ class ArcShapeBorder extends OutlinedShapeBorder {
     }
     return DynamicPath(nodes: nodes, size: size);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is ArcShapeBorder &&
+        other.border == border &&
+        other.side == side &&
+        other.isOutward == isOutward &&
+        other.arcHeight == arcHeight;
+  }
+
+  @override
+  int get hashCode => Object.hash(border, side, isOutward, arcHeight);
 }

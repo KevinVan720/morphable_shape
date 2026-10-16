@@ -10,19 +10,19 @@ class PolygonShapeBorder extends OutlinedShapeBorder {
       {this.sides = 5,
       this.cornerStyle = CornerStyle.rounded,
       this.cornerRadius = const Length(0),
-      border = DynamicBorderSide.none})
-      : assert(sides >= 3),
-        super(border: border);
+      super.border = DynamicBorderSide.none})
+      : assert(sides >= 3);
 
   PolygonShapeBorder.fromJson(Map<String, dynamic> map)
       : cornerStyle =
             parseCornerStyle(map["cornerStyle"]) ?? CornerStyle.rounded,
-        cornerRadius = parseDimension(map["cornerRadius"]) ?? Length(0),
-        sides = map["sides"] ?? 5,
+        cornerRadius = parseDimension(map["cornerRadius"]) ?? const Length(0),
+        sides = (map["sides"] as num?)?.toInt() ?? 5,
         super(
             border: parseDynamicBorderSide(map["border"]) ??
                 DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "Polygon"};
     rst.addAll(super.toJson());
@@ -32,6 +32,7 @@ class PolygonShapeBorder extends OutlinedShapeBorder {
     return rst;
   }
 
+  @override
   PolygonShapeBorder copyWith({
     CornerStyle? cornerStyle,
     Dimension? cornerRadius,
@@ -46,10 +47,12 @@ class PolygonShapeBorder extends OutlinedShapeBorder {
     );
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
-    return shape is PolygonShapeBorder && this.sides == shape.sides;
+    return shape is PolygonShapeBorder && sides == shape.sides;
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     List<DynamicNode> nodes = [];
 
@@ -141,6 +144,20 @@ class PolygonShapeBorder extends OutlinedShapeBorder {
     return DynamicPath(size: Size(2 * scale, 2 * scale), nodes: nodes)
       ..resize(rect.size);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is PolygonShapeBorder &&
+        other.border == border &&
+        other.sides == sides &&
+        other.cornerRadius == cornerRadius &&
+        other.cornerStyle == cornerStyle;
+  }
+
+  @override
+  int get hashCode => Object.hash(border, sides, cornerRadius, cornerStyle);
 
   ///used for implementing filled color polygon, works for a rectangle box but
   ///streches with rectangular boxes, revert back to border line polygon for now...
@@ -245,5 +262,4 @@ class PolygonShapeBorder extends OutlinedShapeBorder {
     return DynamicPath(size: Size(2 * scale, 2 * scale), nodes: nodes)..resize(rect.size);
   }
   */
-
 }

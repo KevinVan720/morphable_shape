@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:dimension/dimension.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'package:morphable_shape/morphable_shape.dart';
@@ -13,6 +10,8 @@ import 'morph_shape_page.dart';
 import 'value_pickers.dart';
 
 class EditShapePage extends StatefulWidget {
+  const EditShapePage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return EditShapePageState();
@@ -28,7 +27,12 @@ class EditShapePageState extends State<EditShapePage>
 
   late MorphableShapeBorder currentShapeBorder;
 
-  late Size shapeSize;
+  ///initialized in the first build, from the screen size
+  Size? _shapeSize;
+
+  Size get shapeSize => _shapeSize!;
+
+  set shapeSize(Size value) => _shapeSize = value;
   int? selectedNodeIndex;
   bool isEditingPath = false;
   bool showGrid = true;
@@ -56,7 +60,7 @@ class EditShapePageState extends State<EditShapePage>
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      Size screenSize = MediaQuery.of(context).size;
+      Size screenSize = MediaQuery.sizeOf(context);
 
       if (screenSize.width > screenSize.height) {
         direction = Axis.horizontal;
@@ -64,7 +68,7 @@ class EditShapePageState extends State<EditShapePage>
         direction = Axis.vertical;
       }
 
-      if (shapeSize == null ||
+      if (_shapeSize == null ||
           shapeSize.width > screenSize.width * 0.8 ||
           shapeSize.height > screenSize.height * 0.8) {
         double length =
@@ -77,7 +81,7 @@ class EditShapePageState extends State<EditShapePage>
       shapeBorder = currentShapeBorder;
 
       List<Widget> stackedComponents = [
-        Container(
+        SizedBox(
           width: shapeSize.width + nodeSize * 2,
           height: shapeSize.height + nodeSize * 2,
         ),
@@ -117,7 +121,7 @@ class EditShapePageState extends State<EditShapePage>
                     xDivisions: gridCount,
                     yDivisions: gridCount,
                     showBorder: false),
-                child: Container(
+                child: SizedBox(
                   width: shapeSize.width,
                   height: shapeSize.height,
                 ),
@@ -168,7 +172,7 @@ class EditShapePageState extends State<EditShapePage>
                       builder: (BuildContext context) {
                         return AlertDialog(
                           content: SingleChildScrollView(
-                            child: Container(
+                            child: SizedBox(
                                 width: min(screenSize.width * 0.8, 400),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +183,7 @@ class EditShapePageState extends State<EditShapePage>
                             TextButton(
                               child: const Text('Got it'),
                               onPressed: () {
-                                Navigator.of(context)?.pop();
+                                Navigator.of(context).pop();
                               },
                             ),
                           ],
@@ -197,17 +201,15 @@ class EditShapePageState extends State<EditShapePage>
                 children: [
                   Expanded(
                     child: Center(
-                      child: Container(
-                        child: GestureDetector(
-                          onDoubleTap: () {
-                            setState(() {
-                              isEditingPath = !isEditingPath;
-                            });
-                          },
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: stackedComponents,
-                          ),
+                      child: GestureDetector(
+                        onDoubleTap: () {
+                          setState(() {
+                            isEditingPath = !isEditingPath;
+                          });
+                        },
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: stackedComponents,
                         ),
                       ),
                     ),
@@ -288,46 +290,54 @@ class EditShapePageState extends State<EditShapePage>
   List<Widget> buildEditingShapeControlWidgets() {
     List<Widget> stackedComponents = [];
     if (currentShapeBorder is ArcShapeBorder) {
-      stackedComponents.addAll(buildArcEditingWidgets(currentShapeBorder as ArcShapeBorder));
+      stackedComponents
+          .addAll(buildArcEditingWidgets(currentShapeBorder as ArcShapeBorder));
     }
     if (currentShapeBorder is ArrowShapeBorder) {
-      stackedComponents.addAll(buildArrowEditingWidgets(currentShapeBorder as ArrowShapeBorder));
+      stackedComponents.addAll(
+          buildArrowEditingWidgets(currentShapeBorder as ArrowShapeBorder));
     }
     if (currentShapeBorder is BubbleShapeBorder) {
-      stackedComponents.addAll(buildBubbleEditingWidgets(currentShapeBorder as BubbleShapeBorder));
+      stackedComponents.addAll(
+          buildBubbleEditingWidgets(currentShapeBorder as BubbleShapeBorder));
     }
     if (currentShapeBorder is CircleShapeBorder) {
-      stackedComponents.addAll(buildCircleEditingWidgets(currentShapeBorder as CircleShapeBorder));
+      stackedComponents.addAll(
+          buildCircleEditingWidgets(currentShapeBorder as CircleShapeBorder));
     }
 
     if (currentShapeBorder is PathShapeBorder) {
-      stackedComponents.addAll(buildPathEditingWidgets(currentShapeBorder as PathShapeBorder));
+      stackedComponents.addAll(
+          buildPathEditingWidgets(currentShapeBorder as PathShapeBorder));
     }
     if (currentShapeBorder is PolygonShapeBorder) {
-      stackedComponents.addAll(buildPolygonEditingWidgets(currentShapeBorder as PolygonShapeBorder));
+      stackedComponents.addAll(
+          buildPolygonEditingWidgets(currentShapeBorder as PolygonShapeBorder));
     }
 
     if (currentShapeBorder is RectangleShapeBorder) {
-      stackedComponents
-          .addAll(buildRectangleEditingWidgets(currentShapeBorder as RectangleShapeBorder));
+      stackedComponents.addAll(buildRectangleEditingWidgets(
+          currentShapeBorder as RectangleShapeBorder));
     }
 
     if (currentShapeBorder is RoundedRectangleShapeBorder) {
-      stackedComponents
-          .addAll(buildRoundedRectangleEditingWidgets(currentShapeBorder as RoundedRectangleShapeBorder));
+      stackedComponents.addAll(buildRoundedRectangleEditingWidgets(
+          currentShapeBorder as RoundedRectangleShapeBorder));
     }
 
     if (currentShapeBorder is StarShapeBorder) {
-      stackedComponents.addAll(buildStarEditingWidgets(currentShapeBorder as StarShapeBorder));
+      stackedComponents.addAll(
+          buildStarEditingWidgets(currentShapeBorder as StarShapeBorder));
     }
 
     if (currentShapeBorder is TrapezoidShapeBorder) {
-      stackedComponents
-          .addAll(buildTrapezoidEditingWidgets(currentShapeBorder as TrapezoidShapeBorder));
+      stackedComponents.addAll(buildTrapezoidEditingWidgets(
+          currentShapeBorder as TrapezoidShapeBorder));
     }
 
     if (currentShapeBorder is TriangleShapeBorder) {
-      stackedComponents.addAll(buildTriangleEditingWidgets(currentShapeBorder as TriangleShapeBorder));
+      stackedComponents.addAll(buildTriangleEditingWidgets(
+          currentShapeBorder as TriangleShapeBorder));
     }
 
     return stackedComponents;
@@ -351,7 +361,7 @@ class EditShapePageState extends State<EditShapePage>
                 },
                 constraintSize: MediaQuery.of(context).size)));
 
-    if (!(currentShapeBorder is PathShapeBorder)) {
+    if (currentShapeBorder is! PathShapeBorder) {
       stackedComponents.add(buildRowWithHeaderText(
           headerText: "To Bezier",
           actionWidget: Container(
@@ -396,7 +406,7 @@ class EditShapePageState extends State<EditShapePage>
                     builder: (BuildContext context) {
                       return AlertDialog(
                         content: SingleChildScrollView(
-                          child: Container(
+                          child: SizedBox(
                               width: min(
                                   MediaQuery.of(context).size.width * 0.8, 400),
                               child: SelectableText(
@@ -406,7 +416,7 @@ class EditShapePageState extends State<EditShapePage>
                           TextButton(
                             child: const Text('Got it'),
                             onPressed: () {
-                              Navigator.of(context)?.pop();
+                              Navigator.of(context).pop();
                             },
                           ),
                         ],
@@ -416,12 +426,12 @@ class EditShapePageState extends State<EditShapePage>
                 }))));
 
     List<Widget> withDividerWidgets = [];
-    stackedComponents.forEach((element) {
+    for (var element in stackedComponents) {
       withDividerWidgets.add(element);
       withDividerWidgets.add(Divider(
         thickness: 2,
       ));
-    });
+    }
 
     return withDividerWidgets;
   }
@@ -430,64 +440,67 @@ class EditShapePageState extends State<EditShapePage>
     List<Widget> stackedComponents = [];
 
     if (currentShapeBorder is ArcShapeBorder) {
-      stackedComponents.addAll(buildArcEditingPanelWidget(currentShapeBorder as ArcShapeBorder));
+      stackedComponents.addAll(
+          buildArcEditingPanelWidget(currentShapeBorder as ArcShapeBorder));
     }
 
     if (currentShapeBorder is ArrowShapeBorder) {
-      stackedComponents
-          .addAll(buildArrowEditingPanelWidget(currentShapeBorder as ArrowShapeBorder));
+      stackedComponents.addAll(
+          buildArrowEditingPanelWidget(currentShapeBorder as ArrowShapeBorder));
     }
 
     if (currentShapeBorder is BubbleShapeBorder) {
-      stackedComponents
-          .addAll(buildBubbleEditingPanelWidget(currentShapeBorder as BubbleShapeBorder));
+      stackedComponents.addAll(buildBubbleEditingPanelWidget(
+          currentShapeBorder as BubbleShapeBorder));
     }
 
     if (currentShapeBorder is CircleShapeBorder) {
-      stackedComponents
-          .addAll(buildCircleEditingPanelWidget(currentShapeBorder as CircleShapeBorder));
+      stackedComponents.addAll(buildCircleEditingPanelWidget(
+          currentShapeBorder as CircleShapeBorder));
     }
 
     if (currentShapeBorder is PathShapeBorder) {
-      stackedComponents.addAll(buildPathEditingPanelWidget(currentShapeBorder as PathShapeBorder));
+      stackedComponents.addAll(
+          buildPathEditingPanelWidget(currentShapeBorder as PathShapeBorder));
     }
 
     if (currentShapeBorder is PolygonShapeBorder) {
-      stackedComponents
-          .addAll(buildPolygonEditingPanelWidget(currentShapeBorder as PolygonShapeBorder));
+      stackedComponents.addAll(buildPolygonEditingPanelWidget(
+          currentShapeBorder as PolygonShapeBorder));
     }
 
     if (currentShapeBorder is RectangleShapeBorder) {
-      stackedComponents
-          .addAll(buildRectangleEditingPanelWidget(currentShapeBorder as RectangleShapeBorder));
+      stackedComponents.addAll(buildRectangleEditingPanelWidget(
+          currentShapeBorder as RectangleShapeBorder));
     }
 
     if (currentShapeBorder is RoundedRectangleShapeBorder) {
-      stackedComponents
-          .addAll(buildRoundedRectangleEditingPanelWidget(currentShapeBorder as RoundedRectangleShapeBorder));
+      stackedComponents.addAll(buildRoundedRectangleEditingPanelWidget(
+          currentShapeBorder as RoundedRectangleShapeBorder));
     }
 
     if (currentShapeBorder is StarShapeBorder) {
-      stackedComponents.addAll(buildStarEditingPanelWidget(currentShapeBorder as StarShapeBorder));
+      stackedComponents.addAll(
+          buildStarEditingPanelWidget(currentShapeBorder as StarShapeBorder));
     }
 
     if (currentShapeBorder is TrapezoidShapeBorder) {
-      stackedComponents
-          .addAll(buildTrapezoidEditingPanelWidget(currentShapeBorder as TrapezoidShapeBorder));
+      stackedComponents.addAll(buildTrapezoidEditingPanelWidget(
+          currentShapeBorder as TrapezoidShapeBorder));
     }
 
     if (currentShapeBorder is TriangleShapeBorder) {
-      stackedComponents
-          .addAll(buildTriangleEditingPanelWidget(currentShapeBorder as TriangleShapeBorder));
+      stackedComponents.addAll(buildTriangleEditingPanelWidget(
+          currentShapeBorder as TriangleShapeBorder));
     }
 
     List<Widget> withDividerWidgets = [];
-    stackedComponents.forEach((element) {
+    for (var element in stackedComponents) {
       withDividerWidgets.add(element);
       withDividerWidgets.add(Divider(
         thickness: 2,
       ));
-    });
+    }
 
     return withDividerWidgets;
   }
@@ -496,22 +509,22 @@ class EditShapePageState extends State<EditShapePage>
     List<Widget> stackedComponents = [];
 
     if (currentShapeBorder is OutlinedShapeBorder) {
-      stackedComponents
-          .addAll(buildOutlinedBorderEditingPanelWidget(currentShapeBorder as OutlinedShapeBorder));
+      stackedComponents.addAll(buildOutlinedBorderEditingPanelWidget(
+          currentShapeBorder as OutlinedShapeBorder));
     }
 
     if (currentShapeBorder is RoundedRectangleShapeBorder) {
-      stackedComponents.addAll(
-          buildRoundedRectangleBorderEditingPanelWidget(currentShapeBorder as RoundedRectangleShapeBorder));
+      stackedComponents.addAll(buildRoundedRectangleBorderEditingPanelWidget(
+          currentShapeBorder as RoundedRectangleShapeBorder));
     }
 
     List<Widget> withDividerWidgets = [];
-    stackedComponents.forEach((element) {
+    for (var element in stackedComponents) {
       withDividerWidgets.add(element);
       withDividerWidgets.add(Divider(
         thickness: 2,
       ));
-    });
+    }
 
     return withDividerWidgets;
   }
@@ -521,7 +534,7 @@ class EditShapePageState extends State<EditShapePage>
     int nextIndex = (index + 1) % path.nodes.length;
     List<Offset> controlPoints = path.getNextPathControlPointsAt(index);
     Offset tempPoint;
-    List<Offset> splittedControlPoints =[];
+    List<Offset> splittedControlPoints = [];
 
     if (controlPoints.length == 2) {
       tempPoint = (controlPoints[0] + controlPoints[1]) / 2;
@@ -535,7 +548,7 @@ class EditShapePageState extends State<EditShapePage>
       child: GestureDetector(
         onTap: () {
           setState(() {
-            if (splittedControlPoints != null) {
+            if (splittedControlPoints.isNotEmpty) {
               path.nodes[index].next = splittedControlPoints[1];
               path.nodes[nextIndex].prev = splittedControlPoints[5];
               path.nodes.insert(
@@ -572,6 +585,7 @@ class EditShapePageState extends State<EditShapePage>
     DynamicPath path = shape.path;
     path.resize(shapeSize);
     List<Widget> nodeControls = [];
+    final int? selectedNodeIndex = this.selectedNodeIndex;
     if (selectedNodeIndex != null) {
       DynamicNode tempSelectedNode =
           path.getNodeWithControlPoints(selectedNodeIndex);
@@ -580,10 +594,10 @@ class EditShapePageState extends State<EditShapePage>
           top: nodeSize,
           child: CustomPaint(
             painter: ControlPointPathPainter(
-                startOffset: tempSelectedNode.prev,
+                startOffset: tempSelectedNode.prev!,
                 middleOffset: tempSelectedNode.position,
-                endOffset: tempSelectedNode.next),
-            child: Container(
+                endOffset: tempSelectedNode.next!),
+            child: SizedBox(
               width: shapeSize.width,
               height: shapeSize.height,
             ),
@@ -596,28 +610,27 @@ class EditShapePageState extends State<EditShapePage>
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    if (selectedNodeIndex != index) {
-                      selectedNodeIndex = index;
+                    if (this.selectedNodeIndex != index) {
+                      this.selectedNodeIndex = index;
                     } else {
-                      selectedNodeIndex = null;
+                      this.selectedNodeIndex = null;
                     }
                   });
                 },
                 onPanStart: (DragStartDetails details) {
                   setState(() {
-                    if (selectedNodeIndex != index) {
-                      selectedNodeIndex = index;
+                    if (this.selectedNodeIndex != index) {
+                      this.selectedNodeIndex = index;
                     }
                   });
                 },
                 onPanUpdate: (DragUpdateDetails details) {
                   setState(() {
-                    if (selectedNodeIndex == index) {
-                      Offset destination = path
-                              .getNodeWithControlPoints(selectedNodeIndex)
-                              .position +
-                          Offset(details.delta.dx, details.delta.dy)
-                              .roundWithPrecision(2);
+                    if (this.selectedNodeIndex == index) {
+                      Offset destination =
+                          path.getNodeWithControlPoints(index).position +
+                              Offset(details.delta.dx, details.delta.dy)
+                                  .roundWithPrecision(2);
                       path.moveNodeTo(index, destination);
                       updateCurrentShape(shape.copyWith(path: path));
                     }
@@ -625,11 +638,10 @@ class EditShapePageState extends State<EditShapePage>
                 },
                 onPanEnd: (DragEndDetails details) {
                   setState(() {
-                    if (selectedNodeIndex == index) {
+                    if (this.selectedNodeIndex == index) {
                       if (snapToGrid) {
-                        Offset destination = path
-                            .getNodeWithControlPoints(selectedNodeIndex)
-                            .position;
+                        Offset destination =
+                            path.getNodeWithControlPoints(index).position;
                         destination = Offset(
                           destination.dx
                               .roundWithNumber(2 * gridCount / shapeSize.width),
@@ -637,30 +649,28 @@ class EditShapePageState extends State<EditShapePage>
                               2 * gridCount / shapeSize.height),
                         );
                         path.moveNodeTo(index, destination);
-                        if (path.nodes[selectedNodeIndex].prev != null) {
+                        Offset? prev = path.nodes[index].prev;
+                        if (prev != null) {
                           path.moveNodeControlTo(
-                              selectedNodeIndex,
+                              index,
                               true,
                               Offset(
-                                path.nodes[selectedNodeIndex].prev.dx
-                                    .roundWithNumber(
-                                        2 * gridCount / shapeSize.width),
-                                path.nodes[selectedNodeIndex].prev.dy
-                                    .roundWithNumber(
-                                        2 * gridCount / shapeSize.height),
+                                prev.dx.roundWithNumber(
+                                    2 * gridCount / shapeSize.width),
+                                prev.dy.roundWithNumber(
+                                    2 * gridCount / shapeSize.height),
                               ));
                         }
-                        if (path.nodes[selectedNodeIndex].next != null) {
+                        Offset? next = path.nodes[index].next;
+                        if (next != null) {
                           path.moveNodeControlTo(
-                              selectedNodeIndex,
+                              index,
                               false,
                               Offset(
-                                path.nodes[selectedNodeIndex].next.dx
-                                    .roundWithNumber(
-                                        2 * gridCount / shapeSize.width),
-                                path.nodes[selectedNodeIndex].next.dy
-                                    .roundWithNumber(
-                                        2 * gridCount / shapeSize.height),
+                                next.dx.roundWithNumber(
+                                    2 * gridCount / shapeSize.width),
+                                next.dy.roundWithNumber(
+                                    2 * gridCount / shapeSize.height),
                               ));
                         }
                         updateCurrentShape(shape.copyWith(path: path));
@@ -688,15 +698,15 @@ class EditShapePageState extends State<EditShapePage>
       nodeControls.add(buildAddControlPointButton(shape, selectedNodeIndex));
 
       nodeControls.add(Positioned(
-        left: tempSelectedNode.prev.dx,
-        top: tempSelectedNode.prev.dy,
+        left: tempSelectedNode.prev!.dx,
+        top: tempSelectedNode.prev!.dy,
         child: GestureDetector(
           onPanUpdate: (DragUpdateDetails details) {
             setState(() {
               path.moveNodeControlTo(
                   selectedNodeIndex,
                   true,
-                  path.getNodeWithControlPoints(selectedNodeIndex).prev +
+                  path.getNodeWithControlPoints(selectedNodeIndex).prev! +
                       Offset(details.delta.dx, details.delta.dy)
                           .roundWithPrecision(2));
               updateCurrentShape(shape.copyWith(path: path));
@@ -709,9 +719,9 @@ class EditShapePageState extends State<EditShapePage>
                     selectedNodeIndex,
                     true,
                     Offset(
-                      path.nodes[selectedNodeIndex].prev.dx
+                      path.nodes[selectedNodeIndex].prev!.dx
                           .roundWithNumber(2 * gridCount / shapeSize.width),
-                      path.nodes[selectedNodeIndex].prev.dy
+                      path.nodes[selectedNodeIndex].prev!.dy
                           .roundWithNumber(2 * gridCount / shapeSize.height),
                     ));
                 updateCurrentShape(shape.copyWith(path: path));
@@ -727,15 +737,15 @@ class EditShapePageState extends State<EditShapePage>
         ),
       ));
       nodeControls.add(Positioned(
-        left: tempSelectedNode.next.dx,
-        top: tempSelectedNode.next.dy,
+        left: tempSelectedNode.next!.dx,
+        top: tempSelectedNode.next!.dy,
         child: GestureDetector(
           onPanUpdate: (DragUpdateDetails details) {
             setState(() {
               path.moveNodeControlTo(
                   selectedNodeIndex,
                   false,
-                  path.getNodeWithControlPoints(selectedNodeIndex).next +
+                  path.getNodeWithControlPoints(selectedNodeIndex).next! +
                       Offset(details.delta.dx, details.delta.dy)
                           .roundWithPrecision(2));
               updateCurrentShape(shape.copyWith(path: path));
@@ -748,9 +758,9 @@ class EditShapePageState extends State<EditShapePage>
                     selectedNodeIndex,
                     false,
                     Offset(
-                      path.nodes[selectedNodeIndex].next.dx
+                      path.nodes[selectedNodeIndex].next!.dx
                           .roundWithNumber(2 * gridCount / shapeSize.width),
-                      path.nodes[selectedNodeIndex].next.dy
+                      path.nodes[selectedNodeIndex].next!.dy
                           .roundWithNumber(2 * gridCount / shapeSize.height),
                     ));
                 updateCurrentShape(shape.copyWith(path: path));
@@ -771,7 +781,9 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   Widget buildShapeEditingDragHandle(
-      {Offset position, Function onDragUpdate, Color color = Colors.amber}) {
+      {required Offset position,
+      required GestureDragUpdateCallback onDragUpdate,
+      Color color = Colors.amber}) {
     return Positioned(
       left: position.dx,
       top: position.dy,
@@ -787,12 +799,16 @@ class EditShapePageState extends State<EditShapePage>
     );
   }
 
-  Length updateLength(Length length,
-      {double constraint,
+  Length updateLength(Dimension dimension,
+      {required double constraint,
       double minimumSize = 0.00,
       double maximumSize = double.infinity,
-      Offset offset,
-      double Function(Offset) offsetToDelta}) {
+      required Offset offset,
+      required double Function(Offset) offsetToDelta}) {
+    ///the editor only creates Lengths, other dimensions are edited in px
+    Length length = dimension is Length
+        ? dimension
+        : Length(dimension.toPX(constraint: constraint));
     double newValue =
         length.toPX(constraint: constraint) + 1.0 * offsetToDelta(offset);
     return length.copyWith(
@@ -818,7 +834,7 @@ class EditShapePageState extends State<EditShapePage>
     }
 
     Offset position;
-    Function dragOffsetToDelta;
+    double Function(Offset) dragOffsetToDelta;
     switch (shape.side) {
       case ShapeSide.top:
         {
@@ -883,7 +899,7 @@ class EditShapePageState extends State<EditShapePage>
     }
 
     Offset headPosition, tailPosition;
-    Function headOffsetToDelta, tailOffsetToDelta;
+    double Function(Offset) headOffsetToDelta, tailOffsetToDelta;
     switch (shape.side) {
       case ShapeSide.top:
         {
@@ -1041,7 +1057,7 @@ class EditShapePageState extends State<EditShapePage>
       );
     }
 
-    Function arrowHeadDragUpdate,
+    double Function(Offset) arrowHeadDragUpdate,
         arrowCenterDragUpdateHorizontal,
         arrowCenterDragUpdateVertical,
         arrowWidthDragUpdate,
@@ -1767,7 +1783,7 @@ class EditShapePageState extends State<EditShapePage>
     }
 
     Offset position;
-    Function onDragUpdate;
+    double Function(Offset) onDragUpdate;
     switch (shape.side) {
       case ShapeSide.top:
         position = Offset(inset, 0);
@@ -1891,13 +1907,14 @@ class EditShapePageState extends State<EditShapePage>
     return nodeControls;
   }
 
-  Widget buildRowWithHeaderText({String headerText, Widget actionWidget}) {
-    return Container(
+  Widget buildRowWithHeaderText(
+      {required String headerText, required Widget actionWidget}) {
+    return SizedBox(
       height: 50,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
+          SizedBox(
             width: 80,
             child: Text(
               headerText,
@@ -1919,7 +1936,10 @@ class EditShapePageState extends State<EditShapePage>
     DynamicPath path = shape.path;
     path.resize(shapeSize);
 
+    final int? selectedNodeIndex = this.selectedNodeIndex;
     if (selectedNodeIndex != null) {
+      Offset? prev = path.nodes[selectedNodeIndex].prev;
+      Offset? next = path.nodes[selectedNodeIndex].next;
       rst.add(buildRowWithHeaderText(
           headerText: "Position",
           actionWidget: OffsetPicker(
@@ -1936,9 +1956,9 @@ class EditShapePageState extends State<EditShapePage>
 
       rst.add(buildRowWithHeaderText(
           headerText: "Previous Control",
-          actionWidget: path.nodes[selectedNodeIndex].prev != null
+          actionWidget: prev != null
               ? OffsetPicker(
-                  position: path.nodes[selectedNodeIndex].prev,
+                  position: prev,
                   onPositionChanged: (Offset newPos) {
                     setState(() {
                       path.moveNodeControlTo(selectedNodeIndex, true, newPos);
@@ -1953,9 +1973,9 @@ class EditShapePageState extends State<EditShapePage>
 
       rst.add(buildRowWithHeaderText(
           headerText: "Next Control",
-          actionWidget: path.nodes[selectedNodeIndex].next != null
+          actionWidget: next != null
               ? OffsetPicker(
-                  position: path.nodes[selectedNodeIndex].next,
+                  position: next,
                   onPositionChanged: (Offset newPos) {
                     setState(() {
                       path.moveNodeControlTo(selectedNodeIndex, false, newPos);
@@ -1981,7 +2001,7 @@ class EditShapePageState extends State<EditShapePage>
                   setState(() {
                     path.nodes.removeAt(selectedNodeIndex);
                     updateCurrentShape(shape.copyWith(path: path));
-                    selectedNodeIndex = null;
+                    this.selectedNodeIndex = null;
                   });
                 }),
           )));
@@ -2048,7 +2068,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Arc Side",
         actionWidget: DropdownButton<ShapeSide>(
             value: shape.side,
-            onChanged: (ShapeSide newSide) {
+            onChanged: (ShapeSide? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(side: newSide));
               });
@@ -2060,7 +2080,7 @@ class EditShapePageState extends State<EditShapePage>
     rst.add(buildRowWithHeaderText(
         headerText: "Arc outward",
         actionWidget: Switch(
-            activeColor: Colors.black87,
+            activeThumbColor: Colors.black87,
             value: shape.isOutward,
             onChanged: (value) {
               setState(() {
@@ -2095,7 +2115,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Arrow Side",
         actionWidget: DropdownButton<ShapeSide>(
             value: shape.side,
-            onChanged: (ShapeSide newSide) {
+            onChanged: (ShapeSide? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(side: newSide));
               });
@@ -2147,7 +2167,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Arrow Side",
         actionWidget: DropdownButton<ShapeSide>(
             value: shape.side,
-            onChanged: (ShapeSide value) {
+            onChanged: (ShapeSide? value) {
               setState(() {
                 updateCurrentShape(shape.copyWith(side: value));
               });
@@ -2250,7 +2270,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Sides",
         actionWidget: DropdownButton<int>(
             value: shape.sides,
-            onChanged: (int newSide) {
+            onChanged: (int? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(sides: newSide));
               });
@@ -2264,7 +2284,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Corner Style",
         actionWidget: DropdownButton<CornerStyle>(
             value: shape.cornerStyle,
-            onChanged: (CornerStyle newSide) {
+            onChanged: (CornerStyle? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(cornerStyle: newSide));
               });
@@ -2314,7 +2334,7 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
                 value: shape.cornerStyles.topLeft,
-                onChanged: (CornerStyle newSide) {
+                onChanged: (CornerStyle? newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         cornerStyles:
@@ -2377,7 +2397,7 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
                 value: shape.cornerStyles.topRight,
-                onChanged: (CornerStyle newSide) {
+                onChanged: (CornerStyle? newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         cornerStyles:
@@ -2442,7 +2462,7 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
                 value: shape.cornerStyles.bottomLeft,
-                onChanged: (CornerStyle newSide) {
+                onChanged: (CornerStyle? newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         cornerStyles:
@@ -2507,7 +2527,7 @@ class EditShapePageState extends State<EditShapePage>
             headerText: "Style",
             actionWidget: DropdownButton<CornerStyle>(
                 value: shape.cornerStyles.bottomRight,
-                onChanged: (CornerStyle newSide) {
+                onChanged: (CornerStyle? newSide) {
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         cornerStyles:
@@ -2776,7 +2796,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Corners",
         actionWidget: DropdownButton<int>(
             value: shape.corners,
-            onChanged: (int newSide) {
+            onChanged: (int? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(corners: newSide));
               });
@@ -2790,7 +2810,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Corner Style",
         actionWidget: DropdownButton<CornerStyle>(
             value: shape.cornerStyle,
-            onChanged: (CornerStyle newSide) {
+            onChanged: (CornerStyle? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(cornerStyle: newSide));
               });
@@ -2835,7 +2855,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Inset Style",
         actionWidget: DropdownButton<CornerStyle>(
             value: shape.insetStyle,
-            onChanged: (CornerStyle newSide) {
+            onChanged: (CornerStyle? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(insetStyle: newSide));
               });
@@ -2871,7 +2891,7 @@ class EditShapePageState extends State<EditShapePage>
         headerText: "Point 1",
         actionWidget: DropdownButton<ShapeSide>(
             value: shape.side,
-            onChanged: (ShapeSide newSide) {
+            onChanged: (ShapeSide? newSide) {
               setState(() {
                 updateCurrentShape(shape.copyWith(side: newSide));
               });
@@ -2900,12 +2920,11 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   List<Widget> buildTriangleEditingPanelWidget(TriangleShapeBorder shape) {
-    Size size = shapeSize;
     List<Widget> rst = [];
 
     rst.add(buildRowWithHeaderText(
       headerText: "Point 1",
-      actionWidget: Container(
+      actionWidget: SizedBox(
         height: 50,
         child: Row(
           children: [
@@ -2913,8 +2932,11 @@ class EditShapePageState extends State<EditShapePage>
             FixedUnitValuePicker(
               value: (shape.point1.dx as Length).value,
               onValueChanged: (double value) {
-                updateCurrentShape(shape.copyWith(
-                    point1: shape.point1.copyWith(dx: value.toPercentLength)));
+                setState(() {
+                  updateCurrentShape(shape.copyWith(
+                      point1:
+                          shape.point1.copyWith(dx: value.toPercentLength)));
+                });
               },
               unit: "%",
             ),
@@ -2925,8 +2947,11 @@ class EditShapePageState extends State<EditShapePage>
             FixedUnitValuePicker(
               value: (shape.point1.dy as Length).value,
               onValueChanged: (double value) {
-                updateCurrentShape(shape.copyWith(
-                    point1: shape.point1.copyWith(dy: value.toPercentLength)));
+                setState(() {
+                  updateCurrentShape(shape.copyWith(
+                      point1:
+                          shape.point1.copyWith(dy: value.toPercentLength)));
+                });
               },
               unit: "%",
             ),
@@ -2937,7 +2962,7 @@ class EditShapePageState extends State<EditShapePage>
 
     rst.add(buildRowWithHeaderText(
       headerText: "Point 2",
-      actionWidget: Container(
+      actionWidget: SizedBox(
         height: 50,
         child: Row(
           children: [
@@ -2945,8 +2970,11 @@ class EditShapePageState extends State<EditShapePage>
             FixedUnitValuePicker(
               value: (shape.point2.dx as Length).value,
               onValueChanged: (double value) {
-                updateCurrentShape(shape.copyWith(
-                    point2: shape.point1.copyWith(dx: value.toPercentLength)));
+                setState(() {
+                  updateCurrentShape(shape.copyWith(
+                      point2:
+                          shape.point2.copyWith(dx: value.toPercentLength)));
+                });
               },
               unit: "%",
             ),
@@ -2957,8 +2985,11 @@ class EditShapePageState extends State<EditShapePage>
             FixedUnitValuePicker(
               value: (shape.point2.dy as Length).value,
               onValueChanged: (double value) {
-                updateCurrentShape(shape.copyWith(
-                    point2: shape.point1.copyWith(dy: value.toPercentLength)));
+                setState(() {
+                  updateCurrentShape(shape.copyWith(
+                      point2:
+                          shape.point2.copyWith(dy: value.toPercentLength)));
+                });
               },
               unit: "%",
             ),
@@ -2969,7 +3000,7 @@ class EditShapePageState extends State<EditShapePage>
 
     rst.add(buildRowWithHeaderText(
       headerText: "Point 3",
-      actionWidget: Container(
+      actionWidget: SizedBox(
         height: 50,
         child: Row(
           children: [
@@ -2977,8 +3008,11 @@ class EditShapePageState extends State<EditShapePage>
             FixedUnitValuePicker(
               value: (shape.point3.dx as Length).value,
               onValueChanged: (double value) {
-                updateCurrentShape(shape.copyWith(
-                    point1: shape.point3.copyWith(dx: value.toPercentLength)));
+                setState(() {
+                  updateCurrentShape(shape.copyWith(
+                      point3:
+                          shape.point3.copyWith(dx: value.toPercentLength)));
+                });
               },
               unit: "%",
             ),
@@ -2989,8 +3023,11 @@ class EditShapePageState extends State<EditShapePage>
             FixedUnitValuePicker(
               value: (shape.point3.dy as Length).value,
               onValueChanged: (double value) {
-                updateCurrentShape(shape.copyWith(
-                    point1: shape.point3.copyWith(dy: value.toPercentLength)));
+                setState(() {
+                  updateCurrentShape(shape.copyWith(
+                      point3:
+                          shape.point3.copyWith(dy: value.toPercentLength)));
+                });
               },
               unit: "%",
             ),
@@ -3004,7 +3041,6 @@ class EditShapePageState extends State<EditShapePage>
 
   List<Widget> buildOutlinedBorderEditingPanelWidget(
       OutlinedShapeBorder shape) {
-    Size size = shapeSize;
     List<Widget> rst = [];
 
     DynamicBorderSide border = shape.border;
@@ -3013,7 +3049,7 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Border Style",
       actionWidget: DropdownButton<BorderStyle>(
           value: border.style,
-          onChanged: (BorderStyle newStyle) {
+          onChanged: (BorderStyle? newStyle) {
             setState(() {
               updateCurrentShape(
                   shape.copyWith(border: border.copyWith(style: newStyle)));
@@ -3028,7 +3064,7 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Stroke Join",
       actionWidget: DropdownButton<StrokeJoin>(
           value: border.strokeJoin,
-          onChanged: (StrokeJoin newStyle) {
+          onChanged: (StrokeJoin? newStyle) {
             setState(() {
               updateCurrentShape(shape.copyWith(
                   border: border.copyWith(strokeJoin: newStyle)));
@@ -3043,7 +3079,7 @@ class EditShapePageState extends State<EditShapePage>
       headerText: "Stroke Cap",
       actionWidget: DropdownButton<StrokeCap>(
           value: border.strokeCap,
-          onChanged: (StrokeCap newStyle) {
+          onChanged: (StrokeCap? newStyle) {
             setState(() {
               updateCurrentShape(
                   shape.copyWith(border: border.copyWith(strokeCap: newStyle)));
@@ -3182,7 +3218,8 @@ class EditShapePageState extends State<EditShapePage>
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borderSides.copyWith(
-                            top: shape.borderSides.top.copyWith(width: value))));
+                            top:
+                                shape.borderSides.top.copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3242,8 +3279,8 @@ class EditShapePageState extends State<EditShapePage>
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borderSides.copyWith(
-                            right:
-                                shape.borderSides.right.copyWith(width: value))));
+                            right: shape.borderSides.right
+                                .copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3303,8 +3340,8 @@ class EditShapePageState extends State<EditShapePage>
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borderSides.copyWith(
-                            bottom:
-                                shape.borderSides.bottom.copyWith(width: value))));
+                            bottom: shape.borderSides.bottom
+                                .copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3364,7 +3401,8 @@ class EditShapePageState extends State<EditShapePage>
                   setState(() {
                     updateCurrentShape(shape.copyWith(
                         borders: shape.borderSides.copyWith(
-                            left: shape.borderSides.left.copyWith(width: value))));
+                            left: shape.borderSides.left
+                                .copyWith(width: value))));
                   });
                 },
                 min: 0,
@@ -3410,7 +3448,7 @@ class EditShapePageState extends State<EditShapePage>
   }
 
   Widget buildResizeHandles(int alignX, int alignY) {
-    double left, right, top, bottom;
+    double? left, right, top, bottom;
     if (alignX == -1) left = 0;
     if (alignX == 1) right = 0;
     if (alignY == -1) top = 0;
@@ -3445,18 +3483,18 @@ class EditShapePageState extends State<EditShapePage>
 }
 
 class ControlPointPathPainter extends CustomPainter {
-  var myPaint;
-  Offset startOffset;
-  Offset middleOffset;
-  Offset endOffset;
+  final Paint myPaint = Paint()
+    ..color = Colors.redAccent
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 4.0;
+  final Offset startOffset;
+  final Offset middleOffset;
+  final Offset endOffset;
 
   ControlPointPathPainter(
-      {this.startOffset, this.middleOffset, this.endOffset}) {
-    myPaint = Paint();
-    myPaint.color = Colors.redAccent;
-    myPaint.style = PaintingStyle.stroke;
-    myPaint.strokeWidth = 4.0;
-  }
+      {required this.startOffset,
+      required this.middleOffset,
+      required this.endOffset});
 
   @override
   void paint(Canvas canvas, Size size) => canvas.drawPath(
@@ -3471,13 +3509,13 @@ class ControlPointPathPainter extends CustomPainter {
 }
 
 class StackDividerPainter extends CustomPainter {
-  int xDivisions;
-  int yDivisions;
-  bool showBorder;
+  final int xDivisions;
+  final int yDivisions;
+  final bool showBorder;
 
   StackDividerPainter(
-      {@required this.xDivisions,
-      @required this.yDivisions,
+      {required this.xDivisions,
+      required this.yDivisions,
       this.showBorder = true});
 
   @override
@@ -3487,7 +3525,7 @@ class StackDividerPainter extends CustomPainter {
     double yDashDivisions = size.height / dashWidth * 0.5;
 
     final paint = Paint();
-    paint.color = Colors.grey.withOpacity(0.6);
+    paint.color = Colors.grey.withValues(alpha: 0.6);
 
     int strokeWidthInv = xDivisions > yDivisions ? xDivisions : yDivisions;
     double strokeWidth = min(10.0 / strokeWidthInv, 1);

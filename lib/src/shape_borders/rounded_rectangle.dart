@@ -1,5 +1,4 @@
 import 'package:morphable_shape/src/common_includes.dart';
-import 'package:morphable_shape/src/ui_data_classes/dynamic_rectangle_styles.dart';
 
 ///Rectangle shape with various border radius and width for each corner
 ///This class is similar to what CSS box does, you can configure different border
@@ -16,10 +15,11 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
 
   RoundedRectangleShapeBorder.fromJson(Map<String, dynamic> map)
       : borderRadius = parseDynamicBorderRadius(map["borderRadius"]) ??
-            DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
-        this.borderSides = parseRectangleBorderSide(map["borderSides"]) ??
-            RectangleBorderSides.all(DynamicBorderSide.none);
+            const DynamicBorderRadius.all(DynamicRadius.circular(Length(0))),
+        borderSides = parseRectangleBorderSide(map["borderSides"]) ??
+            const RectangleBorderSides.all(DynamicBorderSide.none);
 
+  @override
   Map<String, dynamic> toJson() {
     Map<String, dynamic> rst = {"type": "RoundedRectangle"};
     rst["borderRadius"] = borderRadius.toJson();
@@ -27,24 +27,28 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
     return rst;
   }
 
+  @override
   RoundedRectangleShapeBorder copyWith(
       {RectangleBorderSides? borders, DynamicBorderRadius? borderRadius}) {
     return RoundedRectangleShapeBorder(
-        borderSides: borders ?? this.borderSides,
+        borderSides: borders ?? borderSides,
         borderRadius: borderRadius ?? this.borderRadius);
   }
 
+  @override
   bool isSameMorphGeometry(MorphableShapeBorder shape) {
     return shape is RectangleShapeBorder ||
         shape is RoundedRectangleShapeBorder;
   }
 
+  @override
   EdgeInsetsGeometry get dimensions => EdgeInsets.only(
       top: borderSides.top.width,
       bottom: borderSides.bottom.width,
       left: borderSides.left.width,
       right: borderSides.right.width);
 
+  @override
   List<Color> borderFillColors() {
     List<Color> rst = [];
     rst.addAll(List.generate(3, (index) => borderSides.top.color));
@@ -66,13 +70,14 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
 
   static double epsilon = 0.0000001;
 
+  @override
   DynamicPath generateInnerDynamicPath(Rect rect) {
     Size size = rect.size;
 
-    double leftSideWidth = this.borderSides.left.width;
-    double rightSideWidth = this.borderSides.right.width;
-    double topSideWidth = this.borderSides.top.width;
-    double bottomSideWidth = this.borderSides.bottom.width;
+    double leftSideWidth = borderSides.left.width;
+    double rightSideWidth = borderSides.right.width;
+    double topSideWidth = borderSides.top.width;
+    double bottomSideWidth = borderSides.bottom.width;
 
     BorderRadius borderRadius = this.borderRadius.toBorderRadius(size: size);
 
@@ -127,7 +132,7 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
     List<DynamicNode> nodes = [];
 
     double r1, r2, sweep1;
-    var centerRect;
+    Rect centerRect;
 
     r1 = max(epsilon, 2 * topRightRadius - 2 * rightSideWidth);
     r2 = max(epsilon, 2 * rightTopRadius - 2 * topSideWidth);
@@ -193,6 +198,7 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
     return DynamicPath(size: rect.size, nodes: nodes);
   }
 
+  @override
   DynamicPath generateOuterDynamicPath(Rect rect) {
     Size size = rect.size;
     List<DynamicNode> nodes = [];
@@ -202,10 +208,10 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
     final double bottom = rect.bottom;
     final double right = rect.right;
 
-    double leftSideWidth = this.borderSides.left.width;
-    double rightSideWidth = this.borderSides.right.width;
-    double topSideWidth = this.borderSides.top.width;
-    double bottomSideWidth = this.borderSides.bottom.width;
+    double leftSideWidth = borderSides.left.width;
+    double rightSideWidth = borderSides.right.width;
+    double topSideWidth = borderSides.top.width;
+    double bottomSideWidth = borderSides.bottom.width;
 
     BorderRadius borderRadius = this.borderRadius.toBorderRadius(size: size);
 
@@ -253,7 +259,7 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
     }
 
     double r1, r2, sweep1;
-    var centerRect;
+    Rect centerRect;
 
     r1 = 2 * topRightRadius;
     r2 = 2 * rightTopRadius;
@@ -317,6 +323,7 @@ class RoundedRectangleShapeBorder extends FilledBorderShapeBorder {
 
   @override
   bool operator ==(Object other) {
+    if (identical(this, other)) return true;
     if (other.runtimeType != runtimeType) return false;
     return other is RoundedRectangleShapeBorder &&
         other.borderSides == borderSides &&

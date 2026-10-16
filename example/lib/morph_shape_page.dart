@@ -1,31 +1,29 @@
 import 'dart:math';
 
-import 'package:dimension/dimension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_class_parser/flutter_class_parser.dart';
 import 'package:morphable_shape/morphable_shape.dart';
 
 import 'value_pickers.dart';
 
 class MorphShapePage extends StatefulWidget {
-  MorphableShapeBorder shape;
+  final MorphableShapeBorder shape;
 
-  MorphShapePage({this.shape});
+  const MorphShapePage({super.key, required this.shape});
 
   @override
-  _MorphShapePageState createState() => _MorphShapePageState();
+  State<MorphShapePage> createState() => _MorphShapePageState();
 }
 
 class _MorphShapePageState extends State<MorphShapePage>
     with SingleTickerProviderStateMixin {
-  MorphableShapeBorder beginShapeBorder;
-  MorphableShapeBorder endShapeBorder;
+  late MorphableShapeBorder beginShapeBorder;
+  late MorphableShapeBorder endShapeBorder;
 
-  AnimationController controller;
-  Animation animation;
+  late AnimationController controller;
+  late Animation<double> animation;
 
-  double shapeWidth;
-  double shapeHeight;
+  double? shapeWidth;
+  double? shapeHeight;
 
   MorphMethod method = MorphMethod.auto;
   bool showControl = true;
@@ -46,14 +44,16 @@ class _MorphShapePageState extends State<MorphShapePage>
 
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: durationInSec));
-    Animation curve =
+    Animation<double> curve =
         CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic);
 
     animation = Tween(begin: 0.0, end: 1.0).animate(curve)
       ..addStatusListener((status) {
-        if (status == AnimationStatus.completed)
+        if (status == AnimationStatus.completed) {
           controller.reverse();
-        else if (status == AnimationStatus.dismissed) controller.forward();
+        } else if (status == AnimationStatus.dismissed) {
+          controller.forward();
+        }
       });
 
     controller.forward();
@@ -67,15 +67,11 @@ class _MorphShapePageState extends State<MorphShapePage>
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.sizeOf(context);
 
-    if (shapeWidth == null) {
-      shapeWidth =
-          (min(screenSize.width, screenSize.height) * 0.8).clamp(200.0, 600.0);
-      shapeHeight = shapeWidth;
-    }
-
-    print(shapeWidth.toString() + "," + shapeHeight.toString());
+    final double shapeWidth = this.shapeWidth ??=
+        (min(screenSize.width, screenSize.height) * 0.8).clamp(200.0, 600.0);
+    final double shapeHeight = this.shapeHeight ??= shapeWidth;
 
     MorphableShapeBorderTween shapeBorderTween = MorphableShapeBorderTween(
         begin: beginShapeBorder, end: endShapeBorder, method: method);
@@ -119,7 +115,7 @@ class _MorphShapePageState extends State<MorphShapePage>
                   color: Colors.black54,
                   child: AnimatedBuilder(
                       animation: animation,
-                      builder: (BuildContext context, Widget child) {
+                      builder: (BuildContext context, Widget? child) {
                         double t = animation.value;
                         return Center(
                             child: Stack(
@@ -128,7 +124,7 @@ class _MorphShapePageState extends State<MorphShapePage>
                               decoration:
                                   BoxDecoration(color: Colors.amberAccent),
                               shape: shapeBorderTween.lerp(t),
-                              child: Container(
+                              child: SizedBox(
                                 width: shapeWidth,
                                 height: shapeHeight,
                               ),
@@ -139,18 +135,18 @@ class _MorphShapePageState extends State<MorphShapePage>
                                         DynamicPathMorph.lerpPaths(
                                                 t,
                                                 shapeBorderTween
-                                                    .data.beginOuterPath,
+                                                    .data!.beginOuterPath,
                                                 shapeBorderTween
-                                                    .data.endOuterPath)
+                                                    .data!.endOuterPath)
                                             .nodes
                                             .map((e) => e.position)
                                             .toList()),
-                                    child: Container(
+                                    child: SizedBox(
                                       width: shapeWidth,
                                       height: shapeHeight,
                                     ),
                                   )
-                                : Container(
+                                : SizedBox(
                                     width: shapeWidth,
                                     height: shapeHeight,
                                   ),
@@ -161,7 +157,7 @@ class _MorphShapePageState extends State<MorphShapePage>
             Positioned(
                 right: 20,
                 top: 20,
-                child: Container(
+                child: SizedBox(
                   width: 240,
                   height: 40,
                   child: Row(
@@ -180,16 +176,16 @@ class _MorphShapePageState extends State<MorphShapePage>
                         isDense: true,
                         dropdownColor: Colors.grey,
                         value: method,
-                        onChanged: (MorphMethod newValue) {
+                        onChanged: (MorphMethod? newValue) {
                           setState(() {
-                            method = newValue;
+                            method = newValue ?? method;
                           });
                         },
                         items: MorphMethod.values.map((e) {
                           return DropdownMenuItem<MorphMethod>(
                             value: e,
                             child: Text(
-                              e.toString().stripFirstDot(),
+                              e.name,
                               style: TextStyle(
                                 color: Colors.white,
                               ),
@@ -203,7 +199,7 @@ class _MorphShapePageState extends State<MorphShapePage>
             Positioned(
                 right: 20,
                 top: 60,
-                child: Container(
+                child: SizedBox(
                   width: 240,
                   height: 40,
                   child: Row(
@@ -230,7 +226,7 @@ class _MorphShapePageState extends State<MorphShapePage>
             Positioned(
                 right: 20,
                 top: 100,
-                child: Container(
+                child: SizedBox(
                   width: 240,
                   height: 40,
                   child: Row(
@@ -249,9 +245,9 @@ class _MorphShapePageState extends State<MorphShapePage>
                         isDense: true,
                         dropdownColor: Colors.grey,
                         value: durationInSec,
-                        onChanged: (int newValue) {
+                        onChanged: (int? newValue) {
                           setState(() {
-                            durationInSec = newValue;
+                            durationInSec = newValue ?? durationInSec;
                             controller.duration =
                                 Duration(seconds: durationInSec);
                           });
@@ -260,7 +256,7 @@ class _MorphShapePageState extends State<MorphShapePage>
                           return DropdownMenuItem<int>(
                             value: e,
                             child: Text(
-                              e.toString().stripFirstDot(),
+                              e.toString(),
                               style: TextStyle(
                                 color: Colors.white,
                               ),
@@ -277,7 +273,7 @@ class _MorphShapePageState extends State<MorphShapePage>
 }
 
 class MorphControlPointsPainter extends CustomPainter {
-  List<Offset> controlPoints;
+  final List<Offset> controlPoints;
 
   MorphControlPointsPainter(this.controlPoints);
 
@@ -288,18 +284,18 @@ class MorphControlPointsPainter extends CustomPainter {
     myPaint.style = PaintingStyle.fill;
     myPaint.strokeWidth = 2.0;
     Path path = Path();
-    controlPoints.forEach((element) {
+    for (final Offset element in controlPoints) {
       path.addOval(Rect.fromCircle(
           center: element, radius: min(4, 300 / controlPoints.length)));
-    });
+    }
     canvas.drawPath(path, myPaint);
     myPaint.color = Colors.black;
     myPaint.style = PaintingStyle.stroke;
     myPaint.strokeWidth = 2.0;
-    controlPoints.forEach((element) {
+    for (final Offset element in controlPoints) {
       path.addOval(Rect.fromCircle(
           center: element, radius: min(4, 300 / controlPoints.length)));
-    });
+    }
     canvas.drawPath(path, myPaint);
   }
 
